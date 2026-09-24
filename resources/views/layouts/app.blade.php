@@ -18,12 +18,12 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <h1 class="navbar-brand navbar-brand-autodark">
-            <a href="{{ url('/') }}">HeatAlert</a>
+            <a href="{{ route('home') }}">HeatAlert</a>
           </h1>
           <div class="collapse navbar-collapse" id="sidebar-menu">
             <ul class="navbar-nav pt-lg-3">
-              <li class="nav-item {{ request()->is('/') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ url('/') }}">
+              <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('dashboard') }}">
                   <span class="nav-link-title">Tableau de bord</span>
                 </a>
               </li>

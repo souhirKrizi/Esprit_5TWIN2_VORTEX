@@ -14,6 +14,16 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertOk()
+            ->assertViewIs('homepage.index')
+            ->assertSee('Connexion')
+            ->assertSee(route('dashboard'));
+    }
+
+    public function test_the_dashboard_is_available_at_its_new_url(): void
+    {
+        $this->get('/dashboard')
+            ->assertOk()
+            ->assertViewIs('welcome');
     }
 }
