@@ -37,6 +37,11 @@
         ],
     ];
     $menu = $spaces[$space];
+    if ($account = auth()->user()) {
+        $menu['name'] = $account->name;
+        $menu['initials'] = mb_strtoupper(mb_substr($account->name, 0, 2));
+        $menu['role'] = ['user' => 'Citoyen', 'agent-campagne' => 'Agent de campagne', 'admin' => 'Administrateur'][$account->role] ?? 'Citoyen';
+    }
 @endphp
 <aside id="space-sidebar" class="ha-sidebar" aria-label="{{ $menu['label'] }}" tabindex="-1">
     <header class="ha-sidebar-header">
@@ -74,5 +79,11 @@
             <div class="ha-profile-copy"><strong>{{ $menu['name'] }}</strong><span class="ha-role">{{ $menu['role'] }}</span></div>
         </div>
         <a href="{{ route('home') }}" class="ha-site-link" aria-label="Voir le site" title="Voir le site"><x-space-icon name="external" /><span class="ha-item-label">Voir le site</span></a>
+        @auth
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="ha-menu-item ha-logout" aria-label="Déconnexion" title="Déconnexion"><x-space-icon name="external" /><span class="ha-item-label">Déconnexion</span></button>
+            </form>
+        @endauth
     </footer>
 </aside>

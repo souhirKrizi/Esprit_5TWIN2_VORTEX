@@ -24,13 +24,17 @@
             </p>
 </div>
 
+<dialog id="signin-error-dialog" class="signin-error-dialog" aria-labelledby="signin-error-title" aria-describedby="signin-error-message" @if($errors->any()) data-show-error @endif>
+  <h3 id="signin-error-title">Connexion impossible</h3>
+  <div id="signin-error-message" role="alert">
+    @foreach ($errors->all() as $error)
+      <p>{{ $error === __('auth.failed') ? 'Adresse e-mail ou mot de passe incorrect.' : $error }}</p>
+    @endforeach
+  </div>
+  <form method="dialog"><button type="submit" class="auth-submit" autofocus>Fermer</button></form>
+</dialog>
 <form action="{{ route('login') }}" class="flex flex-col gap-space-md" id="signInForm" method="POST">
 @csrf
-@if ($errors->any())
-<div role="alert" class="text-error text-body-sm">
-  <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
-</div>
-@endif
 <!-- Champ Adresse e-mail -->
 <div class="flex flex-col gap-space-xs">
 <label class="font-label-md text-label-md text-primary-container font-semibold flex items-center justify-between" for="email">

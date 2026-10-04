@@ -30,5 +30,6 @@
     </div>
   </div>
 </main>
+<link rel="stylesheet" href="{{ asset('css/auth.css') }}">
 <script src="{{ asset('js/auth.js') }}" defer></script>
 <footer class="relative z-10 w-full mt-auto bg-surface-container-low/80 backdrop-blur-md shadow-[0_-1px_8px_rgba(0,0,0,0.02)]"><div class="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md"><div class="flex items-center gap-space-sm text-on-surface-variant font-label-md text-label-md"><span>© HeatAlert</span><span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span><span>République Tunisienne</span></div><nav class="flex flex-wrap items-center justify-center gap-space-lg" data-active-classes="text-on-surface font-bold"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="confidentialite" href="#">Confidentialité</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="conditions-d-utilisation" href="#">Conditions d’utilisation</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="contact" href="#">Contact</a></nav></div></footer></body></html>
