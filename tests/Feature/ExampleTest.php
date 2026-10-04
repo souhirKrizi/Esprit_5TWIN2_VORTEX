@@ -17,7 +17,7 @@ class ExampleTest extends TestCase
         $response->assertOk()
             ->assertViewIs('homepage.index')
             ->assertSee('Connexion')
-            ->assertSee(route('dashboard'));
+            ->assertSee(route('signin'));
     }
 
     public function test_the_dashboard_is_available_at_its_new_url(): void
