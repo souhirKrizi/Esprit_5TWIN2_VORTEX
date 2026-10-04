@@ -62,7 +62,9 @@
                 <ul class="ha-menu" id="section-{{ $sectionIndex }}">
                     @foreach($items as [$label, $icon])
                         <li>
-                            @if($sectionIndex === 0 && $loop->first)
+                            @if($space === 'admin' && $label === 'Comptes utilisateurs')
+                                <a href="{{ route('admin.users.index') }}" class="ha-menu-item {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}" data-menu-item {{ request()->routeIs('admin.users.*') ? 'aria-current=page' : '' }} aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($sectionIndex === 0 && $loop->first)
                                 <a href="{{ route('spaces.'.$space) }}" class="ha-menu-item is-active" data-menu-item aria-current="page" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @else
                                 <button type="button" class="ha-menu-item" data-menu-item aria-pressed="false" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></button>
