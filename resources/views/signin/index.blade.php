@@ -24,7 +24,13 @@
             </p>
 </div>
 
-<form action="{{ route('dashboard.preview') }}" class="flex flex-col gap-space-md" id="signInForm" method="GET" novalidate data-auth-form>
+<form action="{{ route('login') }}" class="flex flex-col gap-space-md" id="signInForm" method="POST">
+@csrf
+@if ($errors->any())
+<div role="alert" class="text-error text-body-sm">
+  <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+</div>
+@endif
 <!-- Champ Adresse e-mail -->
 <div class="flex flex-col gap-space-xs">
 <label class="font-label-md text-label-md text-primary-container font-semibold flex items-center justify-between" for="email">
@@ -35,7 +41,7 @@
 <span class="material-symbols-outlined absolute left-space-md text-[20px] text-on-surface-variant pointer-events-none transition-colors duration-200" id="emailIcon">
                   mail
                 </span>
-<input autocomplete="email" class="w-full h-11 pl-11 pr-space-md rounded-lg bg-surface-container-low text-primary-container placeholder:text-on-surface-variant/60 font-body-md text-body-md transition-all duration-200 focus:outline-none focus:bg-surface-container-lowest focus:shadow-sm" id="email" placeholder="exemple@domaine.tn" required="" type="email"/>
+<input autocomplete="email" class="w-full h-11 pl-11 pr-space-md rounded-lg bg-surface-container-low text-primary-container placeholder:text-on-surface-variant/60 font-body-md text-body-md transition-all duration-200 focus:outline-none focus:bg-surface-container-lowest focus:shadow-sm" id="email" name="email" value="{{ old('email') }}" placeholder="exemple@domaine.tn" required type="email"/>
 </div>
 </div>
 <!-- Champ Mot de passe -->
@@ -48,7 +54,7 @@
 <span class="material-symbols-outlined absolute left-space-md text-[20px] text-on-surface-variant pointer-events-none transition-colors duration-200" id="passwordIcon">
                   lock
                 </span>
-<input autocomplete="current-password" class="w-full h-11 pl-11 pr-11 rounded-lg bg-surface-container-low text-primary-container placeholder:text-on-surface-variant/60 font-body-md text-body-md transition-all duration-200 focus:outline-none focus:bg-surface-container-lowest focus:shadow-sm" id="password" placeholder="••••••••••••" required="" type="password"/>
+<input autocomplete="current-password" class="w-full h-11 pl-11 pr-11 rounded-lg bg-surface-container-low text-primary-container placeholder:text-on-surface-variant/60 font-body-md text-body-md transition-all duration-200 focus:outline-none focus:bg-surface-container-lowest focus:shadow-sm" id="password" name="password" placeholder="••••••••••••" required type="password"/>
 <button aria-label="Afficher ou masquer le mot de passe" class="absolute right-space-md text-on-surface-variant hover:text-primary-container p-1 rounded transition-colors" id="togglePasswordBtn" data-toggle-password="password" type="button">
 <span class="material-symbols-outlined text-[20px]" id="eyeIcon">visibility</span>
 </button>
@@ -57,7 +63,7 @@
 <!-- Options: Se souvenir de moi & Oubli mot de passe -->
 <div class="flex items-center justify-between pt-space-xs">
 <label class="flex items-center gap-space-sm cursor-pointer select-none">
-<input class="w-4 h-4 rounded text-secondary-container focus:ring-0 focus:ring-offset-0 bg-surface-container-low cursor-pointer accent-secondary-container" id="remember" type="checkbox"/>
+<input class="w-4 h-4 rounded text-secondary-container focus:ring-0 focus:ring-offset-0 bg-surface-container-low cursor-pointer accent-secondary-container" id="remember" name="remember" type="checkbox"/>
 <span class="font-body-sm text-body-sm text-on-surface-variant">Se souvenir de moi</span>
 </label>
 <button type="button" disabled title="Disponible prochainement" class="font-label-md text-label-md text-on-surface-variant opacity-70">Mot de passe oublié ?</button>
