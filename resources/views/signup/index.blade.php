@@ -10,7 +10,7 @@
 
 @section('form')
 <div class="mb-space-lg"><h2 class="font-headline-lg text-headline-lg text-primary-container">Créer un compte</h2><p class="mt-space-xs text-on-surface-variant">Rejoignez HeatAlert en quelques instants.</p></div>
-<form action="{{ route('signup.store') }}" method="POST" class="flex flex-col gap-space-md">
+<form action="{{ route('register') }}" method="POST" class="flex flex-col gap-space-md">
 @csrf
 @if ($errors->any())
 <div role="alert" class="text-error text-body-sm">
