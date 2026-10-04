@@ -12,6 +12,9 @@
 @endsection
 
 @section('form')
+@if (session('status'))
+<p role="status" class="mb-space-md text-secondary">{{ session('status') }}</p>
+@endif
 <div class="flex flex-col gap-space-xs mb-space-lg">
 <h2 class="font-headline-lg text-headline-lg text-primary-container">
               Heureux de vous retrouver
