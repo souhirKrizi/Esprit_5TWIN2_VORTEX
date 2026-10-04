@@ -1,0 +1,15 @@
+.signin-error-dialog {
+    width: min(420px, calc(100vw - 32px));
+    margin: auto;
+    padding: 28px;
+    border: 1px solid #ececf4;
+    border-radius: 18px;
+    background: white;
+    color: #111D35;
+    box-shadow: 0 20px 80px #111d3533;
+}
+.signin-error-dialog::backdrop { background: #111d3580; }
+.signin-error-dialog h3 { margin: 0 0 12px; font-size: 20px; font-weight: 700; }
+.signin-error-dialog p { margin: 8px 0; font-size: 14px; }
+.signin-error-dialog button { margin-top: 20px; padding: 10px 20px; border: 0; border-radius: 10px; cursor: pointer; }
+.signin-error-dialog button:focus-visible { outline: 3px solid #FF7412; outline-offset: 3px; }
