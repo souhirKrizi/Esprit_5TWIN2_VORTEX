@@ -49,7 +49,7 @@ class CreateNewUser implements CreatesNewUsers
             'email_alerts' => ['sometimes', 'boolean'],
         ])->validate();
 
-        return User::create([
+        $user = new User([
             'name' => $input['name'],
             'email' => $input['email'],
             'governorate' => $input['governorate'],
@@ -57,5 +57,10 @@ class CreateNewUser implements CreatesNewUsers
             'email_alerts' => (bool) ($input['email_alerts'] ?? false),
             'terms_accepted_at' => now(),
         ]);
+
+        $user->role = 'user';
+        $user->save();
+
+        return $user;
     }
 }
