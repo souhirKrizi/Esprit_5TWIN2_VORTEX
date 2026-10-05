@@ -70,7 +70,7 @@
 <input class="w-4 h-4 rounded text-secondary-container focus:ring-0 focus:ring-offset-0 bg-surface-container-low cursor-pointer accent-secondary-container" id="remember" name="remember" type="checkbox"/>
 <span class="font-body-sm text-body-sm text-on-surface-variant">Se souvenir de moi</span>
 </label>
-<button type="button" disabled title="Disponible prochainement" class="font-label-md text-label-md text-on-surface-variant opacity-70">Mot de passe oublié ?</button>
+<a href="{{ route('password.request') }}" class="font-label-md text-label-md text-secondary-container font-bold hover:underline">Mot de passe oublié ?</a>
 </div>
 <!-- Bouton Principal de Soumission -->
 <div class="pt-space-xs">
