@@ -19,6 +19,18 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/agent-campagne/missions', function (\Illuminate\Http\Request $request) {
+        abort_unless($request->user()->role === 'agent-campagne', 403);
+
+        return view('campaigns.index', ['space' => 'agent-campagne']);
+    })->name('agent-campagne.missions');
+
+    Route::get('/user/campagnes', function (\Illuminate\Http\Request $request) {
+        abort_unless($request->user()->role === 'user', 403);
+
+        return view('campaigns.index', ['space' => 'user']);
+    })->name('user.campagnes');
+
     foreach (['user', 'agent-campagne', 'admin'] as $space) {
         Route::get('/'.$space, [SpaceController::class, 'redirect']);
         Route::get('/'.$space.'/{user}', [SpaceController::class, 'show'])

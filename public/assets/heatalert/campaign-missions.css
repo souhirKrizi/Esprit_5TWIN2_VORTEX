@@ -1,0 +1,38 @@
+.ha-missions-search { margin-bottom: 24px; }
+.ha-missions-search .ha-search-field { max-width: 460px; padding: 12px; }
+.ha-campaign-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.ha-discovery-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid #ececf4; border-radius: 16px; background: #fff; box-shadow: 0 8px 24px #111d3506; }
+.ha-card-art { display: flex; align-items: center; justify-content: space-between; padding: 25px; min-height: 105px; background: #fff0e5; color: #ae4b00; }
+.ha-card-art[data-tone="water"] { background: #eaf7f5; color: #21756c; }
+.ha-card-art[data-tone="care"] { background: #eeedf9; color: #65618d; }
+.ha-card-art strong { font-size: 32px; font-weight: 800; letter-spacing: -.04em; opacity: .7; }
+.ha-card-art span { max-width: 110px; font-size: 12px; font-weight: 700; text-align: right; }
+.ha-card-body { display: flex; flex-direction: column; flex: 1; gap: 14px; padding: 24px; }
+.ha-card-body h2 { margin: 0; font-size: 19px; line-height: 1.3; color: #111d35; }
+.ha-card-body p { margin: 0; color: #697387; font-size: 13px; line-height: 1.65; }
+.ha-card-body .ha-primary-button { width: 100%; margin-top: auto; }
+.ha-card-meta { display: grid; gap: 7px; margin-bottom: 6px; color: #4e596d; font-size: 12px; }
+.ha-missions-dialog, .ha-participants-dialog { width: min(950px, calc(100vw - 32px)); }
+.ha-campaign-context { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 18px 0 24px; padding: 16px; border-radius: 10px; background: #fafaff; color: #59627a; font-size: 12px; }
+.ha-missions-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.ha-missions-toolbar h3 { margin: 0; font-size: 16px; color: #111d35; }
+.ha-mission-list { display: grid; gap: 14px; }
+.ha-mission-card { padding: 20px; border: 1px solid #ececf4; border-radius: 12px; }
+.ha-mission-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.ha-mission-card h4 { margin: 0; font-size: 16px; color: #111d35; overflow-wrap: anywhere; }
+.ha-mission-description { margin: 12px 0 16px; color: #697387; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ha-mission-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; margin: 0; color: #59627a; font-size: 12px; }
+.ha-mission-meta div { display: grid; gap: 3px; }
+.ha-mission-meta dt { color: #8b93a3; font-size: 11px; font-weight: 400; }
+.ha-mission-meta dd { margin: 0; overflow-wrap: anywhere; }
+.ha-mission-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.ha-mission-actions button:disabled { cursor: default; opacity: .65; }
+.ha-mission-badge { display: inline-flex; flex-shrink: 0; padding: 5px 9px; border-radius: 6px; background: #f0f1f8; color: #59627a; font-size: 11px; font-weight: 700; }
+.ha-mission-badge[data-status="ouverte"] { background: #effaf4; color: #176b40; }
+.ha-mission-badge[data-status="en_cours"] { background: #edf3fc; color: #315b9a; }
+.ha-mission-badge[data-status="annulee"] { background: #fff0ed; color: #a52d1c; }
+.ha-participants-table { margin-top: 22px; min-width: 650px; }
+.ha-participants-table td:nth-child(2) { max-width: 250px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ha-missions-page button:focus-visible, .ha-missions-search input:focus-visible { outline: 2px solid #ff7412; outline-offset: 3px; }
+@media (max-width: 1150px) { .ha-campaign-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 650px) { .ha-campaign-cards, .ha-mission-meta { grid-template-columns: 1fr; }.ha-missions-toolbar { align-items: flex-start; flex-direction: column; }.ha-mission-card { padding: 16px; }.ha-mission-card header { flex-wrap: wrap; }.ha-mission-actions > button { flex: 1; }.ha-card-body { padding: 20px; } }
