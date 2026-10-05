@@ -8,13 +8,7 @@ class LoginResponse implements LoginResponseContract
 {
     public function toResponse($request)
     {
-        $space = match ($request->user(config('fortify.guard'))->role) {
-            'admin' => 'admin',
-            'agent-campagne' => 'agent-campagne',
-            default => 'user',
-        };
-
-        $url = route('spaces.'.$space);
+        $url = $request->user(config('fortify.guard'))->spaceUrl();
 
         return $request->wantsJson()
             ? response()->json(['two_factor' => false, 'redirect' => $url])

@@ -1,6 +1,6 @@
 @props(['space'])
 @php
-    // Presentation data only: the route chooses the sidebar, independently of any user.
+    // The protected route selects the sidebar for the authenticated user's role.
     $spaces = [
         'user' => [
             'label' => 'Espace citoyen', 'name' => 'Amira Ben Ali', 'initials' => 'AB', 'role' => 'Citoyen',
@@ -45,7 +45,7 @@
 @endphp
 <aside id="space-sidebar" class="ha-sidebar" aria-label="{{ $menu['label'] }}" tabindex="-1">
     <header class="ha-sidebar-header">
-        <a class="ha-brand" href="{{ route('spaces.'.$space) }}" aria-label="HeatAlert — {{ $menu['label'] }}">
+        <a class="ha-brand" href="{{ auth()->user()->spaceUrl() }}" aria-label="HeatAlert — {{ $menu['label'] }}">
             <span class="ha-brand-mark"><x-space-icon name="sun" /></span>
             <span class="ha-brand-copy"><strong>HeatAlert</strong><span>{{ $menu['label'] }}</span></span>
         </a>
@@ -64,8 +64,14 @@
                         <li>
                             @if($space === 'admin' && $label === 'Comptes utilisateurs')
                                 <a href="{{ route('admin.users.index') }}" class="ha-menu-item {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}" data-menu-item {{ request()->routeIs('admin.users.*') ? 'aria-current=page' : '' }} aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'admin' && $label === 'Toutes les campagnes')
+                                <a href="{{ route('admin.campagnes.index') }}" class="ha-menu-item {{ request()->routeIs('admin.campagnes.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.campagnes.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'agent-campagne' && in_array($label, ['Mes campagnes', 'Mes missions']))
+                                <a href="{{ route('agent-campagne.missions') }}" class="ha-menu-item {{ $label === 'Mes missions' && request()->routeIs('agent-campagne.missions') ? 'is-active' : '' }}" data-menu-item @if($label === 'Mes missions' && request()->routeIs('agent-campagne.missions')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'user' && in_array($label, ['Découvrir les campagnes', 'Missions disponibles']))
+                                <a href="{{ route('user.campagnes') }}" class="ha-menu-item {{ $label === 'Découvrir les campagnes' && request()->routeIs('user.campagnes') ? 'is-active' : '' }}" data-menu-item @if($label === 'Découvrir les campagnes' && request()->routeIs('user.campagnes')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($sectionIndex === 0 && $loop->first)
-                                <a href="{{ route('spaces.'.$space) }}" class="ha-menu-item is-active" data-menu-item aria-current="page" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                                <a href="{{ auth()->user()->spaceUrl() }}" class="ha-menu-item {{ request()->routeIs('spaces.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('spaces.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @else
                                 <button type="button" class="ha-menu-item" data-menu-item aria-pressed="false" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></button>
                             @endif

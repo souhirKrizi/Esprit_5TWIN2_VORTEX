@@ -1,0 +1,36 @@
+.ha-campaign-add { gap: 8px; flex-shrink: 0; }
+.ha-campaign-add .ha-icon { width: 18px; height: 18px; }
+.ha-campaign-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.ha-campaign-summary > div { display: grid; gap: 10px; padding: 22px; background: #fff; border: 1px solid #ececf4; border-radius: 12px; }
+.ha-campaign-summary span { color: #697387; font-size: 12px; }
+.ha-campaign-summary strong { color: #111d35; font-size: 28px; line-height: 1; }
+.ha-campaign-summary > div:nth-child(2) strong { color: #21756c; }
+.ha-campaign-demo { margin: 14px 0 24px; color: #697387; font-size: 11px; }
+.ha-campaign-results { margin-left: auto; color: #697387; font-size: 12px; }
+.ha-campaign-title { display: block; max-width: 280px; color: #111d35; font-weight: 700; overflow-wrap: anywhere; }
+.ha-campaign-place { display: block; margin-top: 5px; color: #8b93a3; font-size: 11px; }
+.ha-campaign-period { display: grid; gap: 4px; white-space: nowrap; font-size: 12px; }
+.ha-campaign-status { display: inline-flex; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.ha-campaign-status[data-status="brouillon"] { color: #59627a; background: #f0f1f8; }
+.ha-campaign-status[data-status="publiee"] { color: #315b9a; background: #edf3fc; }
+.ha-campaign-status[data-status="en_cours"] { color: #21756c; background: #eaf7f5; }
+.ha-campaign-status[data-status="terminee"] { color: #65618d; background: #eeedf9; }
+.ha-campaign-status[data-status="annulee"] { color: #a52d1c; background: #fff0ed; }
+.ha-campaign-dialog { width: min(700px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 28px; border: 1px solid #ececf4; border-radius: 18px; background: #fff; color: #111d35; box-shadow: 0 24px 80px #111d3533; overflow-y: auto; }
+.ha-campaign-dialog::backdrop { background: #111d3580; backdrop-filter: blur(3px); }
+.ha-dialog-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.ha-campaign-dialog h2 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+.ha-campaign-form { margin-top: 24px; }
+.ha-campaign-form label { display: grid; gap: 7px; color: #4e596d; font-size: 12px; font-weight: 600; }
+.ha-campaign-form input, .ha-campaign-form select, .ha-campaign-form textarea { width: 100%; min-width: 0; min-height: 42px; padding: 10px 12px; border: 1px solid #e1e3ed; border-radius: 8px; background: #fff; color: #111d35; font: inherit; font-weight: 400; }
+.ha-campaign-form textarea { resize: vertical; }
+.ha-campaign-form input[type="file"] { font-size: 11px; padding: 9px; }
+.ha-campaign-form small, .ha-optional { color: #8b93a3; font-size: 10px; font-weight: 400; }
+.ha-field-wide { grid-column: 1 / -1; }
+.ha-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; padding-top: 20px; border-top: 1px solid #ececf4; }
+.ha-campaign-form :is(input, select, textarea):focus-visible, [data-campaign-page] button:focus-visible { outline: 2px solid #ff7412; outline-offset: 3px; }
+.ha-confirm-dialog { width: min(460px, calc(100vw - 32px)); }
+.ha-delete-symbol { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 20px; border-radius: 12px; background: #fff0ed; color: #a52d1c; }
+.ha-confirm-dialog p { margin-top: 14px; color: #697387; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+.ha-confirm-dialog .ha-danger-button { background: #a52d1c; border-color: #a52d1c; color: #fff; }
+@media (max-width: 800px) { .ha-campaign-summary { gap: 8px; }.ha-campaign-summary > div { padding: 16px 12px; }.ha-campaign-summary span { font-size: 10px; }.ha-campaign-summary strong { font-size: 24px; }.ha-campaign-results { margin-left: 0; }.ha-campaign-dialog { padding: 22px 18px; }.ha-dialog-actions { flex-wrap: wrap; }.ha-campaign-add { width: 100%; } }
