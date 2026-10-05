@@ -19,6 +19,12 @@
         <div class="ha-heading-stat"><strong data-campaign-count>0</strong><span>{{ $space === 'agent-campagne' ? 'campagnes affectées' : 'campagnes à découvrir' }}</span></div>
     </header>
     <p class="ha-campaign-demo">Données de démonstration · Les actions sont conservées jusqu’au rechargement de la page.</p>
+<<<<<<< HEAD
+=======
+    @if($space === 'agent-campagne')
+    <p class="ha-notice ha-notice-success" data-create-mission-notice role="status" hidden></p>
+    @endif
+>>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
     <div class="ha-missions-search"><label class="ha-search-field"><x-space-icon name="flag" /><span class="sr-only">Rechercher une campagne</span><input type="search" placeholder="Rechercher une campagne ou un lieu…" data-campaign-search></label></div>
     @if($space === 'agent-campagne')
         <section class="ha-admin-panel" aria-label="Campagnes affectées">
@@ -52,7 +58,20 @@
                 <label>Nombre de places<input name="nombre_places" type="number" min="1" max="100000" step="1" required></label>
                 <label>Statut<select name="statut" required><option value="ouverte">Ouverte</option><option value="complete">Complète</option><option value="en_cours">En cours</option><option value="terminee">Terminée</option><option value="annulee">Annulée</option></select></label>
             </div>
+<<<<<<< HEAD
             <footer class="ha-dialog-actions"><button class="ha-secondary-button" type="button" data-close-dialog>Annuler</button><button class="ha-primary-button" type="submit">Enregistrer la mission</button></footer>
+=======
+            <footer class="ha-dialog-actions"><button class="ha-secondary-button" type="button" data-close-dialog>Annuler</button><button class="ha-primary-button" type="submit" data-editor-submit>Enregistrer la mission</button></footer>
+        </form>
+    </dialog>
+    <dialog class="ha-campaign-dialog" data-assign-dialog aria-labelledby="assign-mission-title" aria-describedby="assign-mission-description">
+        <header class="ha-dialog-heading"><div><p class="ha-eyebrow">Création / Affectation</p><h2 id="assign-mission-title">Choisir les campagnes</h2></div><button class="ha-icon-button" type="button" data-close-dialog aria-label="Revenir au formulaire"><x-space-icon name="close" /></button></header>
+        <p class="ha-muted" id="assign-mission-description">Sélectionnez une ou plusieurs campagnes pour la mission « <strong data-assign-mission-title></strong> ».</p>
+        <form data-assign-form>
+            <fieldset class="ha-campaign-choices"><legend class="sr-only">Campagnes auxquelles ajouter la mission</legend><div data-campaign-choices></div></fieldset>
+            <p class="ha-notice ha-notice-error" data-assign-error role="alert" tabindex="-1" hidden>Sélectionnez au moins une campagne.</p>
+            <footer class="ha-dialog-actions"><button class="ha-secondary-button" type="button" data-close-dialog>Retour au formulaire</button><button class="ha-primary-button" type="submit">Ajouter aux campagnes</button></footer>
+>>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         </form>
     </dialog>
     <dialog class="ha-campaign-dialog ha-participants-dialog" data-participants-dialog aria-labelledby="participants-title">

@@ -34,5 +34,16 @@
 .ha-participants-table { margin-top: 22px; min-width: 650px; }
 .ha-participants-table td:nth-child(2) { max-width: 250px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ha-missions-page button:focus-visible, .ha-missions-search input:focus-visible { outline: 2px solid #ff7412; outline-offset: 3px; }
+<<<<<<< HEAD
+=======
+.ha-campaign-choices { margin: 24px 0 0; padding: 0; border: 0; }
+.ha-campaign-choices > div { display: grid; gap: 12px; }
+.ha-campaign-choice { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e1e3ed; border-radius: 10px; cursor: pointer; }
+.ha-campaign-choice:has(input:checked) { border-color: #ff7412; background: #fff7f2; }
+.ha-campaign-choice input { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: #ff7412; }
+.ha-campaign-choice span { display: grid; gap: 6px; }
+.ha-campaign-choice strong { font-size: 13px; color: #111d35; }
+.ha-campaign-choice small { font-size: 11px; color: #697387; }
+>>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
 @media (max-width: 1150px) { .ha-campaign-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 650px) { .ha-campaign-cards, .ha-mission-meta { grid-template-columns: 1fr; }.ha-missions-toolbar { align-items: flex-start; flex-direction: column; }.ha-mission-card { padding: 16px; }.ha-mission-card header { flex-wrap: wrap; }.ha-mission-actions > button { flex: 1; }.ha-card-body { padding: 20px; } }

@@ -53,11 +53,24 @@ class CampaignMissionPagesTest extends TestCase
             $response->assertSee('Ajouter une mission')
                 ->assertSee('data-editor-dialog', false)
                 ->assertSee('data-participants-dialog', false)
+<<<<<<< HEAD
                 ->assertSee('data-delete-dialog', false);
         } else {
             $response->assertSee('ha-campaign-cards', false)
                 ->assertDontSee('data-editor-dialog', false)
                 ->assertDontSee('data-participants-dialog', false);
+=======
+                ->assertSee('data-delete-dialog', false)
+                ->assertSee('data-create-mission-link', false)
+                ->assertSee('/agent-campagne/missions#creer-mission', false)
+                ->assertSee('data-assign-dialog', false)
+                ->assertSee('Sélectionnez une ou plusieurs campagnes');
+        } else {
+            $response->assertSee('ha-campaign-cards', false)
+                ->assertDontSee('data-editor-dialog', false)
+                ->assertDontSee('data-participants-dialog', false)
+                ->assertDontSee('data-assign-dialog', false);
+>>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         }
 
         foreach (['campagnes', 'missions', 'participations'] as $table) {
