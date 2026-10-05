@@ -17,7 +17,7 @@ class SignInTest extends TestCase
     }
 
     #[DataProvider('roles')]
-    public function test_login_redirects_to_the_stored_role(string $role): void
+    public function test_login_redirects_to_the_stored_role_and_user_id(string $role): void
     {
         $user = User::factory()->create(['role' => $role]);
 
@@ -25,10 +25,12 @@ class SignInTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
             'role' => 'admin',
-        ])->assertRedirect('/'.$role);
+            'id' => 999,
+        ])->assertRedirect('/'.$role.'/'.$user->id);
 
         $this->assertAuthenticatedAs($user);
-        $this->get('/'.$role)->assertOk()->assertSee('Déconnexion')->assertSee($user->name);
+        $this->get('/'.$role.'/'.$user->id)->assertOk()->assertSee('Déconnexion')->assertSee($user->name)
+            ->assertSee(route('spaces.'.$role, ['user' => $user->id]));
     }
 
     #[DataProvider('roles')]
@@ -36,8 +38,42 @@ class SignInTest extends TestCase
     {
         $user = User::factory()->create(['role' => $role]);
         $this->postJson('/login', ['email' => $user->email, 'password' => 'password'])
-            ->assertOk()->assertJsonPath('redirect', route('spaces.'.$role));
+            ->assertOk()->assertJsonPath('redirect', route('spaces.'.$role, ['user' => $user->id]));
         $this->assertAuthenticatedAs($user);
+    }
+
+    #[DataProvider('roles')]
+    public function test_personal_spaces_require_authentication(string $role): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+
+        $this->get('/'.$role.'/'.$user->id)->assertRedirect('/login');
+        $this->get('/'.$role)->assertRedirect('/login');
+    }
+
+    #[DataProvider('roles')]
+    public function test_users_cannot_access_another_accounts_space_or_another_role(string $role): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $other = User::factory()->create(['role' => $role]);
+
+        $this->actingAs($user)->get('/'.$role.'/'.$other->id)->assertForbidden();
+
+        foreach (['user', 'agent-campagne', 'admin'] as $otherRole) {
+            if ($otherRole !== $role) {
+                $this->get('/'.$otherRole.'/'.$user->id)->assertForbidden();
+            }
+        }
+    }
+
+    #[DataProvider('roles')]
+    public function test_legacy_space_links_redirect_to_the_authenticated_users_space(string $role): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+
+        foreach (['user', 'agent-campagne', 'admin'] as $space) {
+            $this->actingAs($user)->get('/'.$space)->assertRedirect('/'.$role.'/'.$user->id);
+        }
     }
 
     public function test_invalid_credentials_are_rejected_and_render_the_popup(): void
@@ -72,7 +108,7 @@ class SignInTest extends TestCase
     public function test_logout_invalidates_the_session_and_regenerates_the_csrf_token(): void
     {
         $user = User::factory()->create();
-        $this->post('/login', ['email' => $user->email, 'password' => 'password'])->assertRedirect('/user');
+        $this->post('/login', ['email' => $user->email, 'password' => 'password'])->assertRedirect('/user/'.$user->id);
         $this->withSession(['private-value' => 'removed']);
         $sessionId = session()->getId();
         $csrf = session()->token();

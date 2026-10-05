@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordResetCodeController;
+use App\Http\Controllers\SpaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'homepage.index')->name('home');
@@ -17,9 +18,15 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 	Route::post('/reset-password', 'update')->name('password.update');
 });
 
-Route::view('/user', 'spaces.index', ['space' => 'user'])->name('spaces.user');
-Route::view('/agent-campagne', 'spaces.index', ['space' => 'agent-campagne'])->name('spaces.agent-campagne');
-Route::view('/admin', 'spaces.index', ['space' => 'admin'])->name('spaces.admin');
+Route::middleware('auth')->group(function () {
+    foreach (['user', 'agent-campagne', 'admin'] as $space) {
+        Route::get('/'.$space, [SpaceController::class, 'redirect']);
+        Route::get('/'.$space.'/{user}', [SpaceController::class, 'show'])
+            ->whereNumber('user')
+            ->defaults('space', $space)
+            ->name('spaces.'.$space);
+    }
+});
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 	Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

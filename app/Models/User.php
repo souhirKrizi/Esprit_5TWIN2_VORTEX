@@ -39,6 +39,17 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function spaceUrl(): string
+    {
+        $space = match ($this->role) {
+            'admin' => 'admin',
+            'agent-campagne' => 'agent-campagne',
+            default => 'user',
+        };
+
+        return route('spaces.'.$space, ['user' => $this->getRouteKey()]);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
