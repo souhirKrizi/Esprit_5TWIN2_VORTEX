@@ -29,6 +29,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/campagne', function (\Illuminate\Http\Request $request) {
+        abort_unless($request->user()->role === 'admin', 403);
+
+        return view('admin.campagnes.index');
+    })->name('campagnes.index');
+
 	Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
 	Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
 	Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');

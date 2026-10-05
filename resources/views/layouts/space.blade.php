@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="{{ asset('assets/tabler/css/tabler.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/heatalert/spaces.css') }}">
     <script src="{{ asset('assets/heatalert/spaces.js') }}" defer></script>
+    @stack('styles')
+    @stack('scripts')
 </head>
 <body class="ha-space">
     <div class="ha-shell" data-space-shell>

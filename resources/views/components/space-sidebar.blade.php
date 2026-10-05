@@ -64,8 +64,10 @@
                         <li>
                             @if($space === 'admin' && $label === 'Comptes utilisateurs')
                                 <a href="{{ route('admin.users.index') }}" class="ha-menu-item {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}" data-menu-item {{ request()->routeIs('admin.users.*') ? 'aria-current=page' : '' }} aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'admin' && $label === 'Toutes les campagnes')
+                                <a href="{{ route('admin.campagnes.index') }}" class="ha-menu-item {{ request()->routeIs('admin.campagnes.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.campagnes.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($sectionIndex === 0 && $loop->first)
-                                <a href="{{ auth()->user()->spaceUrl() }}" class="ha-menu-item is-active" data-menu-item aria-current="page" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                                <a href="{{ auth()->user()->spaceUrl() }}" class="ha-menu-item {{ request()->routeIs('spaces.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('spaces.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @else
                                 <button type="button" class="ha-menu-item" data-menu-item aria-pressed="false" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></button>
                             @endif
