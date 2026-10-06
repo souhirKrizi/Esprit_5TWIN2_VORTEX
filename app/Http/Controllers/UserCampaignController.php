@@ -42,6 +42,15 @@ class UserCampaignController extends Controller
         return response()->json(['missions' => $missions->map(fn ($mission) => $this->missionData($mission, $campagne))]);
     }
 
+    public function participations(Request $request): View
+    {
+        $this->ensureUser($request);
+        $participations = $request->user()->participations()->with('mission.campagne')->get()
+            ->sortBy(fn ($participation) => $participation->mission->date_debut)->values();
+
+        return view('user.participations.index', compact('participations'));
+    }
+
     public function participate(Request $request, Mission $mission): JsonResponse
     {
         $this->ensureUser($request);
@@ -57,6 +66,10 @@ class UserCampaignController extends Controller
             $existing = $locked->participations()->where('user_id', $request->user()->id)
                 ->whereIn('statut', Participation::ACTIVE_STATUTS)->first();
             if ($existing) {
+                if ($existing->statut === 'en_attente') {
+                    $existing->update(['statut' => 'acceptee']);
+                }
+
                 return ['participation' => $existing, 'created' => false];
             }
             if (! $this->isOpen($locked, $campagne)) {
@@ -67,14 +80,14 @@ class UserCampaignController extends Controller
                 throw ValidationException::withMessages(['mission' => 'Cette mission est complète. Il ne reste plus de place.']);
             }
             $participation = $locked->participations()->updateOrCreate(['user_id' => $request->user()->id], [
-                'motivation' => $data['motivation'] ?? null, 'statut' => 'en_attente', 'presence' => 'non_renseignee',
+                'motivation' => $data['motivation'] ?? null, 'statut' => 'acceptee', 'presence' => 'non_renseignee',
             ]);
 
             return ['participation' => $participation, 'created' => true];
         });
 
         return response()->json([
-            'message' => $result['created'] ? 'Votre participation est enregistrée et en attente de validation.' : 'Vous êtes déjà inscrit à cette mission.',
+            'message' => $result['created'] ? 'Votre participation est confirmée. Vous êtes inscrit à cette mission.' : 'Vous êtes déjà inscrit à cette mission. Votre participation est acceptée.',
             'participation' => $result['participation'],
         ], $result['created'] ? 201 : 200);
     }

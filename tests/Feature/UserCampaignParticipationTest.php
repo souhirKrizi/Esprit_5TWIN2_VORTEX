@@ -105,14 +105,14 @@ class UserCampaignParticipationTest extends TestCase
             'user_id' => $other->id, 'mission_id' => 99999, 'statut' => 'acceptee', 'presence' => 'present',
             'motivation' => 'Je veux aider.',
         ])->assertCreated()->assertJsonPath('participation.user_id', $user->id)
-            ->assertJsonPath('participation.mission_id', $mission->id)->assertJsonPath('participation.statut', 'en_attente');
+            ->assertJsonPath('participation.mission_id', $mission->id)->assertJsonPath('participation.statut', 'acceptee');
         $this->assertDatabaseHas('participations', [
-            'mission_id' => $mission->id, 'user_id' => $user->id, 'statut' => 'en_attente',
+            'mission_id' => $mission->id, 'user_id' => $user->id, 'statut' => 'acceptee',
             'presence' => 'non_renseignee', 'motivation' => 'Je veux aider.',
         ]);
         $this->assertDatabaseMissing('participations', ['user_id' => $other->id]);
         $this->getJson($this->missionsUrl($campaign))->assertJsonPath('missions.0.can_participate', false)
-            ->assertJsonPath('missions.0.available', 9)->assertJsonPath('missions.0.participation_statut', 'en_attente');
+            ->assertJsonPath('missions.0.available', 9)->assertJsonPath('missions.0.participation_statut', 'acceptee');
         $this->actingAs($campaign->organisateur)->getJson('/agent-campagne/missions/'.$mission->id)
             ->assertOk()->assertJsonCount(1, 'participants')->assertJsonPath('participants.0.name', 'Bénévole inscrit');
     }
@@ -154,7 +154,7 @@ class UserCampaignParticipationTest extends TestCase
             $this->actingAs($user)->getJson($this->missionsUrl($campaign))->assertJsonPath('missions.0.available', 1)
                 ->assertJsonPath('missions.0.can_participate', true);
             $this->postJson($this->participateUrl($mission))->assertCreated()->assertJsonPath('participation.id', $record->id)
-                ->assertJsonPath('participation.statut', 'en_attente');
+                ->assertJsonPath('participation.statut', 'acceptee');
             $this->assertSame(1, Participation::where('user_id', $user->id)->count());
             $record->refresh()->update(['statut' => 'annulee']);
         }
@@ -209,5 +209,76 @@ class UserCampaignParticipationTest extends TestCase
         $this->postJson($this->participateUrl($mission), ['motivation' => str_repeat('x', 2001)])
             ->assertUnprocessable()->assertJsonValidationErrors('motivation');
         $this->assertDatabaseCount('participations', 0);
+    }
+
+    public function test_my_participations_lists_only_the_signed_in_users_registered_missions(): void
+    {
+        $campaign = $this->campagne();
+        $user = User::factory()->create(['role' => 'user']);
+        $other = User::factory()->create(['role' => 'user']);
+        $later = $this->mission($campaign, ['titre' => 'Ma mission suivante', 'date_debut' => '2026-10-13 09:00:00']);
+        $earlier = $this->mission($campaign, ['titre' => 'Ma première mission', 'statut' => 'en_cours']);
+        $foreign = $this->mission($campaign, ['titre' => 'Mission autre utilisateur']);
+        $notRegistered = $this->mission($campaign, ['titre' => 'Mission sans inscription']);
+        foreach ([$later, $earlier] as $mission) {
+            Participation::create(['user_id' => $user->id, 'mission_id' => $mission->id, 'statut' => 'acceptee']);
+        }
+        Participation::create(['user_id' => $other->id, 'mission_id' => $foreign->id, 'statut' => 'acceptee']);
+        $this->actingAs($user)->get('/user/participations?user_id='.$other->id)->assertOk()
+            ->assertViewIs('user.participations.index')
+            ->assertViewHas('participations', fn ($participations) => $participations->pluck('mission_id')->all() === [$earlier->id, $later->id])
+            ->assertSeeInOrder(['Ma première mission', 'Ma mission suivante'])
+            ->assertSee('Participation acceptée')->assertSee('Prévention canicule')
+            ->assertSee('Centre-ville')->assertSee('12/10/2026 à 09:00')
+            ->assertDontSee($foreign->titre)->assertDontSee($notRegistered->titre)
+            ->assertSee('ha-discovery-card', false)->assertSee('ha-card-body', false);
+        $this->assertDatabaseCount('participations', 3);
+    }
+
+    public function test_clicking_participate_immediately_adds_an_accepted_mission_to_my_participations(): void
+    {
+        $campaign = $this->campagne();
+        $mission = $this->mission($campaign);
+        $this->actingAs(User::factory()->create(['role' => 'user']))->postJson($this->participateUrl($mission))
+            ->assertCreated()->assertJsonPath('participation.statut', 'acceptee')
+            ->assertDontSee('en attente de validation');
+        $this->get('/user/participations')->assertOk()->assertSee($mission->titre)->assertSee('Participation acceptée');
+        $this->actingAs($campaign->organisateur)->getJson('/agent-campagne/missions/'.$mission->id)
+            ->assertOk()->assertJsonPath('participants.0.statut', 'acceptee');
+    }
+
+    public function test_existing_pending_registration_is_accepted_on_click_without_a_duplicate(): void
+    {
+        $campaign = $this->campagne();
+        $mission = $this->mission($campaign, ['nombre_places' => 1]);
+        $user = User::factory()->create(['role' => 'user']);
+        $participation = Participation::create(['user_id' => $user->id, 'mission_id' => $mission->id, 'statut' => 'en_attente']);
+        $this->actingAs($user)->postJson($this->participateUrl($mission))->assertOk()
+            ->assertJsonPath('participation.id', $participation->id)->assertJsonPath('participation.statut', 'acceptee');
+        $this->assertDatabaseCount('participations', 1);
+    }
+
+    public function test_my_participations_requires_user_role_and_has_an_empty_state(): void
+    {
+        $this->get('/user/participations')->assertRedirect('/login');
+        foreach (['admin', 'agent-campagne'] as $role) {
+            $this->actingAs(User::factory()->create(['role' => $role]))->get('/user/participations')->assertForbidden();
+        }
+        $this->actingAs(User::factory()->create(['role' => 'user']))->get('/user/participations')->assertOk()
+            ->assertSee('Aucune participation pour le moment')->assertViewHas('participations', fn ($participations) => $participations->isEmpty());
+        $this->assertDatabaseCount('participations', 0);
+    }
+
+    public function test_user_sidebar_links_to_my_participations_and_marks_the_page_active(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'user']))->get('/user/campagnes')
+            ->assertOk()->assertSee(route('user.participations'));
+        $response = $this->get('/user/participations')->assertOk();
+        $document = new \DOMDocument;
+        @$document->loadHTML('<?xml encoding="utf-8" ?>'.$response->getContent());
+        $link = (new \DOMXPath($document))->query('//nav//a[@href="'.route('user.participations').'"]')->item(0);
+        $this->assertNotNull($link);
+        $this->assertSame('page', $link->getAttribute('aria-current'));
+        $this->assertStringContainsString('is-active', $link->getAttribute('class'));
     }
 }

@@ -31,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'destroy'])->name('agent-campagne.missions.destroy');
 
     Route::get('/user/campagnes', [UserCampaignController::class, 'index'])->name('user.campagnes');
+    Route::get('/user/participations', [UserCampaignController::class, 'participations'])->name('user.participations');
     Route::get('/user/campagnes/{campagne}/missions', [UserCampaignController::class, 'missions'])->name('user.campagnes.missions');
     Route::post('/user/missions/{mission}/participer', [UserCampaignController::class, 'participate'])->name('user.missions.participate');
 
