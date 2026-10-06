@@ -1,0 +1,79 @@
+/* Module « Conseils de prévention » : complète spaces.css (mêmes couleurs et composants). */
+
+/* Pastilles */
+.pv-badge { display: inline-block; padding: 4px 9px; border-radius: 6px; background: #f0f1f8; color: #59627a; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.pv-niveau-vert { background: #eaf8ef; color: #17733f; }
+.pv-niveau-jaune { background: #fff8db; color: #8a6400; }
+.pv-niveau-orange { background: #fff0e5; color: #ae4b00; }
+.pv-niveau-rouge { background: #ffeceb; color: #b3261e; }
+.pv-statut-publiee, .pv-statut-repondue { background: #effaf4; color: #176b40; }
+.pv-statut-brouillon { background: #f0f1f8; color: #59627a; }
+.pv-statut-en_attente { background: #fff8db; color: #8a6400; }
+
+/* Liste des conseils (citoyen) */
+.pv-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; padding: 18px; }
+.pv-item { display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #ececf4; border-radius: 12px; background: #fff; }
+.pv-item h2 { margin: 0; color: #111d35; font-size: 16px; line-height: 1.35; }
+.pv-item p { margin: 0; color: #697387; font-size: 13px; line-height: 1.55; }
+.pv-item .ha-row-actions { margin-top: auto; padding-top: 6px; }
+.pv-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Bloc de contenu */
+.pv-box { padding: 26px; }
+.pv-box + .pv-box { margin-top: 20px; }
+.pv-box h2 { margin: 0 0 16px; color: #111d35; font-size: 17px; }
+.pv-text p { margin: 0 0 12px; color: #33405a; font-size: 14px; line-height: 1.7; }
+
+/* Gestes : Avant / Pendant / Après */
+.pv-moments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.pv-moment { padding: 16px; border: 1px solid #ececf4; border-radius: 10px; background: #fafaff; }
+.pv-moment h3 { margin: 0 0 10px; color: #ff7412; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.pv-moment ol { margin: 0; padding-left: 18px; color: #33405a; font-size: 13px; line-height: 1.6; }
+.pv-moment li + li { margin-top: 6px; }
+.pv-moment .pv-vide { margin: 0; color: #8b93a3; font-size: 13px; }
+
+/* Questions / réponses */
+.pv-qr { padding: 14px 0; border-top: 1px solid #f0f0f5; }
+.pv-qr:first-of-type { border-top: 0; padding-top: 0; }
+.pv-qr strong { display: block; color: #111d35; font-size: 14px; }
+.pv-qr p { margin: 6px 0 0; color: #4e596d; font-size: 13px; line-height: 1.6; }
+.pv-qr small { color: #8b93a3; font-size: 11px; }
+.pv-reponse { margin-top: 10px; padding: 12px 14px; border-left: 3px solid #2fb36a; border-radius: 6px; background: #effaf4; }
+.pv-reponse p { margin: 0; }
+
+/* Mes questions : un bloc par conseil */
+.pv-groupe-titre { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #ececf4; }
+.pv-groupe-titre h2 { margin: 0 0 8px; }
+.pv-groupe-titre .pv-link { white-space: nowrap; }
+.pv-tags small { align-self: center; color: #8b93a3; font-size: 11px; }
+.pv-qr .pv-question { margin: 8px 0 0; color: #111d35; font-size: 14px; font-weight: 600; }
+.pv-qr .ha-row-actions { margin-top: 8px; }
+
+/* Formulaires */
+.pv-form { display: grid; gap: 18px; }
+.pv-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.pv-field { display: grid; gap: 6px; align-content: start; }
+.pv-field-wide { grid-column: 1 / -1; }
+.pv-field label { color: #4e596d; font-size: 12px; font-weight: 700; }
+.pv-field label span { color: #b3261e; }
+.pv-field input, .pv-field select, .pv-field textarea { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid #e1e3ed; border-radius: 8px; background: #fff; color: #111d35; font: inherit; font-size: 13px; }
+.pv-field textarea { line-height: 1.6; resize: vertical; }
+.pv-field input:focus, .pv-field select:focus, .pv-field textarea:focus { border-color: #ff7412; outline: none; }
+.pv-field .is-invalid { border-color: #d93025; }
+.pv-field small { color: #8b93a3; font-size: 11px; }
+.pv-erreur { margin: 0; color: #b3261e; font-size: 12px; font-weight: 600; }
+.pv-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+/* Divers */
+.ha-space button.ha-primary-button, .ha-space button.ha-secondary-button, .ha-space button.ha-danger-button { font-size: 12px; font-weight: 700; }
+.pv-inline-form { display: inline; margin: 0; }
+.ha-space .pv-link { padding: 0; border: 0; background: none; color: #ff7412; font-size: 12px; font-weight: 700; }
+.ha-space .pv-link-danger { color: #b3261e; }
+.pv-link:hover { text-decoration: underline; }
+.pv-heading-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.pv-info { margin: 0; color: #697387; font-size: 13px; }
+
+@media (max-width: 900px) {
+    .pv-moments, .pv-grid-2 { grid-template-columns: 1fr; }
+    .pv-actions { flex-direction: column-reverse; }
+}

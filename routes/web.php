@@ -2,6 +2,12 @@
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordResetCodeController;
+use App\Http\Controllers\Prevention\Admin\FicheConseilController as AdminFicheConseilController;
+use App\Http\Controllers\Prevention\Admin\GesteCleController as AdminGesteCleController;
+use App\Http\Controllers\Prevention\Admin\QuestionCitoyenController as AdminQuestionCitoyenController;
+use App\Http\Controllers\Prevention\EquipementSensibleController;
+use App\Http\Controllers\Prevention\FicheConseilController;
+use App\Http\Controllers\Prevention\QuestionCitoyenController;
 use App\Http\Controllers\SpaceController;
 use Illuminate\Support\Facades\Route;
 
@@ -53,4 +59,38 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 	Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
 	Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.role');
 	Route::patch('/users/{user}/archive', [AdminUserController::class, 'archive'])->name('users.archive');
+});
+
+// Module « Conseils de prévention » — espace citoyen (tous les comptes connectés).
+Route::middleware('auth')->name('prevention.')->group(function () {
+    Route::get('/conseils', [FicheConseilController::class, 'index'])->name('fiches.index');
+    Route::get('/conseils/{fiche}', [FicheConseilController::class, 'show'])->whereNumber('fiche')->name('fiches.show');
+
+    Route::post('/conseils/{fiche}/questions', [QuestionCitoyenController::class, 'store'])->whereNumber('fiche')->name('questions.store');
+    Route::get('/mes-questions', [QuestionCitoyenController::class, 'index'])->name('questions.index');
+    Route::get('/mes-questions/{question}/modifier', [QuestionCitoyenController::class, 'edit'])->whereNumber('question')->name('questions.edit');
+    Route::put('/mes-questions/{question}', [QuestionCitoyenController::class, 'update'])->whereNumber('question')->name('questions.update');
+    Route::delete('/mes-questions/{question}', [QuestionCitoyenController::class, 'destroy'])->whereNumber('question')->name('questions.destroy');
+
+    Route::resource('mes-equipements', EquipementSensibleController::class)
+        ->parameters(['mes-equipements' => 'equipement'])
+        ->names('equipements')
+        ->whereNumber('equipement');
+});
+
+// Module « Conseils de prévention » — administration (rôle admin vérifié dans AdminPreventionController).
+Route::middleware('auth')->prefix('admin/prevention')->name('admin.prevention.')->group(function () {
+    Route::resource('fiches', AdminFicheConseilController::class)
+        ->parameters(['fiches' => 'fiche'])
+        ->whereNumber('fiche');
+
+    Route::post('/fiches/{fiche}/gestes', [AdminGesteCleController::class, 'store'])->whereNumber('fiche')->name('gestes.store');
+    Route::get('/gestes/{geste}/edit', [AdminGesteCleController::class, 'edit'])->whereNumber('geste')->name('gestes.edit');
+    Route::put('/gestes/{geste}', [AdminGesteCleController::class, 'update'])->whereNumber('geste')->name('gestes.update');
+    Route::delete('/gestes/{geste}', [AdminGesteCleController::class, 'destroy'])->whereNumber('geste')->name('gestes.destroy');
+
+    Route::get('/questions', [AdminQuestionCitoyenController::class, 'index'])->name('questions.index');
+    Route::get('/questions/{question}/edit', [AdminQuestionCitoyenController::class, 'edit'])->whereNumber('question')->name('questions.edit');
+    Route::put('/questions/{question}', [AdminQuestionCitoyenController::class, 'update'])->whereNumber('question')->name('questions.update');
+    Route::delete('/questions/{question}', [AdminQuestionCitoyenController::class, 'destroy'])->whereNumber('question')->name('questions.destroy');
 });

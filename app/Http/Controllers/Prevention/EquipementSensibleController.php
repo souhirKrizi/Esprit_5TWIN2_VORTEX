@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Controllers\Prevention;
+
+use App\Http\Requests\Prevention\EquipementSensibleRequest;
+use App\Models\EquipementSensible;
+use App\Models\FicheConseil;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+/**
+ * « Mes équipements » : le citoyen gère ses appareils sensibles et voit les conseils qui les concernent.
+ */
+class EquipementSensibleController extends PreventionController
+{
+    public function index(Request $request): View
+    {
+        $equipements = EquipementSensible::where('user_id', $request->user()->getKey())->orderBy('nom')->get();
+
+        // Nombre de conseils publiés pour chaque type d'équipement.
+        $conseilsParType = FicheConseil::publiees()
+            ->whereNotNull('type_equipement')
+            ->selectRaw('type_equipement, count(*) as total')
+            ->groupBy('type_equipement')
+            ->pluck('total', 'type_equipement');
+
+        return view('prevention.citoyen.equipements.index', [
+            'espace' => $this->espace($request),
+            'equipements' => $equipements,
+            'conseilsParType' => $conseilsParType,
+        ]);
+    }
+
+    public function create(Request $request): View
+    {
+        return view('prevention.citoyen.equipements.create', [
+            'espace' => $this->espace($request),
+            'equipement' => new EquipementSensible,
+        ]);
+    }
+
+    public function store(EquipementSensibleRequest $request): RedirectResponse
+    {
+        $equipement = new EquipementSensible($request->validated());
+        $equipement->user_id = $request->user()->getKey();
+        $equipement->save();
+
+        return redirect()->route('prevention.equipements.show', $equipement)->with('success', 'Équipement ajouté.');
+    }
+
+    public function show(Request $request, EquipementSensible $equipement): View
+    {
+        abort_unless($equipement->appartientA($request->user()), 403);
+
+        return view('prevention.citoyen.equipements.show', [
+            'espace' => $this->espace($request),
+            'equipement' => $equipement,
+            'conseils' => $equipement->conseils(),
+        ]);
+    }
+
+    public function edit(Request $request, EquipementSensible $equipement): View
+    {
+        abort_unless($equipement->appartientA($request->user()), 403);
+
+        return view('prevention.citoyen.equipements.edit', [
+            'espace' => $this->espace($request),
+            'equipement' => $equipement,
+        ]);
+    }
+
+    public function update(EquipementSensibleRequest $request, EquipementSensible $equipement): RedirectResponse
+    {
+        $equipement->update($request->validated());
+
+        return redirect()->route('prevention.equipements.show', $equipement)->with('success', 'Équipement modifié.');
+    }
+
+    public function destroy(Request $request, EquipementSensible $equipement): RedirectResponse
+    {
+        abort_unless($equipement->appartientA($request->user()), 403);
+
+        $equipement->delete();
+
+        return redirect()->route('prevention.equipements.index')->with('success', 'Équipement supprimé.');
+    }
+}

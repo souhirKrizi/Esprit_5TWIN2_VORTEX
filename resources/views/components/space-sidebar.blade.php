@@ -8,7 +8,7 @@
                 'Accueil' => [['Mon tableau de bord', 'grid']],
                 'Météo et canicule' => [['Météo de ma zone', 'sun'], ['Alertes en cours', 'alert']],
                 'Signalements et ressources' => [['Ressources utiles', 'book'], ['Incidents dans ma zone', 'pin'], ['Mes signalements', 'message'], ['Faire un signalement', 'plus']],
-                'Prévention' => [['Conseils et publications', 'file']],
+                'Conseils de prévention' => [['Conseils', 'file'], ['Mes équipements', 'tag'], ['Mes questions', 'message']],
                 'Campagnes et bénévolat' => [['Découvrir les campagnes', 'flag'], ['Missions disponibles', 'briefcase'], ['Mes participations', 'check']],
                 'Mon compte' => [['Mon profil', 'user'], ['Préférences de notification', 'bell']],
             ],
@@ -20,7 +20,7 @@
                 'Gestion des campagnes' => [['Mes campagnes', 'flag'], ['Créer une campagne', 'plus']],
                 'Gestion des missions' => [['Mes missions', 'briefcase'], ['Créer une mission', 'plus']],
                 'Participations' => [['Inscriptions à traiter', 'check'], ['Participants et bénévoles', 'users']],
-                'Informations utiles' => [['Alertes en cours', 'alert'], ['Ressources et incidents', 'pin'], ['Conseils et publications', 'book']],
+                'Informations utiles' => [['Alertes en cours', 'alert'], ['Ressources et incidents', 'pin'], ['Conseils de prévention', 'book']],
                 'Mon compte' => [['Mon profil', 'user'], ['Préférences de notification', 'bell']],
             ],
         ],
@@ -31,7 +31,7 @@
                 'Utilisateurs' => [['Comptes utilisateurs', 'users'], ['Profils', 'user'], ['Préférences de notification', 'bell']],
                 'Météo et canicule' => [['Relevés météo', 'sun'], ['Alertes', 'alert'], ['Zones géographiques', 'pin']],
                 'Signalements citoyens' => [['Signalements', 'message'], ['Ressources utiles', 'book'], ['Incidents', 'alert'], ['Pièces jointes', 'clip']],
-                'Prévention et publications' => [['Publications', 'file'], ['Catégories', 'tag'], ['Commentaires', 'message']],
+                'Conseils de prévention' => [['Fiches conseils', 'file'], ['Questions des habitants', 'message']],
                 'Campagnes et bénévolat' => [['Toutes les campagnes', 'flag'], ['Missions', 'briefcase'], ['Participations', 'check']],
             ],
         ],
@@ -42,6 +42,15 @@
         $menu['initials'] = mb_strtoupper(mb_substr($account->name, 0, 2));
         $menu['role'] = ['user' => 'Citoyen', 'agent-campagne' => 'Agent de campagne', 'admin' => 'Administrateur'][$account->role] ?? 'Citoyen';
     }
+    // Module « Conseils de prévention » : libellé => [route du lien, routes qui le rendent actif].
+    $liensPrevention = [
+        'Conseils' => ['prevention.fiches.index', ['prevention.fiches.*']],
+        'Conseils de prévention' => ['prevention.fiches.index', ['prevention.fiches.*']],
+        'Mes équipements' => ['prevention.equipements.index', ['prevention.equipements.*']],
+        'Mes questions' => ['prevention.questions.index', ['prevention.questions.*']],
+        'Fiches conseils' => ['admin.prevention.fiches.index', ['admin.prevention.fiches.*', 'admin.prevention.gestes.*']],
+        'Questions des habitants' => ['admin.prevention.questions.index', ['admin.prevention.questions.*']],
+    ];
 @endphp
 <aside id="space-sidebar" class="ha-sidebar" aria-label="{{ $menu['label'] }}" tabindex="-1">
     <header class="ha-sidebar-header">
@@ -75,6 +84,9 @@
                                 <a href="{{ route('agent-campagne.missions') }}" class="ha-menu-item {{ $label === 'Mes missions' && request()->routeIs('agent-campagne.missions') ? 'is-active' : '' }}" data-menu-item @if($label === 'Mes missions' && request()->routeIs('agent-campagne.missions')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'user' && in_array($label, ['Découvrir les campagnes', 'Missions disponibles']))
                                 <a href="{{ route('user.campagnes') }}" class="ha-menu-item {{ $label === 'Découvrir les campagnes' && request()->routeIs('user.campagnes') ? 'is-active' : '' }}" data-menu-item @if($label === 'Découvrir les campagnes' && request()->routeIs('user.campagnes')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif(isset($liensPrevention[$label]))
+                                @php [$routePrevention, $routesActives] = $liensPrevention[$label]; $lienActif = request()->routeIs(...$routesActives); @endphp
+                                <a href="{{ route($routePrevention) }}" class="ha-menu-item {{ $lienActif ? 'is-active' : '' }}" data-menu-item @if($lienActif) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($sectionIndex === 0 && $loop->first)
                                 <a href="{{ auth()->user()->spaceUrl() }}" class="ha-menu-item {{ request()->routeIs('spaces.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('spaces.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @else
