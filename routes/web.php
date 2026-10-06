@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminCampagneController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\SpaceController;
@@ -41,11 +42,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/campagne', function (\Illuminate\Http\Request $request) {
-        abort_unless($request->user()->role === 'admin', 403);
-
-        return view('admin.campagnes.index');
-    })->name('campagnes.index');
+    Route::get('/campagne', [AdminCampagneController::class, 'index'])->name('campagnes.index');
+    Route::post('/campagne', [AdminCampagneController::class, 'store'])->name('campagnes.store');
+    Route::get('/campagne/{campagne}', [AdminCampagneController::class, 'show'])->name('campagnes.show');
+    Route::put('/campagne/{campagne}', [AdminCampagneController::class, 'update'])->name('campagnes.update');
+    Route::delete('/campagne/{campagne}', [AdminCampagneController::class, 'destroy'])->name('campagnes.destroy');
 
 	Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
 	Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');

@@ -8,6 +8,9 @@
 .ha-campaign-demo { margin: 14px 0 24px; color: #697387; font-size: 11px; }
 .ha-campaign-results { margin-left: auto; color: #697387; font-size: 12px; }
 .ha-campaign-title { display: block; max-width: 280px; color: #111d35; font-weight: 700; overflow-wrap: anywhere; }
+.ha-campaign-actions button { margin: 3px; }
+[data-campaign-details-content] dt { margin-top: 16px; font-weight: 700; }
+[data-campaign-details-content] dd { margin: 6px 0 0; overflow-wrap: anywhere; }
 .ha-campaign-place { display: block; margin-top: 5px; color: #8b93a3; font-size: 11px; }
 .ha-campaign-period { display: grid; gap: 4px; white-space: nowrap; font-size: 12px; }
 .ha-campaign-status { display: inline-flex; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; }

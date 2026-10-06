@@ -28,11 +28,8 @@
     let selectedCampaign = null;
     let editingMissionId = null;
     let deletingMissionId = null;
-<<<<<<< HEAD
-=======
     let creatingForCampaigns = false;
     let pendingMission = null;
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
     const labels = { brouillon: 'Brouillon', publiee: 'Publiée', ouverte: 'Ouverte', complete: 'Complète', en_cours: 'En cours', terminee: 'Terminée', annulee: 'Annulée', en_attente: 'En attente', acceptee: 'Acceptée', refusee: 'Refusée', non_renseignee: 'Non renseignée', present: 'Présent', absent: 'Absent' };
     const rootList = page.querySelector('[data-campaigns]');
     const search = page.querySelector('[data-campaign-search]');
@@ -181,12 +178,6 @@
     const form = page.querySelector('[data-mission-form]');
     const participantsDialog = page.querySelector('[data-participants-dialog]');
     const deleteDialog = page.querySelector('[data-delete-dialog]');
-<<<<<<< HEAD
-
-    function editMission(mission = null) {
-        editingMissionId = mission?.id ?? null;
-        form.reset();
-=======
     const assignDialog = page.querySelector('[data-assign-dialog]');
     const assignForm = page.querySelector('[data-assign-form]');
 
@@ -195,7 +186,6 @@
         editingMissionId = mission?.id ?? null;
         form.reset();
         page.querySelector('[data-editor-submit]').textContent = 'Enregistrer la mission';
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         page.querySelector('[data-editor-title]').textContent = mission ? 'Modifier la mission' : 'Ajouter une mission';
         if (mission) {
             for (const name of ['titre', 'description', 'lieu', 'date_debut', 'date_fin', 'nombre_places', 'statut']) form.elements[name].value = mission[name];
@@ -212,11 +202,7 @@
     function validateDates() {
         const start = form.elements.date_debut;
         const end = form.elements.date_fin;
-<<<<<<< HEAD
-        end.min = start.value || `${selectedCampaign.date_debut}T00:00`;
-=======
         end.min = start.value || (creatingForCampaigns ? '' : `${selectedCampaign.date_debut}T00:00`);
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         end.setCustomValidity(end.value && start.value && end.value <= start.value ? 'La fin doit être postérieure au début de la mission.' : '');
     }
     function showParticipants(mission) {
@@ -249,8 +235,6 @@
     }
 
     if (isAgent) {
-<<<<<<< HEAD
-=======
         function createForCampaigns() {
             if (editor.open || assignDialog.open || campaignDialog.open) return;
             if (document.querySelector('[data-space-shell]')?.classList.contains('is-mobile-open')) {
@@ -311,7 +295,6 @@
             confirmation.tabIndex = -1;
             confirmation.focus();
         });
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         page.querySelector('[data-add-mission]').addEventListener('click', () => editMission());
         form.elements.date_debut.addEventListener('input', validateDates);
         form.elements.date_fin.addEventListener('input', validateDates);
@@ -322,11 +305,6 @@
             if (!form.reportValidity()) return;
             const data = new FormData(form);
             const values = {
-<<<<<<< HEAD
-                campagne_id: selectedCampaign.id, titre: data.get('titre'), description: data.get('description'), lieu: data.get('lieu'),
-                date_debut: data.get('date_debut'), date_fin: data.get('date_fin'), nombre_places: Number(data.get('nombre_places')), statut: data.get('statut'),
-            };
-=======
                 titre: data.get('titre'), description: data.get('description'), lieu: data.get('lieu'),
                 date_debut: data.get('date_debut'), date_fin: data.get('date_fin'), nombre_places: Number(data.get('nombre_places')), statut: data.get('statut'),
             };
@@ -352,7 +330,6 @@
                 return;
             }
             values.campagne_id = selectedCampaign.id;
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
             if (editingMissionId !== null) {
                 const mission = missions.find(entry => entry.id === editingMissionId && entry.campagne_id === selectedCampaign.id);
                 if (!mission) return;
@@ -376,10 +353,7 @@
             announce('La mission a été supprimée de cette campagne.');
         });
         deleteDialog.addEventListener('close', () => { deletingMissionId = null; });
-<<<<<<< HEAD
-=======
         openFromHash();
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
     }
     renderCampaigns();
 })();
