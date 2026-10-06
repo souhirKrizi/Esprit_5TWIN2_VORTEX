@@ -28,11 +28,6 @@
     let selectedCampaign = null;
     let editingMissionId = null;
     let deletingMissionId = null;
-<<<<<<< HEAD
-=======
-    let creatingForCampaigns = false;
-    let pendingMission = null;
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
     const labels = { brouillon: 'Brouillon', publiee: 'Publiée', ouverte: 'Ouverte', complete: 'Complète', en_cours: 'En cours', terminee: 'Terminée', annulee: 'Annulée', en_attente: 'En attente', acceptee: 'Acceptée', refusee: 'Refusée', non_renseignee: 'Non renseignée', present: 'Présent', absent: 'Absent' };
     const rootList = page.querySelector('[data-campaigns]');
     const search = page.querySelector('[data-campaign-search]');
@@ -181,21 +176,10 @@
     const form = page.querySelector('[data-mission-form]');
     const participantsDialog = page.querySelector('[data-participants-dialog]');
     const deleteDialog = page.querySelector('[data-delete-dialog]');
-<<<<<<< HEAD
 
     function editMission(mission = null) {
         editingMissionId = mission?.id ?? null;
         form.reset();
-=======
-    const assignDialog = page.querySelector('[data-assign-dialog]');
-    const assignForm = page.querySelector('[data-assign-form]');
-
-    function editMission(mission = null) {
-        creatingForCampaigns = false;
-        editingMissionId = mission?.id ?? null;
-        form.reset();
-        page.querySelector('[data-editor-submit]').textContent = 'Enregistrer la mission';
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         page.querySelector('[data-editor-title]').textContent = mission ? 'Modifier la mission' : 'Ajouter une mission';
         if (mission) {
             for (const name of ['titre', 'description', 'lieu', 'date_debut', 'date_fin', 'nombre_places', 'statut']) form.elements[name].value = mission[name];
@@ -212,11 +196,7 @@
     function validateDates() {
         const start = form.elements.date_debut;
         const end = form.elements.date_fin;
-<<<<<<< HEAD
         end.min = start.value || `${selectedCampaign.date_debut}T00:00`;
-=======
-        end.min = start.value || (creatingForCampaigns ? '' : `${selectedCampaign.date_debut}T00:00`);
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         end.setCustomValidity(end.value && start.value && end.value <= start.value ? 'La fin doit être postérieure au début de la mission.' : '');
     }
     function showParticipants(mission) {
@@ -249,69 +229,6 @@
     }
 
     if (isAgent) {
-<<<<<<< HEAD
-=======
-        function createForCampaigns() {
-            if (editor.open || assignDialog.open || campaignDialog.open) return;
-            if (document.querySelector('[data-space-shell]')?.classList.contains('is-mobile-open')) {
-                document.querySelector('[data-mobile-close]')?.click();
-            }
-            creatingForCampaigns = true;
-            editingMissionId = null;
-            pendingMission = null;
-            form.reset();
-            page.querySelector('[data-editor-title]').textContent = 'Créer une mission';
-            page.querySelector('[data-editor-submit]').textContent = 'Créer';
-            for (const name of ['date_debut', 'date_fin']) {
-                form.elements[name].min = '';
-                form.elements[name].max = '';
-                form.elements[name].setCustomValidity('');
-            }
-            form.elements.nombre_places.min = '1';
-            editor.showModal();
-        }
-        document.querySelectorAll('[data-create-mission-link]').forEach(link => {
-            link.addEventListener('click', event => {
-                event.preventDefault();
-                createForCampaigns();
-            });
-        });
-        function openFromHash() {
-            if (location.hash === '#creer-mission') createForCampaigns();
-        }
-        window.addEventListener('hashchange', openFromHash);
-        editor.addEventListener('close', () => {
-            if (location.hash === '#creer-mission') history.replaceState(null, '', location.pathname + location.search);
-        });
-        assignDialog.addEventListener('close', () => {
-            // Closing the selection keeps the draft and returns to its form.
-            if (pendingMission) editor.showModal();
-        });
-        assignForm.addEventListener('submit', event => {
-            event.preventDefault();
-            if (!pendingMission) return;
-            const selected = new Set(new FormData(assignForm).getAll('campagne_ids').map(Number));
-            const targets = campaigns.filter(campaign => selected.has(campaign.id));
-            const error = page.querySelector('[data-assign-error]');
-            error.hidden = targets.length > 0;
-            if (!targets.length) {
-                error.focus();
-                return;
-            }
-            // Each campaign receives its own mission, keeping the one-campaign relationship.
-            targets.forEach(campaign => missions.push({ ...pendingMission, id: nextMissionId++, campagne_id: campaign.id }));
-            const title = pendingMission.titre;
-            pendingMission = null;
-            assignDialog.close();
-            search.value = '';
-            renderCampaigns();
-            const confirmation = page.querySelector('[data-create-mission-notice]');
-            confirmation.textContent = `La mission « ${title} » a été ajoutée à ${targets.length} campagne${targets.length > 1 ? 's' : ''} : ${targets.map(campaign => campaign.titre).join(', ')}.`;
-            confirmation.hidden = false;
-            confirmation.tabIndex = -1;
-            confirmation.focus();
-        });
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
         page.querySelector('[data-add-mission]').addEventListener('click', () => editMission());
         form.elements.date_debut.addEventListener('input', validateDates);
         form.elements.date_fin.addEventListener('input', validateDates);
@@ -322,37 +239,9 @@
             if (!form.reportValidity()) return;
             const data = new FormData(form);
             const values = {
-<<<<<<< HEAD
                 campagne_id: selectedCampaign.id, titre: data.get('titre'), description: data.get('description'), lieu: data.get('lieu'),
                 date_debut: data.get('date_debut'), date_fin: data.get('date_fin'), nombre_places: Number(data.get('nombre_places')), statut: data.get('statut'),
             };
-=======
-                titre: data.get('titre'), description: data.get('description'), lieu: data.get('lieu'),
-                date_debut: data.get('date_debut'), date_fin: data.get('date_fin'), nombre_places: Number(data.get('nombre_places')), statut: data.get('statut'),
-            };
-            if (creatingForCampaigns) {
-                pendingMission = values;
-                page.querySelector('[data-assign-mission-title]').textContent = values.titre;
-                const choices = page.querySelector('[data-campaign-choices]');
-                choices.replaceChildren();
-                campaigns.forEach(campaign => {
-                    const label = element('label', undefined, 'ha-campaign-choice');
-                    const checkbox = element('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.name = 'campagne_ids';
-                    checkbox.value = campaign.id;
-                    const info = element('span');
-                    info.append(element('strong', campaign.titre), element('small', `${campaign.lieu} · ${date(campaign.date_debut)} → ${date(campaign.date_fin)}`));
-                    label.append(checkbox, info);
-                    choices.append(label);
-                });
-                page.querySelector('[data-assign-error]').hidden = true;
-                editor.close();
-                assignDialog.showModal();
-                return;
-            }
-            values.campagne_id = selectedCampaign.id;
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
             if (editingMissionId !== null) {
                 const mission = missions.find(entry => entry.id === editingMissionId && entry.campagne_id === selectedCampaign.id);
                 if (!mission) return;
@@ -376,10 +265,6 @@
             announce('La mission a été supprimée de cette campagne.');
         });
         deleteDialog.addEventListener('close', () => { deletingMissionId = null; });
-<<<<<<< HEAD
-=======
-        openFromHash();
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
     }
     renderCampaigns();
 })();
