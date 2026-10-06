@@ -134,6 +134,49 @@ class SignalementsTest extends TestCase
         ]);
     }
 
+    public function test_citizen_can_update_using_the_html_form_method_override(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $signalement = Signalement::factory()->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)->post(route('user.signalements.update', $signalement), [
+            '_method' => 'PUT',
+            'type_signalement' => 'incident',
+            'type_incident' => 'autre',
+            'latitude' => 36.4,
+            'longitude' => 10.3,
+            'commentaire' => 'Modification envoyée depuis le formulaire citoyen.',
+        ])->assertRedirect(route('user.signalements.show', $signalement));
+
+        $this->assertDatabaseHas('signalements', ['id' => $signalement->id, 'latitude' => 36.4]);
+    }
+
+    public function test_edit_form_updates_a_signalement_that_has_an_existing_attachment(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create(['role' => 'user']);
+        $signalement = Signalement::factory()->create(['user_id' => $user->id]);
+        Storage::disk('public')->put('signalements/existing.jpg', 'image');
+        $signalement->piecesJointes()->create([
+            'chemin_fichier' => 'signalements/existing.jpg',
+            'nom_original' => 'existing.jpg',
+            'type_mime' => 'image/jpeg',
+            'taille' => 5,
+        ]);
+
+        $this->actingAs($user)->post(route('user.signalements.update', $signalement), [
+            '_method' => 'PUT',
+            'type_signalement' => 'incident',
+            'type_incident' => 'autre',
+            'latitude' => 36.5,
+            'longitude' => 10.4,
+            'commentaire' => 'La modification fonctionne avec une image existante.',
+        ])->assertRedirect(route('user.signalements.show', $signalement));
+
+        $this->assertDatabaseHas('signalements', ['id' => $signalement->id, 'latitude' => 36.5]);
+        Storage::disk('public')->assertExists('signalements/existing.jpg');
+    }
+
     public function test_public_page_only_shows_validated_reports_from_other_citizens(): void
     {
         $viewer = User::factory()->create(['role' => 'user']);

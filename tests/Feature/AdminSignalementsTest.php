@@ -71,7 +71,7 @@ class AdminSignalementsTest extends TestCase
 
         $response = $this->actingAs($admin)->getJson(route('admin.signalements.api.ressources'));
 
-        $response->assertOk()->assertJsonPath('compteurs.incidents_actifs', 1);
+        $response->assertOk()->assertJsonPath('compteurs.incidents_actifs', 1)->assertJsonPath('signalements.0.id', Signalement::query()->where('ressource_utile_id', $red->id)->value('id'));
         $this->assertSame('rouge', collect($response->json('data'))->firstWhere('id', $red->id)['etat']);
         $this->assertSame('vert', collect($response->json('data'))->firstWhere('id', $green->id)['etat']);
     }

@@ -77,9 +77,22 @@ class AdminSignalementController extends Controller
                 'incidents_actifs' => $ressource->incidents_actifs_count,
                 'url' => route('admin.signalements.index', ['ressource' => $ressource->id]),
             ]);
+        $signalements = Signalement::query()
+            ->incidentActif()
+            ->with('piecesJointes')
+            ->get()
+            ->map(fn (Signalement $signalement): array => [
+                'id' => $signalement->id,
+                'latitude' => (float) $signalement->latitude,
+                'longitude' => (float) $signalement->longitude,
+                'commentaire' => $signalement->commentaire,
+                'type_incident' => $signalement->type_incident,
+                'url' => route('admin.signalements.show', $signalement),
+            ]);
 
         return response()->json([
             'data' => $ressources,
+            'signalements' => $signalements,
             'compteurs' => [
                 'incidents_actifs' => $ressources->where('etat', 'rouge')->count(),
                 'ressources_ok' => $ressources->where('etat', 'vert')->count(),

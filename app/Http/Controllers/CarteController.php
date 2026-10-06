@@ -51,9 +51,22 @@ class CarteController extends Controller
                 'incidents_actifs' => $ressource->incidents_actifs_count,
                 'url' => route('user.ressources.show', $ressource),
             ]);
+        $signalements = Signalement::query()
+            ->incidentActif()
+            ->with('piecesJointes')
+            ->get()
+            ->map(fn (Signalement $signalement): array => [
+                'id' => $signalement->id,
+                'latitude' => (float) $signalement->latitude,
+                'longitude' => (float) $signalement->longitude,
+                'commentaire' => $signalement->commentaire,
+                'type_incident' => $signalement->type_incident,
+                'url' => route('user.signalements.public.index'),
+            ]);
 
         return response()->json([
             'data' => $ressources,
+            'signalements' => $signalements,
             'compteurs' => [
                 'incidents_actifs' => $ressources->where('etat', 'rouge')->count(),
                 'ressources_ok' => $ressources->where('etat', 'vert')->count(),

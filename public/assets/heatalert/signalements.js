@@ -13,6 +13,7 @@
         const map = L.map(element).setView([33.8, 9.5], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
         const layers = L.layerGroup().addTo(map);
+        const incidentLayers = L.layerGroup().addTo(map);
         const filters = all('[data-map-filter]', page);
         const initialParams = new URLSearchParams(window.location.search);
         filters.forEach(filter => { if (initialParams.has(filter.dataset.mapFilter)) filter.value = initialParams.get(filter.dataset.mapFilter); });
@@ -24,9 +25,14 @@
                 .then(response => response.json())
                 .then(payload => {
                     layers.clearLayers();
+                    incidentLayers.clearLayers();
                     payload.data.forEach(resource => {
                         const marker = L.circleMarker([resource.latitude, resource.longitude], { radius: 9, color: iconColor(resource.etat), fillColor: iconColor(resource.etat), fillOpacity: .88, weight: 2 });
                         marker.bindPopup(`<strong>${escapeHtml(resource.nom)}</strong><br>${escapeHtml(typeLabels[resource.type] || resource.type)}<br><span class="map-state">${resource.etat === 'rouge' ? 'Incident actif' : 'Ressource OK'}</span><br><a href="${resource.url}">Voir la fiche</a>`).addTo(layers);
+                    });
+                    (payload.signalements || []).forEach(report => {
+                        const marker = L.circleMarker([report.latitude, report.longitude], { radius: 8, color: '#a52d1c', fillColor: '#a52d1c', fillOpacity: .95, weight: 2 });
+                        marker.bindPopup(`<strong>Incident validé</strong><br>${escapeHtml(report.commentaire || 'Incident signalé')}<br><a href="${report.url}">Voir le signalement</a>`).addTo(incidentLayers);
                     });
                     all('[data-map-count]').forEach(counter => { counter.textContent = payload.compteurs[counter.dataset.mapCount] ?? 0; });
                     status.textContent = `${payload.data.length} ressource(s) affichée(s)`;
@@ -78,5 +84,16 @@
         all('[data-close-dialog]', dialog).forEach(button => button.addEventListener('click', () => dialog.close()));
     }
 
-    document.addEventListener('DOMContentLoaded', () => { setupMapPage(); setupStaticMaps(); setupForm(); setupDeleteDialog(); });
+    function setupAttachmentDelete() {
+        all('[data-attachment-delete]').forEach(button => button.addEventListener('click', () => {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = button.dataset.deleteAction;
+            form.innerHTML = '<input type="hidden" name="_token" value="' + button.dataset.csrfToken + '"><input type="hidden" name="_method" value="DELETE">';
+            document.body.appendChild(form);
+            form.submit();
+        }));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { setupMapPage(); setupStaticMaps(); setupForm(); setupDeleteDialog(); setupAttachmentDelete(); });
 })();

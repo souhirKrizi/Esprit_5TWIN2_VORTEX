@@ -30,7 +30,7 @@
                 'Accueil' => [['Tableau de bord', 'grid']],
                 'Utilisateurs' => [['Comptes utilisateurs', 'users'], ['Profils', 'user'], ['Préférences de notification', 'bell']],
                 'Météo et canicule' => [['Relevés météo', 'sun'], ['Alertes', 'alert'], ['Zones géographiques', 'pin']],
-                'Signalements citoyens' => [['Signalements', 'message'], ['Ressources utiles', 'book'], ['Incidents', 'alert'], ['Pièces jointes', 'clip']],
+                'Signalements citoyens' => [['Signalements', 'message'], ['Ressources utiles', 'book'], ['Incidents', 'alert']],
                 'Prévention et publications' => [['Publications', 'file'], ['Catégories', 'tag'], ['Commentaires', 'message']],
                 'Campagnes et bénévolat' => [['Toutes les campagnes', 'flag'], ['Missions', 'briefcase'], ['Participations', 'check']],
             ],
@@ -72,8 +72,6 @@
                                 <a href="{{ route('admin.signalements.carte') }}" class="ha-menu-item {{ request()->routeIs('admin.signalements.carte') && request('etat') !== 'rouge' ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.signalements.carte') && request('etat') !== 'rouge') aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'admin' && $label === 'Incidents')
                                 <a href="{{ route('admin.signalements.carte', ['etat' => 'rouge']) }}" class="ha-menu-item {{ request()->routeIs('admin.signalements.carte') && request('etat') === 'rouge' ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.signalements.carte') && request('etat') === 'rouge') aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
-                            @elseif($space === 'admin' && $label === 'Pièces jointes')
-                                <a href="{{ route('admin.signalements.index', ['pieces_jointes' => 1]) }}" class="ha-menu-item {{ request()->routeIs('admin.signalements.index') && request()->boolean('pieces_jointes') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.signalements.index') && request()->boolean('pieces_jointes')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'agent-campagne' && $label === 'Créer une mission')
                                 <a href="{{ route('agent-campagne.missions') }}#creer-mission" class="ha-menu-item" data-menu-item data-create-mission-link aria-haspopup="dialog" aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'agent-campagne' && in_array($label, ['Mes campagnes', 'Mes missions']))
