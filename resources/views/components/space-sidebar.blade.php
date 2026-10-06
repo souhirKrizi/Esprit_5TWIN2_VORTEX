@@ -55,8 +55,8 @@
 <aside id="space-sidebar" class="ha-sidebar" aria-label="{{ $menu['label'] }}" tabindex="-1">
     <header class="ha-sidebar-header">
         <a class="ha-brand" href="{{ auth()->user()->spaceUrl() }}" aria-label="HeatAlert — {{ $menu['label'] }}">
-            <span class="ha-brand-mark"><x-space-icon name="sun" /></span>
-            <span class="ha-brand-copy"><strong>HeatAlert</strong><span>{{ $menu['label'] }}</span></span>
+            <img class="ha-brand-logo" src="{{ asset('assets/images/Logo_HeatAlert_avec_flamme_integree.png') }}" alt="HeatAlert">
+            <span class="ha-brand-copy"><span>{{ $menu['label'] }}</span></span>
         </a>
         <button type="button" class="ha-icon-button ha-mobile-close" aria-label="Fermer le menu" data-mobile-close><x-space-icon name="close" /></button>
     </header>
