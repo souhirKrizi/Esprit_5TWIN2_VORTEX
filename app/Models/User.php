@@ -40,6 +40,16 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function campagnes(): HasMany
+    {
+        return $this->hasMany(Campagne::class, 'organisateur_id');
+    }
+
+    public function participations(): HasMany
+    {
+        return $this->hasMany(Participation::class);
+    }
+
     public function spaceUrl(): string
     {
         $space = match ($this->role) {
