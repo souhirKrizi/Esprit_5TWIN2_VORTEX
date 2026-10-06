@@ -6,6 +6,11 @@ use App\Http\Controllers\AdminSignalementController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AgentMissionController;
 use App\Http\Controllers\CarteController;
+use App\Http\Controllers\Canicule\AdminAlerteController;
+use App\Http\Controllers\Canicule\AdminCarteCaniculeController;
+use App\Http\Controllers\Canicule\AdminReleveMeteoController;
+use App\Http\Controllers\Canicule\AdminZoneController;
+use App\Http\Controllers\Canicule\CitoyenCaniculeController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\Prevention\Admin\FicheConseilController as AdminFicheConseilController;
 use App\Http\Controllers\Prevention\Admin\GesteCleController as AdminGesteCleController;
@@ -34,6 +39,10 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/user/canicule/ma-zone', [CitoyenCaniculeController::class, 'meteo'])->name('user.canicule.meteo');
+    Route::get('/user/canicule/alertes', [CitoyenCaniculeController::class, 'alertes'])->name('user.canicule.alertes');
+    Route::get('/user/canicule/carte', [CitoyenCaniculeController::class, 'carte'])->name('user.canicule.carte');
+
     Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
     Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
     Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
@@ -78,6 +87,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/canicule/carte', [AdminCarteCaniculeController::class, 'index'])->name('canicule.carte');
+    Route::resource('/canicule/zones', AdminZoneController::class)->only(['index', 'edit', 'update'])->names('canicule.zones')->whereNumber('zone');
+    Route::resource('/canicule/releves', AdminReleveMeteoController::class)->except(['show'])->parameters(['releves' => 'releve'])->names('canicule.releves')->whereNumber('releve');
+    Route::resource('/canicule/alertes', AdminAlerteController::class)->except(['show'])->names('canicule.alertes')->whereNumber('alerte');
+
     Route::get('/signalements/carte', [AdminSignalementController::class, 'carte'])->name('signalements.carte');
     Route::get('/signalements/api/ressources', [AdminSignalementController::class, 'ressources'])->name('signalements.api.ressources');
     Route::get('/signalements', [AdminSignalementController::class, 'index'])->name('signalements.index');
