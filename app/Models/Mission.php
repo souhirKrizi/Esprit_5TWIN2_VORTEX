@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Mission extends Model
 {
@@ -26,5 +27,10 @@ class Mission extends Model
     public function campagne(): BelongsTo
     {
         return $this->belongsTo(Campagne::class);
+    }
+
+    public function participations(): HasMany
+    {
+        return $this->hasMany(Participation::class);
     }
 }

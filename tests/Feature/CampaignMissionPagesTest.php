@@ -56,7 +56,7 @@ class CampaignMissionPagesTest extends TestCase
                 ->assertSee('/agent-campagne/missions#creer-mission', false)
                 ->assertSee('Aucune campagne affectée');
         } else {
-            $response->assertSee('ha-campaign-cards', false)
+            $response->assertSee('Aucune campagne pour le moment.')
                 ->assertViewHas('space', $role)
                 ->assertSee('data-missions-dialog', false)
                 ->assertDontSee('data-editor-dialog', false)

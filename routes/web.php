@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AgentMissionController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\UserCampaignController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'homepage.index')->name('home');
@@ -29,11 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'update'])->name('agent-campagne.missions.update');
     Route::delete('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'destroy'])->name('agent-campagne.missions.destroy');
 
-    Route::get('/user/campagnes', function (\Illuminate\Http\Request $request) {
-        abort_unless($request->user()->role === 'user', 403);
-
-        return view('campaigns.index', ['space' => 'user']);
-    })->name('user.campagnes');
+    Route::get('/user/campagnes', [UserCampaignController::class, 'index'])->name('user.campagnes');
+    Route::get('/user/campagnes/{campagne}/missions', [UserCampaignController::class, 'missions'])->name('user.campagnes.missions');
+    Route::post('/user/missions/{mission}/participer', [UserCampaignController::class, 'participate'])->name('user.missions.participate');
 
     foreach (['user', 'agent-campagne', 'admin'] as $space) {
         Route::get('/'.$space, [SpaceController::class, 'redirect']);
