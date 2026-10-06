@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminCampagneController;
+use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\SpaceController;
@@ -42,6 +43,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
+
     Route::get('/campagne', [AdminCampagneController::class, 'index'])->name('campagnes.index');
     Route::post('/campagne', [AdminCampagneController::class, 'store'])->name('campagnes.store');
     Route::get('/campagne/{campagne}', [AdminCampagneController::class, 'show'])->name('campagnes.show');
