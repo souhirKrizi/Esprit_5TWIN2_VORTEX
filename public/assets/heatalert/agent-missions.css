@@ -1,0 +1,15 @@
+.ha-agent-period { margin-top: 34px; }
+.ha-agent-period-title { margin: 0 0 22px; color: #111d35; font-size: 24px; }
+.ha-agent-status-group { margin-top: 24px; }
+.ha-agent-status-title { display: flex; align-items: center; gap: 10px; margin: 24px 0 14px; color: #4e596d; font-size: 16px; }
+.ha-agent-status-title span { padding: 4px 8px; border-radius: 6px; background: #eeedf9; font-size: 12px; }
+.ha-agent-status-group .ha-admin-campaign-groups { margin-top: 14px; }
+.ha-admin-campaign-heading h4 { margin: 0; font-size: 21px; line-height: 1.4; color: #111d35; overflow-wrap: anywhere; }
+.ha-agent-mission-state { margin-top: 22px; }
+.ha-agent-mission-state > h6 { margin: 0 0 14px; color: #59627a; font-size: 13px; }
+.ha-agent-mission-state .ha-mission-card h6 { margin: 0; font-size: 16px; line-height: 1.4; color: #111d35; overflow-wrap: anywhere; }
+.ha-agent-objective { color: #697387; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+[data-agent-missions-page] button:disabled { opacity: .55; cursor: default; }
+[data-agent-missions-page] .ha-notice-error { white-space: pre-line; }
+[data-agent-missions-page] .ha-admin-campaign-group { scroll-margin-top: 24px; }
+[data-agent-missions-page] button:focus-visible, [data-agent-missions-page] a:focus-visible { outline: 2px solid #ff7412; outline-offset: 3px; }

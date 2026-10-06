@@ -43,9 +43,7 @@ class CampaignMissionPagesTest extends TestCase
 
         $response = $this->actingAs($user)->get($url)
             ->assertOk()
-            ->assertViewIs('campaigns.index')
-            ->assertViewHas('space', $role)
-            ->assertSee('data-missions-dialog', false)
+            ->assertViewIs($role === 'agent-campagne' ? 'agent.campagnes.index' : 'campaigns.index')
             ->assertSee('data-user-id="'.$user->id.'"', false)
             ->assertSee($url);
 
@@ -56,10 +54,11 @@ class CampaignMissionPagesTest extends TestCase
                 ->assertSee('data-delete-dialog', false)
                 ->assertSee('data-create-mission-link', false)
                 ->assertSee('/agent-campagne/missions#creer-mission', false)
-                ->assertSee('data-assign-dialog', false)
-                ->assertSee('Sélectionnez une ou plusieurs campagnes');
+                ->assertSee('Aucune campagne affectée');
         } else {
             $response->assertSee('ha-campaign-cards', false)
+                ->assertViewHas('space', $role)
+                ->assertSee('data-missions-dialog', false)
                 ->assertDontSee('data-editor-dialog', false)
                 ->assertDontSee('data-participants-dialog', false)
                 ->assertDontSee('data-assign-dialog', false);

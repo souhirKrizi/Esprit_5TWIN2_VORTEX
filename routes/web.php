@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminCampagneController;
 use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AgentMissionController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\SpaceController;
 use Illuminate\Support\Facades\Route;
@@ -21,11 +22,12 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/agent-campagne/missions', function (\Illuminate\Http\Request $request) {
-        abort_unless($request->user()->role === 'agent-campagne', 403);
-
-        return view('campaigns.index', ['space' => 'agent-campagne']);
-    })->name('agent-campagne.missions');
+    Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
+    Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
+    Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
+    Route::get('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'show'])->name('agent-campagne.missions.show');
+    Route::put('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'update'])->name('agent-campagne.missions.update');
+    Route::delete('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'destroy'])->name('agent-campagne.missions.destroy');
 
     Route::get('/user/campagnes', function (\Illuminate\Http\Request $request) {
         abort_unless($request->user()->role === 'user', 403);
