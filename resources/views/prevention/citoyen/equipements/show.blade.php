@@ -23,14 +23,7 @@
     <div class="ha-detail-grid">
         <section class="ha-admin-panel">
             <h2>Conseils pour cet équipement</h2>
-            @forelse($conseils as $fiche)
-                <div class="pv-qr">
-                    <a href="{{ route('prevention.fiches.show', $fiche) }}"><strong>{{ $fiche->titre }}</strong></a>
-                    <p>{{ $fiche->resume }}</p>
-                </div>
-            @empty
-                <p class="pv-info">Aucun conseil n’est encore disponible pour ce type d’équipement.</p>
-            @endforelse
+            <p class="pv-info">Aucun conseil pour le moment.</p>
         </section>
 
         <section class="ha-admin-panel">
@@ -41,6 +34,8 @@
                 <div><dt>Autonomie sans courant</dt><dd>{{ $equipement->autonomie_heures === null ? 'Non renseignée' : $equipement->autonomie_heures.' h' }}</dd></div>
                 <div><dt>Ajouté le</dt><dd>{{ $equipement->created_at->format('d/m/Y') }}</dd></div>
             </dl>
+            <h2 style="margin-top:22px">Description du problème</h2>
+            <p class="pv-info">{!! $equipement->description ? nl2br(e($equipement->description)) : 'Aucune description.' !!}</p>
         </section>
     </div>
 </div>

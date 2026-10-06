@@ -50,7 +50,7 @@
             @endforeach
         </select>
         @error('type_equipement')<p class="pv-erreur">{{ $message }}</p>@enderror
-        <small>Obligatoire pour la thématique « Équipements sensibles ». La fiche sera proposée aux habitants qui ont cet équipement.</small>
+        <small>Obligatoire pour la thématique « Équipements sensibles ».</small>
     </div>
 
     <div class="pv-field">

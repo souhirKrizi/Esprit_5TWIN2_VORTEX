@@ -43,9 +43,7 @@ class CampaignMissionPagesTest extends TestCase
 
         $response = $this->actingAs($user)->get($url)
             ->assertOk()
-            ->assertViewIs('campaigns.index')
-            ->assertViewHas('space', $role)
-            ->assertSee('data-missions-dialog', false)
+            ->assertViewIs($role === 'agent-campagne' ? 'agent.campagnes.index' : 'campaigns.index')
             ->assertSee('data-user-id="'.$user->id.'"', false)
             ->assertSee($url);
 

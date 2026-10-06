@@ -3,7 +3,6 @@
 namespace Tests\Feature\Prevention;
 
 use App\Models\EquipementSensible;
-use App\Models\FicheConseil;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -35,23 +34,23 @@ class EquipementSensibleTest extends TestCase
     {
         $citoyen = User::factory()->create(['role' => 'user']);
 
-        $this->actingAs($citoyen)->get('/mes-equipements')->assertOk()->assertSee('Vous n’avez encore ajouté aucun équipement.');
-        $this->actingAs($citoyen)->get('/mes-equipements/create')->assertOk();
+        $this->actingAs($citoyen)->get('/user/mes-equipements')->assertOk()->assertSee('Vous n’avez encore ajouté aucun équipement.');
+        $this->actingAs($citoyen)->get('/user/mes-equipements/create')->assertOk();
 
-        $reponse = $this->actingAs($citoyen)->post('/mes-equipements', $this->donnees());
+        $reponse = $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees());
         $equipement = EquipementSensible::firstOrFail();
-        $reponse->assertRedirect('/mes-equipements/'.$equipement->id);
+        $reponse->assertRedirect('/user/mes-equipements/'.$equipement->id);
         $this->assertSame($citoyen->id, $equipement->user_id);
 
-        $this->actingAs($citoyen)->get('/mes-equipements')->assertSee('Frigo de la cuisine');
-        $this->actingAs($citoyen)->get('/mes-equipements/'.$equipement->id)->assertOk();
-        $this->actingAs($citoyen)->get('/mes-equipements/'.$equipement->id.'/edit')->assertOk();
+        $this->actingAs($citoyen)->get('/user/mes-equipements')->assertSee('Frigo de la cuisine');
+        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id)->assertOk();
+        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id.'/edit')->assertOk();
 
-        $this->actingAs($citoyen)->put('/mes-equipements/'.$equipement->id, $this->donnees(['autonomie_heures' => '']))
-            ->assertRedirect('/mes-equipements/'.$equipement->id);
+        $this->actingAs($citoyen)->put('/user/mes-equipements/'.$equipement->id, $this->donnees(['autonomie_heures' => '']))
+            ->assertRedirect('/user/mes-equipements/'.$equipement->id);
         $this->assertNull($equipement->fresh()->autonomie_heures);
 
-        $this->actingAs($citoyen)->delete('/mes-equipements/'.$equipement->id)->assertRedirect('/mes-equipements');
+        $this->actingAs($citoyen)->delete('/user/mes-equipements/'.$equipement->id)->assertRedirect('/user/mes-equipements');
         $this->assertDatabaseCount('equipements_sensibles', 0);
     }
 
@@ -59,18 +58,38 @@ class EquipementSensibleTest extends TestCase
     {
         $citoyen = User::factory()->create(['role' => 'user']);
 
-        $this->actingAs($citoyen)->post('/mes-equipements', [])->assertSessionHasErrors(['nom', 'type', 'sensibilite']);
+        $this->actingAs($citoyen)->post('/user/mes-equipements', [])->assertSessionHasErrors(['nom', 'type', 'sensibilite']);
 
-        $this->actingAs($citoyen)->post('/mes-equipements', $this->donnees(['nom' => 'A', 'type' => 'four', 'sensibilite' => 'froid', 'autonomie_heures' => 100]))
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees(['nom' => 'A', 'type' => 'four', 'sensibilite' => 'froid', 'autonomie_heures' => 100]))
             ->assertSessionHasErrors(['nom', 'type', 'sensibilite', 'autonomie_heures']);
 
-        $this->actingAs($citoyen)->post('/mes-equipements', $this->donnees(['autonomie_heures' => 'beaucoup']))
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees(['autonomie_heures' => 'beaucoup']))
             ->assertSessionHasErrors(['autonomie_heures' => 'Le champ « autonomie » doit être un nombre entier.']);
 
-        $this->actingAs($citoyen)->post('/mes-equipements', $this->donnees(['autonomie_heures' => -1]))
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees(['autonomie_heures' => -1]))
             ->assertSessionHasErrors(['autonomie_heures' => 'L’autonomie doit être comprise entre 0 et 72 heures.']);
 
         $this->assertDatabaseCount('equipements_sensibles', 0);
+    }
+
+    public function test_description_du_probleme(): void
+    {
+        $citoyen = User::factory()->create(['role' => 'user']);
+
+        // La description est facultative mais, si elle est remplie, elle doit faire entre 10 et 500 caractères.
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees(['description' => 'Court']))
+            ->assertSessionHasErrors(['description' => 'Le champ « description » doit contenir au moins 10 caractères.']);
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees(['description' => str_repeat('a', 501)]))
+            ->assertSessionHasErrors('description');
+        $this->assertDatabaseCount('equipements_sensibles', 0);
+
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees(['description' => 'Le frigo s’arrête à chaque coupure de courant.']))
+            ->assertSessionHasNoErrors();
+        $equipement = EquipementSensible::firstOrFail();
+        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id)->assertSee('Le frigo s’arrête à chaque coupure de courant.');
+
+        $this->actingAs($citoyen)->put('/user/mes-equipements/'.$equipement->id, $this->donnees(['description' => '']))->assertSessionHasNoErrors();
+        $this->assertNull($equipement->fresh()->description);
     }
 
     public function test_nom_unique_pour_un_meme_citoyen(): void
@@ -80,9 +99,9 @@ class EquipementSensibleTest extends TestCase
         $this->equipementDe($voisin);
 
         // Le voisin a le même nom : autorisé.
-        $this->actingAs($citoyen)->post('/mes-equipements', $this->donnees())->assertSessionHasNoErrors();
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees())->assertSessionHasNoErrors();
         // Deux fois le même nom pour le même citoyen : refusé.
-        $this->actingAs($citoyen)->post('/mes-equipements', $this->donnees())
+        $this->actingAs($citoyen)->post('/user/mes-equipements', $this->donnees())
             ->assertSessionHasErrors(['nom' => 'Vous avez déjà un équipement avec ce nom.']);
     }
 
@@ -92,32 +111,21 @@ class EquipementSensibleTest extends TestCase
         $voisin = User::factory()->create(['role' => 'user']);
         $equipement = $this->equipementDe($voisin, ['nom' => 'Appareil à oxygène du voisin']);
 
-        $this->actingAs($citoyen)->get('/mes-equipements')->assertDontSee('Appareil à oxygène du voisin');
-        $this->actingAs($citoyen)->get('/mes-equipements/'.$equipement->id)->assertForbidden();
-        $this->actingAs($citoyen)->get('/mes-equipements/'.$equipement->id.'/edit')->assertForbidden();
-        $this->actingAs($citoyen)->put('/mes-equipements/'.$equipement->id, $this->donnees())->assertForbidden();
-        $this->actingAs($citoyen)->delete('/mes-equipements/'.$equipement->id)->assertForbidden();
+        $this->actingAs($citoyen)->get('/user/mes-equipements')->assertDontSee('Appareil à oxygène du voisin');
+        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id)->assertForbidden();
+        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id.'/edit')->assertForbidden();
+        $this->actingAs($citoyen)->put('/user/mes-equipements/'.$equipement->id, $this->donnees())->assertForbidden();
+        $this->actingAs($citoyen)->delete('/user/mes-equipements/'.$equipement->id)->assertForbidden();
         $this->assertDatabaseCount('equipements_sensibles', 1);
     }
 
-    public function test_valeur_ajoutee_les_conseils_de_l_equipement_sont_affiches(): void
+    public function test_les_conseils_de_l_equipement_restent_vides_pour_le_moment(): void
     {
         $citoyen = User::factory()->create(['role' => 'user']);
         $equipement = $this->equipementDe($citoyen);
-        $base = [
-            'resume' => 'Garder le froid le plus longtemps possible.',
-            'contenu' => str_repeat('Un frigo fermé garde le froid environ quatre heures. ', 2),
-            'thematique' => 'equipements',
-            'niveau_alerte' => 'jaune',
-        ];
-        FicheConseil::create($base + ['titre' => 'Protéger le frigo', 'type_equipement' => 'refrigerateur', 'statut' => 'publiee']);
-        FicheConseil::create($base + ['titre' => 'Frigo en brouillon', 'type_equipement' => 'refrigerateur', 'statut' => 'brouillon']);
-        FicheConseil::create($base + ['titre' => 'Appareil médical', 'type_equipement' => 'appareil_medical', 'statut' => 'publiee']);
 
-        $this->actingAs($citoyen)->get('/mes-equipements')->assertSee('1 conseil');
-        $this->actingAs($citoyen)->get('/mes-equipements/'.$equipement->id)
-            ->assertSee('Protéger le frigo')
-            ->assertDontSee('Frigo en brouillon')
-            ->assertDontSee('Appareil médical');
+        // Les conseils seront générés plus tard par une API d'IA : pour l'instant, « Aucun ».
+        $this->actingAs($citoyen)->get('/user/mes-equipements')->assertSee('Aucun');
+        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id)->assertSee('Aucun conseil pour le moment.');
     }
 }

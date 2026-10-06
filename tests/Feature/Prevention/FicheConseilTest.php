@@ -36,21 +36,21 @@ class FicheConseilTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->get('/admin/prevention/fiches')->assertOk()->assertSee('Fiches conseils');
-        $this->actingAs($admin)->get('/admin/prevention/fiches/create')->assertOk()->assertSee('Ajouter une fiche');
+        $this->actingAs($admin)->get('/admin/conseils')->assertOk()->assertSee('Fiches conseils');
+        $this->actingAs($admin)->get('/admin/conseils/create')->assertOk()->assertSee('Ajouter une fiche');
 
-        $reponse = $this->actingAs($admin)->post('/admin/prevention/fiches', $this->donnees());
+        $reponse = $this->actingAs($admin)->post('/admin/conseils', $this->donnees());
         $fiche = FicheConseil::firstOrFail();
-        $reponse->assertRedirect('/admin/prevention/fiches/'.$fiche->id)->assertSessionHas('success');
+        $reponse->assertRedirect('/admin/conseils/'.$fiche->id)->assertSessionHas('success');
 
-        $this->actingAs($admin)->get('/admin/prevention/fiches/'.$fiche->id)->assertOk()->assertSee($fiche->titre);
-        $this->actingAs($admin)->get('/admin/prevention/fiches/'.$fiche->id.'/edit')->assertOk();
+        $this->actingAs($admin)->get('/admin/conseils/'.$fiche->id)->assertOk()->assertSee($fiche->titre);
+        $this->actingAs($admin)->get('/admin/conseils/'.$fiche->id.'/edit')->assertOk();
 
-        $this->actingAs($admin)->put('/admin/prevention/fiches/'.$fiche->id, $this->donnees(['titre' => 'Boire de l’eau quand il fait chaud']))
-            ->assertRedirect('/admin/prevention/fiches/'.$fiche->id);
+        $this->actingAs($admin)->put('/admin/conseils/'.$fiche->id, $this->donnees(['titre' => 'Boire de l’eau quand il fait chaud']))
+            ->assertRedirect('/admin/conseils/'.$fiche->id);
         $this->assertSame('Boire de l’eau quand il fait chaud', $fiche->fresh()->titre);
 
-        $this->actingAs($admin)->delete('/admin/prevention/fiches/'.$fiche->id)->assertRedirect('/admin/prevention/fiches');
+        $this->actingAs($admin)->delete('/admin/conseils/'.$fiche->id)->assertRedirect('/admin/conseils');
         $this->assertDatabaseCount('fiches_conseils', 0);
     }
 
@@ -58,10 +58,10 @@ class FicheConseilTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches', [])
+        $this->actingAs($admin)->post('/admin/conseils', [])
             ->assertSessionHasErrors(['titre', 'resume', 'contenu', 'thematique', 'niveau_alerte', 'statut']);
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches', $this->donnees([
+        $this->actingAs($admin)->post('/admin/conseils', $this->donnees([
             'titre' => 'Eau',
             'resume' => 'Court',
             'contenu' => 'Court',
@@ -70,7 +70,7 @@ class FicheConseilTest extends TestCase
             'statut' => 'archivee',
         ]))->assertSessionHasErrors(['titre', 'resume', 'contenu', 'thematique', 'niveau_alerte', 'statut']);
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches', $this->donnees(['titre' => '']))
+        $this->actingAs($admin)->post('/admin/conseils', $this->donnees(['titre' => '']))
             ->assertSessionHasErrors(['titre' => 'Le champ « titre » est obligatoire.']);
 
         $this->assertDatabaseCount('fiches_conseils', 0);
@@ -81,21 +81,21 @@ class FicheConseilTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $fiche = $this->fiche();
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches', $this->donnees())
+        $this->actingAs($admin)->post('/admin/conseils', $this->donnees())
             ->assertSessionHasErrors(['titre' => 'Une fiche avec ce titre existe déjà.']);
 
         // En modification, la fiche peut garder son propre titre.
-        $this->actingAs($admin)->put('/admin/prevention/fiches/'.$fiche->id, $this->donnees())->assertSessionHasNoErrors();
+        $this->actingAs($admin)->put('/admin/conseils/'.$fiche->id, $this->donnees())->assertSessionHasNoErrors();
     }
 
     public function test_equipement_obligatoire_pour_la_thematique_equipements(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches', $this->donnees(['thematique' => 'equipements']))
+        $this->actingAs($admin)->post('/admin/conseils', $this->donnees(['thematique' => 'equipements']))
             ->assertSessionHasErrors('type_equipement');
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches', $this->donnees(['thematique' => 'equipements', 'type_equipement' => 'refrigerateur']))
+        $this->actingAs($admin)->post('/admin/conseils', $this->donnees(['thematique' => 'equipements', 'type_equipement' => 'refrigerateur']))
             ->assertSessionHasNoErrors();
     }
 
@@ -104,9 +104,9 @@ class FicheConseilTest extends TestCase
         $citoyen = User::factory()->create(['role' => 'user']);
         $fiche = $this->fiche();
 
-        $this->actingAs($citoyen)->get('/admin/prevention/fiches')->assertForbidden();
-        $this->actingAs($citoyen)->post('/admin/prevention/fiches', $this->donnees(['titre' => 'Une autre fiche']))->assertForbidden();
-        $this->actingAs($citoyen)->delete('/admin/prevention/fiches/'.$fiche->id)->assertForbidden();
+        $this->actingAs($citoyen)->get('/admin/conseils')->assertForbidden();
+        $this->actingAs($citoyen)->post('/admin/conseils', $this->donnees(['titre' => 'Une autre fiche']))->assertForbidden();
+        $this->actingAs($citoyen)->delete('/admin/conseils/'.$fiche->id)->assertForbidden();
         $this->assertDatabaseCount('fiches_conseils', 1);
     }
 
@@ -117,17 +117,17 @@ class FicheConseilTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $fiche = $this->fiche();
 
-        $this->actingAs($admin)->post('/admin/prevention/fiches/'.$fiche->id.'/gestes', ['intitule' => 'Mettre de l’eau au frais', 'moment' => 'avant', 'ordre' => 1])
-            ->assertRedirect('/admin/prevention/fiches/'.$fiche->id);
+        $this->actingAs($admin)->post('/admin/conseils/'.$fiche->id.'/gestes', ['intitule' => 'Mettre de l’eau au frais', 'moment' => 'avant', 'ordre' => 1])
+            ->assertRedirect('/admin/conseils/'.$fiche->id);
         $geste = GesteCle::firstOrFail();
         $this->assertSame($fiche->id, $geste->fiche_conseil_id);
 
-        $this->actingAs($admin)->get('/admin/prevention/gestes/'.$geste->id.'/edit')->assertOk();
-        $this->actingAs($admin)->put('/admin/prevention/gestes/'.$geste->id, ['intitule' => 'Boire un verre par heure', 'moment' => 'pendant', 'ordre' => 2])
-            ->assertRedirect('/admin/prevention/fiches/'.$fiche->id);
+        $this->actingAs($admin)->get('/admin/gestes/'.$geste->id.'/edit')->assertOk();
+        $this->actingAs($admin)->put('/admin/gestes/'.$geste->id, ['intitule' => 'Boire un verre par heure', 'moment' => 'pendant', 'ordre' => 2])
+            ->assertRedirect('/admin/conseils/'.$fiche->id);
         $this->assertSame('pendant', $geste->fresh()->moment);
 
-        $this->actingAs($admin)->delete('/admin/prevention/gestes/'.$geste->id)->assertRedirect('/admin/prevention/fiches/'.$fiche->id);
+        $this->actingAs($admin)->delete('/admin/gestes/'.$geste->id)->assertRedirect('/admin/conseils/'.$fiche->id);
         $this->assertDatabaseCount('gestes_cles', 0);
     }
 
@@ -135,7 +135,7 @@ class FicheConseilTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $fiche = $this->fiche();
-        $url = '/admin/prevention/fiches/'.$fiche->id.'/gestes';
+        $url = '/admin/conseils/'.$fiche->id.'/gestes';
 
         $this->actingAs($admin)->post($url, [])->assertSessionHasErrors(['intitule', 'moment', 'ordre']);
         $this->actingAs($admin)->post($url, ['intitule' => 'Eau', 'moment' => 'demain', 'ordre' => 50])
@@ -154,7 +154,7 @@ class FicheConseilTest extends TestCase
         $fiche = $this->fiche();
         $fiche->gestes()->create(['intitule' => 'Préparer une lampe torche', 'moment' => 'avant', 'ordre' => 1]);
 
-        $this->actingAs($admin)->delete('/admin/prevention/fiches/'.$fiche->id);
+        $this->actingAs($admin)->delete('/admin/conseils/'.$fiche->id);
 
         $this->assertDatabaseCount('gestes_cles', 0);
     }
@@ -167,8 +167,8 @@ class FicheConseilTest extends TestCase
         $publiee = $this->fiche();
         $brouillon = $this->fiche(['titre' => 'Fiche pas encore prête', 'statut' => 'brouillon']);
 
-        $this->actingAs($citoyen)->get('/conseils')->assertOk()->assertSee($publiee->titre)->assertDontSee('Fiche pas encore prête');
-        $this->actingAs($citoyen)->get('/conseils/'.$brouillon->id)->assertNotFound();
+        $this->actingAs($citoyen)->get('/user/conseils')->assertOk()->assertSee($publiee->titre)->assertDontSee('Fiche pas encore prête');
+        $this->actingAs($citoyen)->get('/user/conseils/'.$brouillon->id)->assertNotFound();
     }
 
     public function test_recherche_et_filtre_par_thematique(): void
@@ -177,8 +177,8 @@ class FicheConseilTest extends TestCase
         $this->fiche();
         $this->fiche(['titre' => 'Se préparer à une coupure', 'thematique' => 'coupure_courant']);
 
-        $this->actingAs($citoyen)->get('/conseils?thematique=coupure_courant')->assertSee('Se préparer à une coupure')->assertDontSee('Bien s’hydrater');
-        $this->actingAs($citoyen)->get('/conseils?recherche=hydrater')->assertSee('Bien s’hydrater')->assertDontSee('Se préparer à une coupure');
+        $this->actingAs($citoyen)->get('/user/conseils?thematique=coupure_courant')->assertSee('Se préparer à une coupure')->assertDontSee('Bien s’hydrater');
+        $this->actingAs($citoyen)->get('/user/conseils?recherche=hydrater')->assertSee('Bien s’hydrater')->assertDontSee('Se préparer à une coupure');
     }
 
     public function test_detail_d_une_fiche_avec_ses_gestes(): void
@@ -187,7 +187,7 @@ class FicheConseilTest extends TestCase
         $fiche = $this->fiche();
         $fiche->gestes()->create(['intitule' => 'Boire un verre d’eau par heure', 'moment' => 'pendant', 'ordre' => 1]);
 
-        $this->actingAs($citoyen)->get('/conseils/'.$fiche->id)->assertOk()
+        $this->actingAs($citoyen)->get('/user/conseils/'.$fiche->id)->assertOk()
             ->assertSee($fiche->titre)
             ->assertSee('Les gestes à faire')
             ->assertSee('Boire un verre d’eau par heure');
@@ -195,7 +195,7 @@ class FicheConseilTest extends TestCase
 
     public function test_connexion_obligatoire(): void
     {
-        $this->get('/conseils')->assertRedirect('/login');
-        $this->get('/admin/prevention/fiches')->assertRedirect('/login');
+        $this->get('/user/conseils')->assertRedirect('/login');
+        $this->get('/admin/conseils')->assertRedirect('/login');
     }
 }

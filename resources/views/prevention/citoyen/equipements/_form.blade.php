@@ -33,4 +33,11 @@
         @error('autonomie_heures')<p class="pv-erreur">{{ $message }}</p>@enderror
         <small>Facultatif. Entre 0 et 72 heures.</small>
     </div>
+
+    <div class="pv-field pv-field-wide">
+        <label for="description">Description du problème</label>
+        <textarea id="description" name="description" rows="4" maxlength="500" class="@error('description') is-invalid @enderror" placeholder="Exemple : le frigo contient de l’insuline et s’arrête à chaque coupure de courant.">{{ old('description', $equipement->description) }}</textarea>
+        @error('description')<p class="pv-erreur">{{ $message }}</p>@enderror
+        <small>Facultatif. Entre 10 et 500 caractères.</small>
+    </div>
 </div>

@@ -39,18 +39,18 @@ class QuestionCitoyenTest extends TestCase
         $citoyen = User::factory()->create(['role' => 'user']);
         $fiche = $this->fiche();
 
-        $this->actingAs($citoyen)->post('/conseils/'.$fiche->id.'/questions', ['question' => 'Peut-on boire de l’eau très froide ?'])
-            ->assertRedirect('/conseils/'.$fiche->id)->assertSessionHas('success');
+        $this->actingAs($citoyen)->post('/user/conseils/'.$fiche->id.'/questions', ['question' => 'Peut-on boire de l’eau très froide ?'])
+            ->assertRedirect('/user/conseils/'.$fiche->id)->assertSessionHas('success');
         $question = QuestionCitoyen::firstOrFail();
         $this->assertSame('en_attente', $question->statut);
 
-        $this->actingAs($citoyen)->get('/mes-questions')->assertOk()->assertSee('Peut-on boire de l’eau très froide ?');
-        $this->actingAs($citoyen)->get('/mes-questions/'.$question->id.'/modifier')->assertOk();
+        $this->actingAs($citoyen)->get('/user/mes-questions')->assertOk()->assertSee('Peut-on boire de l’eau très froide ?');
+        $this->actingAs($citoyen)->get('/user/mes-questions/'.$question->id.'/modifier')->assertOk();
 
-        $this->actingAs($citoyen)->put('/mes-questions/'.$question->id, ['question' => 'Peut-on boire de l’eau glacée ?'])->assertRedirect('/mes-questions');
+        $this->actingAs($citoyen)->put('/user/mes-questions/'.$question->id, ['question' => 'Peut-on boire de l’eau glacée ?'])->assertRedirect('/user/mes-questions');
         $this->assertSame('Peut-on boire de l’eau glacée ?', $question->fresh()->question);
 
-        $this->actingAs($citoyen)->delete('/mes-questions/'.$question->id)->assertRedirect('/mes-questions');
+        $this->actingAs($citoyen)->delete('/user/mes-questions/'.$question->id)->assertRedirect('/user/mes-questions');
         $this->assertDatabaseCount('questions_citoyens', 0);
     }
 
@@ -71,7 +71,7 @@ class QuestionCitoyenTest extends TestCase
         $this->question($hydratation, $citoyen, ['question' => 'Deuxième question sur l’eau ?', 'created_at' => now()->subDay()]);
 
         // Le conseil questionné le plus récemment d'abord, avec toutes ses questions ensemble.
-        $this->actingAs($citoyen)->get('/mes-questions')->assertOk()
+        $this->actingAs($citoyen)->get('/user/mes-questions')->assertOk()
             ->assertSeeInOrder([
                 $hydratation->titre, '2 questions', 'Deuxième question sur l’eau ?', 'Première question sur l’eau ?',
                 $coupure->titre, '1 question', 'Question sur la coupure ?',
@@ -81,7 +81,7 @@ class QuestionCitoyenTest extends TestCase
     public function test_controle_de_saisie_de_la_question(): void
     {
         $citoyen = User::factory()->create(['role' => 'user']);
-        $url = '/conseils/'.$this->fiche()->id.'/questions';
+        $url = '/user/conseils/'.$this->fiche()->id.'/questions';
 
         $this->actingAs($citoyen)->post($url, ['question' => ''])->assertSessionHasErrors(['question' => 'Le champ « question » est obligatoire.']);
         $this->actingAs($citoyen)->post($url, ['question' => 'Court ?'])->assertSessionHasErrors(['question' => 'Le champ « question » doit contenir au moins 10 caractères.']);
@@ -94,7 +94,7 @@ class QuestionCitoyenTest extends TestCase
         $citoyen = User::factory()->create(['role' => 'user']);
         $brouillon = $this->fiche('brouillon');
 
-        $this->actingAs($citoyen)->post('/conseils/'.$brouillon->id.'/questions', ['question' => 'Une question sur un brouillon ?'])->assertNotFound();
+        $this->actingAs($citoyen)->post('/user/conseils/'.$brouillon->id.'/questions', ['question' => 'Une question sur un brouillon ?'])->assertNotFound();
     }
 
     public function test_question_avec_reponse_ou_d_un_autre_non_modifiable(): void
@@ -105,13 +105,13 @@ class QuestionCitoyenTest extends TestCase
         $repondue = $this->question($fiche, $citoyen, ['statut' => 'repondue', 'reponse' => 'Oui, en partie.']);
         $deLAutre = $this->question($fiche, $voisin);
 
-        $this->actingAs($citoyen)->get('/mes-questions/'.$repondue->id.'/modifier')->assertRedirect('/mes-questions')->assertSessionHas('error');
-        $this->actingAs($citoyen)->delete('/mes-questions/'.$repondue->id)->assertSessionHas('error');
+        $this->actingAs($citoyen)->get('/user/mes-questions/'.$repondue->id.'/modifier')->assertRedirect('/user/mes-questions')->assertSessionHas('error');
+        $this->actingAs($citoyen)->delete('/user/mes-questions/'.$repondue->id)->assertSessionHas('error');
         $this->assertDatabaseHas('questions_citoyens', ['id' => $repondue->id]);
 
-        $this->actingAs($citoyen)->get('/mes-questions/'.$deLAutre->id.'/modifier')->assertForbidden();
-        $this->actingAs($citoyen)->put('/mes-questions/'.$deLAutre->id, ['question' => 'Je change la question du voisin'])->assertForbidden();
-        $this->actingAs($citoyen)->delete('/mes-questions/'.$deLAutre->id)->assertForbidden();
+        $this->actingAs($citoyen)->get('/user/mes-questions/'.$deLAutre->id.'/modifier')->assertForbidden();
+        $this->actingAs($citoyen)->put('/user/mes-questions/'.$deLAutre->id, ['question' => 'Je change la question du voisin'])->assertForbidden();
+        $this->actingAs($citoyen)->delete('/user/mes-questions/'.$deLAutre->id)->assertForbidden();
     }
 
     public function test_l_admin_repond_et_la_reponse_s_affiche_sous_le_conseil(): void
@@ -121,25 +121,25 @@ class QuestionCitoyenTest extends TestCase
         $fiche = $this->fiche();
         $question = $this->question($fiche, $citoyen);
 
-        $this->actingAs($admin)->get('/admin/prevention/questions')->assertOk()->assertSee('Le thé compte-t-il comme de l’eau ?');
-        $this->actingAs($admin)->get('/admin/prevention/questions/'.$question->id.'/edit')->assertOk();
+        $this->actingAs($admin)->get('/admin/questions')->assertOk()->assertSee('Le thé compte-t-il comme de l’eau ?');
+        $this->actingAs($admin)->get('/admin/questions/'.$question->id.'/edit')->assertOk();
 
-        $this->actingAs($admin)->put('/admin/prevention/questions/'.$question->id, ['reponse' => ''])
+        $this->actingAs($admin)->put('/admin/questions/'.$question->id, ['reponse' => ''])
             ->assertSessionHasErrors(['reponse' => 'Le champ « réponse » est obligatoire.']);
-        $this->actingAs($admin)->put('/admin/prevention/questions/'.$question->id, ['reponse' => 'Oui'])
+        $this->actingAs($admin)->put('/admin/questions/'.$question->id, ['reponse' => 'Oui'])
             ->assertSessionHasErrors('reponse');
 
         // Avant la réponse, la question n'apparaît pas sous le conseil.
-        $this->actingAs($citoyen)->get('/conseils/'.$fiche->id)->assertDontSee('Le thé compte-t-il comme de l’eau ?');
+        $this->actingAs($citoyen)->get('/user/conseils/'.$fiche->id)->assertDontSee('Le thé compte-t-il comme de l’eau ?');
 
-        $this->actingAs($admin)->put('/admin/prevention/questions/'.$question->id, ['reponse' => 'Oui, mais buvez surtout de l’eau.'])
-            ->assertRedirect('/admin/prevention/questions');
+        $this->actingAs($admin)->put('/admin/questions/'.$question->id, ['reponse' => 'Oui, mais buvez surtout de l’eau.'])
+            ->assertRedirect('/admin/questions');
         $this->assertSame('repondue', $question->fresh()->statut);
 
-        $this->actingAs($citoyen)->get('/conseils/'.$fiche->id)->assertSee('Le thé compte-t-il comme de l’eau ?')->assertSee('Oui, mais buvez surtout de l’eau.');
-        $this->actingAs($citoyen)->get('/mes-questions')->assertSee('Oui, mais buvez surtout de l’eau.');
+        $this->actingAs($citoyen)->get('/user/conseils/'.$fiche->id)->assertSee('Le thé compte-t-il comme de l’eau ?')->assertSee('Oui, mais buvez surtout de l’eau.');
+        $this->actingAs($citoyen)->get('/user/mes-questions')->assertSee('Oui, mais buvez surtout de l’eau.');
 
-        $this->actingAs($admin)->delete('/admin/prevention/questions/'.$question->id)->assertRedirect('/admin/prevention/questions');
+        $this->actingAs($admin)->delete('/admin/questions/'.$question->id)->assertRedirect('/admin/questions');
         $this->assertDatabaseCount('questions_citoyens', 0);
     }
 
@@ -148,8 +148,8 @@ class QuestionCitoyenTest extends TestCase
         $citoyen = User::factory()->create(['role' => 'user']);
         $question = $this->question($this->fiche(), $citoyen);
 
-        $this->actingAs($citoyen)->get('/admin/prevention/questions')->assertForbidden();
-        $this->actingAs($citoyen)->put('/admin/prevention/questions/'.$question->id, ['reponse' => 'Je réponds moi-même.'])->assertForbidden();
+        $this->actingAs($citoyen)->get('/admin/questions')->assertForbidden();
+        $this->actingAs($citoyen)->put('/admin/questions/'.$question->id, ['reponse' => 'Je réponds moi-même.'])->assertForbidden();
         $this->assertSame('en_attente', $question->fresh()->statut);
     }
 
@@ -158,7 +158,7 @@ class QuestionCitoyenTest extends TestCase
         $citoyen = User::factory()->create(['role' => 'user']);
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($citoyen)->get('/mes-questions')->assertSee('Conseils de prévention')->assertSee('Mes équipements')->assertSee('Mes questions');
-        $this->actingAs($admin)->get('/admin/prevention/questions')->assertSee('Fiches conseils')->assertSee('Questions des habitants');
+        $this->actingAs($citoyen)->get('/user/mes-questions')->assertSee('Conseils de prévention')->assertSee('Mes équipements')->assertSee('Mes questions');
+        $this->actingAs($admin)->get('/admin/questions')->assertSee('Fiches conseils')->assertSee('Questions des habitants');
     }
 }

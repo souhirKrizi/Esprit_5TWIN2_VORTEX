@@ -4,31 +4,20 @@ namespace App\Http\Controllers\Prevention;
 
 use App\Http\Requests\Prevention\EquipementSensibleRequest;
 use App\Models\EquipementSensible;
-use App\Models\FicheConseil;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * « Mes équipements » : le citoyen gère ses appareils sensibles et voit les conseils qui les concernent.
+ * « Mes équipements » : le citoyen gère ses appareils sensibles et décrit leur problème.
  */
 class EquipementSensibleController extends PreventionController
 {
     public function index(Request $request): View
     {
-        $equipements = EquipementSensible::where('user_id', $request->user()->getKey())->orderBy('nom')->get();
-
-        // Nombre de conseils publiés pour chaque type d'équipement.
-        $conseilsParType = FicheConseil::publiees()
-            ->whereNotNull('type_equipement')
-            ->selectRaw('type_equipement, count(*) as total')
-            ->groupBy('type_equipement')
-            ->pluck('total', 'type_equipement');
-
         return view('prevention.citoyen.equipements.index', [
             'espace' => $this->espace($request),
-            'equipements' => $equipements,
-            'conseilsParType' => $conseilsParType,
+            'equipements' => EquipementSensible::where('user_id', $request->user()->getKey())->orderBy('nom')->get(),
         ]);
     }
 
@@ -56,7 +45,6 @@ class EquipementSensibleController extends PreventionController
         return view('prevention.citoyen.equipements.show', [
             'espace' => $this->espace($request),
             'equipement' => $equipement,
-            'conseils' => $equipement->conseils(),
         ]);
     }
 

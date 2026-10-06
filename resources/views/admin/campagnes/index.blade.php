@@ -8,7 +8,8 @@
 @endpush
 
 @section('content')
-<div class="ha-admin-page" data-campaign-page>
+<div class="ha-admin-page" data-campaign-page data-campaign-url="{{ route('admin.campagnes.index') }}" data-csrf-token="{{ csrf_token() }}">
+    <script type="application/json" data-campaign-data>{!! \Illuminate\Support\Js::encode($campagnes) !!}</script>
     <header class="ha-admin-heading">
         <div>
             <p class="ha-eyebrow">Administration / Campagnes</p>
@@ -23,7 +24,6 @@
         <div><span>En cours</span><strong data-campaign-active>0</strong></div>
         <div><span>Agents affectés</span><strong data-campaign-agents>0</strong></div>
     </div>
-    <p class="ha-campaign-demo">Aperçu avec des données de démonstration.</p>
     <p class="ha-notice ha-notice-success" role="status" data-campaign-notice hidden></p>
 
     <section class="ha-admin-panel" aria-label="Liste des campagnes">
@@ -43,17 +43,19 @@
     <dialog class="ha-campaign-dialog" data-campaign-create aria-labelledby="campaign-create-title" aria-describedby="campaign-create-description">
         <header class="ha-dialog-heading"><div><p class="ha-eyebrow">Nouvelle action</p><h2 id="campaign-create-title">Ajouter une campagne</h2></div><button class="ha-icon-button" type="button" data-dialog-close aria-label="Fermer le formulaire"><x-space-icon name="close" /></button></header>
         <p class="ha-muted" id="campaign-create-description">Définissez la campagne et choisissez son agent responsable.</p>
-        <form class="ha-campaign-form" data-campaign-form>
+        <form class="ha-campaign-form" data-campaign-form method="POST" action="{{ route('admin.campagnes.store') }}" enctype="multipart/form-data">
+            @csrf
+            <p class="ha-notice ha-notice-error" role="alert" data-campaign-error tabindex="-1" hidden></p>
             <div class="ha-form-grid">
                 <label class="ha-field-wide">Titre<input name="titre" maxlength="255" placeholder="Ex. : Prévention canicule à Tunis" required autofocus></label>
                 <label class="ha-field-wide">Description<textarea name="description" rows="3" placeholder="Présentez les actions prévues…" required></textarea></label>
                 <label class="ha-field-wide">Objectif<textarea name="objectif" rows="2" placeholder="Quel résultat souhaitez-vous atteindre ?" required></textarea></label>
                 <label>Lieu<input name="lieu" maxlength="255" placeholder="Ville ou lieu d’intervention" required></label>
-                <label>Agent responsable<select name="organisateur_id" required><option value="">Choisir un agent de campagne</option><option value="demo-agent-1">Amira Ben Ali</option><option value="demo-agent-2">Youssef Mansour</option><option value="demo-agent-3">Inès Trabelsi</option></select><small>Agents de démonstration ayant le rôle agent-campagne.</small></label>
+                <label>Agent responsable<select name="organisateur_id" required><option value="">Choisir un agent de campagne</option>@foreach($agents as $agent)<option value="{{ $agent->id }}">{{ $agent->name }}</option>@endforeach</select><small>{{ $agents->isEmpty() ? 'Aucun agent-campagne disponible. Attribuez ce rôle à un utilisateur avant de créer une campagne.' : 'Utilisateurs ayant le rôle agent-campagne.' }}</small></label>
                 <label>Date de début<input type="date" name="date_debut" required></label>
                 <label>Date de fin<input type="date" name="date_fin" required></label>
                 <label>Statut<select name="statut" required><option value="brouillon">Brouillon</option><option value="publiee">Publiée</option><option value="en_cours">En cours</option><option value="terminee">Terminée</option><option value="annulee">Annulée</option></select></label>
-                <label>Image <span class="ha-optional">(facultative)</span><input type="file" name="image" accept="image/*"></label>
+                <label>Image <span class="ha-optional">(facultative)</span><input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif"><small>5 Mo maximum. En modification, laissez vide pour conserver l’image actuelle.</small></label>
             </div>
             <footer class="ha-dialog-actions"><button class="ha-secondary-button" type="button" data-dialog-close>Annuler</button><button class="ha-primary-button" type="submit">Ajouter la campagne</button></footer>
         </form>
@@ -63,7 +65,13 @@
         <div class="ha-delete-symbol"><x-space-icon name="alert" /></div>
         <h2 id="campaign-delete-title">Supprimer cette campagne ?</h2>
         <p id="campaign-delete-description">La campagne « <strong data-campaign-delete-name></strong> » sera retirée de la liste.</p>
+        <p class="ha-notice ha-notice-error" role="alert" data-campaign-delete-error tabindex="-1" hidden></p>
         <footer class="ha-dialog-actions"><button class="ha-secondary-button" type="button" data-dialog-close autofocus>Annuler</button><button class="ha-danger-button" type="button" data-campaign-confirm-delete>Supprimer la campagne</button></footer>
+    </dialog>
+    <dialog class="ha-campaign-dialog" data-campaign-details aria-labelledby="campaign-details-title">
+        <header class="ha-dialog-heading"><h2 id="campaign-details-title"></h2><button class="ha-icon-button" type="button" data-dialog-close aria-label="Fermer les détails"><x-space-icon name="close" /></button></header>
+        <dl data-campaign-details-content></dl>
+        <footer class="ha-dialog-actions"><button class="ha-secondary-button" type="button" data-dialog-close>Fermer</button></footer>
     </dialog>
 </div>
 @endsection

@@ -33,9 +33,9 @@ class PreventionSeeder extends Seeder
         }
 
         foreach ([
-            ['nom' => 'Frigo de la cuisine', 'type' => 'refrigerateur', 'sensibilite' => 'les_deux', 'autonomie_heures' => 4],
-            ['nom' => 'Appareil à oxygène', 'type' => 'appareil_medical', 'sensibilite' => 'coupure', 'autonomie_heures' => 2],
-            ['nom' => 'Box internet', 'type' => 'internet_telephone', 'sensibilite' => 'coupure', 'autonomie_heures' => null],
+            ['nom' => 'Frigo de la cuisine', 'type' => 'refrigerateur', 'sensibilite' => 'les_deux', 'autonomie_heures' => 4, 'description' => 'Le frigo contient de l’insuline et s’arrête à chaque coupure de courant.'],
+            ['nom' => 'Appareil à oxygène', 'type' => 'appareil_medical', 'sensibilite' => 'coupure', 'autonomie_heures' => 2, 'description' => 'La batterie de secours ne tient que 2 heures pendant les délestages.'],
+            ['nom' => 'Box internet', 'type' => 'internet_telephone', 'sensibilite' => 'coupure', 'autonomie_heures' => null, 'description' => null],
         ] as $donnees) {
             $equipement = EquipementSensible::firstOrNew(['user_id' => $citoyen->getKey(), 'nom' => $donnees['nom']]);
             $equipement->fill($donnees);

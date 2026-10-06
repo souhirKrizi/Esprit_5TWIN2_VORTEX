@@ -21,6 +21,7 @@ class EquipementSensibleRequest extends PreventionRequest
             'type' => ['required', Rule::in(array_keys(EquipementSensible::TYPES))],
             'sensibilite' => ['required', Rule::in(array_keys(EquipementSensible::SENSIBILITES))],
             'autonomie_heures' => ['nullable', 'integer', 'min:0', 'max:72'],
+            'description' => ['nullable', 'string', 'min:10', 'max:500'],
         ];
     }
 
@@ -31,6 +32,7 @@ class EquipementSensibleRequest extends PreventionRequest
             'type' => 'type',
             'sensibilite' => 'sensible à',
             'autonomie_heures' => 'autonomie',
+            'description' => 'description',
         ];
     }
 

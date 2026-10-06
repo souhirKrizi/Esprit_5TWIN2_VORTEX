@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class EquipementSensible extends Model
@@ -28,6 +27,7 @@ class EquipementSensible extends Model
         'type',
         'sensibilite',
         'autonomie_heures',
+        'description',
     ];
 
     protected function casts(): array
@@ -38,14 +38,6 @@ class EquipementSensible extends Model
     public function appartientA(User $user): bool
     {
         return (int) $this->user_id === (int) $user->getKey();
-    }
-
-    /**
-     * Valeur ajoutée : les fiches publiées qui concernent ce type d'équipement.
-     */
-    public function conseils(): Collection
-    {
-        return FicheConseil::publiees()->where('type_equipement', $this->type)->latest()->get();
     }
 
     public function libelleType(): string

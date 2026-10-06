@@ -7,7 +7,7 @@
         <div>
             <p class="ha-eyebrow">Conseils de prévention</p>
             <h1>Mes équipements</h1>
-            <p class="ha-muted">Ajoutez vos appareils sensibles à la chaleur ou aux coupures pour voir les conseils qui les concernent.</p>
+            <p class="ha-muted">Ajoutez vos appareils sensibles à la chaleur ou aux coupures et décrivez leur problème.</p>
         </div>
         <a class="ha-primary-button" href="{{ route('prevention.equipements.create') }}">Ajouter un équipement</a>
     </header>
@@ -25,14 +25,7 @@
                             <td>{{ $equipement->libelleType() }}</td>
                             <td>{{ $equipement->libelleSensibilite() }}</td>
                             <td>{{ $equipement->autonomie_heures === null ? '—' : $equipement->autonomie_heures.' h' }}</td>
-                            <td>
-                                @php $nombre = $conseilsParType[$equipement->type] ?? 0; @endphp
-                                @if($nombre > 0)
-                                    <a class="pv-link" href="{{ route('prevention.equipements.show', $equipement) }}">{{ $nombre }} conseil{{ $nombre > 1 ? 's' : '' }}</a>
-                                @else
-                                    <span class="ha-muted">Aucun</span>
-                                @endif
-                            </td>
+                            <td><span class="ha-muted">Aucun</span></td>
                             <td>
                                 <div class="ha-row-actions">
                                     <a href="{{ route('prevention.equipements.show', $equipement) }}">Voir</a>

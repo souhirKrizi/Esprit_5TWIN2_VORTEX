@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminCampagneController;
+use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AgentMissionController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\Prevention\Admin\FicheConseilController as AdminFicheConseilController;
 use App\Http\Controllers\Prevention\Admin\GesteCleController as AdminGesteCleController;
@@ -9,6 +12,7 @@ use App\Http\Controllers\Prevention\EquipementSensibleController;
 use App\Http\Controllers\Prevention\FicheConseilController;
 use App\Http\Controllers\Prevention\QuestionCitoyenController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\UserCampaignController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'homepage.index')->name('home');
@@ -25,17 +29,17 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/agent-campagne/missions', function (\Illuminate\Http\Request $request) {
-        abort_unless($request->user()->role === 'agent-campagne', 403);
+    Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
+    Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
+    Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
+    Route::get('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'show'])->name('agent-campagne.missions.show');
+    Route::put('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'update'])->name('agent-campagne.missions.update');
+    Route::delete('/agent-campagne/missions/{mission}', [AgentMissionController::class, 'destroy'])->name('agent-campagne.missions.destroy');
 
-        return view('campaigns.index', ['space' => 'agent-campagne']);
-    })->name('agent-campagne.missions');
-
-    Route::get('/user/campagnes', function (\Illuminate\Http\Request $request) {
-        abort_unless($request->user()->role === 'user', 403);
-
-        return view('campaigns.index', ['space' => 'user']);
-    })->name('user.campagnes');
+    Route::get('/user/campagnes', [UserCampaignController::class, 'index'])->name('user.campagnes');
+    Route::get('/user/participations', [UserCampaignController::class, 'participations'])->name('user.participations');
+    Route::get('/user/campagnes/{campagne}/missions', [UserCampaignController::class, 'missions'])->name('user.campagnes.missions');
+    Route::post('/user/missions/{mission}/participer', [UserCampaignController::class, 'participate'])->name('user.missions.participate');
 
     foreach (['user', 'agent-campagne', 'admin'] as $space) {
         Route::get('/'.$space, [SpaceController::class, 'redirect']);
@@ -47,11 +51,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/campagne', function (\Illuminate\Http\Request $request) {
-        abort_unless($request->user()->role === 'admin', 403);
+    Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
 
-        return view('admin.campagnes.index');
-    })->name('campagnes.index');
+    Route::get('/campagne', [AdminCampagneController::class, 'index'])->name('campagnes.index');
+    Route::post('/campagne', [AdminCampagneController::class, 'store'])->name('campagnes.store');
+    Route::get('/campagne/{campagne}', [AdminCampagneController::class, 'show'])->name('campagnes.show');
+    Route::put('/campagne/{campagne}', [AdminCampagneController::class, 'update'])->name('campagnes.update');
+    Route::delete('/campagne/{campagne}', [AdminCampagneController::class, 'destroy'])->name('campagnes.destroy');
 
 	Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
 	Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
@@ -61,8 +67,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 	Route::patch('/users/{user}/archive', [AdminUserController::class, 'archive'])->name('users.archive');
 });
 
-// Module « Conseils de prévention » — espace citoyen (tous les comptes connectés).
-Route::middleware('auth')->name('prevention.')->group(function () {
+// Module « Conseils de prévention » — espace citoyen : /user/... (tous les comptes connectés).
+Route::middleware('auth')->prefix('user')->name('prevention.')->group(function () {
     Route::get('/conseils', [FicheConseilController::class, 'index'])->name('fiches.index');
     Route::get('/conseils/{fiche}', [FicheConseilController::class, 'show'])->whereNumber('fiche')->name('fiches.show');
 
@@ -78,13 +84,14 @@ Route::middleware('auth')->name('prevention.')->group(function () {
         ->whereNumber('equipement');
 });
 
-// Module « Conseils de prévention » — administration (rôle admin vérifié dans AdminPreventionController).
-Route::middleware('auth')->prefix('admin/prevention')->name('admin.prevention.')->group(function () {
-    Route::resource('fiches', AdminFicheConseilController::class)
-        ->parameters(['fiches' => 'fiche'])
+// Module « Conseils de prévention » — administration : /admin/... (rôle admin vérifié dans AdminPreventionController).
+Route::middleware('auth')->prefix('admin')->name('admin.prevention.')->group(function () {
+    Route::resource('conseils', AdminFicheConseilController::class)
+        ->parameters(['conseils' => 'fiche'])
+        ->names('fiches')
         ->whereNumber('fiche');
 
-    Route::post('/fiches/{fiche}/gestes', [AdminGesteCleController::class, 'store'])->whereNumber('fiche')->name('gestes.store');
+    Route::post('/conseils/{fiche}/gestes', [AdminGesteCleController::class, 'store'])->whereNumber('fiche')->name('gestes.store');
     Route::get('/gestes/{geste}/edit', [AdminGesteCleController::class, 'edit'])->whereNumber('geste')->name('gestes.edit');
     Route::put('/gestes/{geste}', [AdminGesteCleController::class, 'update'])->whereNumber('geste')->name('gestes.update');
     Route::delete('/gestes/{geste}', [AdminGesteCleController::class, 'destroy'])->whereNumber('geste')->name('gestes.destroy');
