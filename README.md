@@ -79,6 +79,17 @@ Les thématiques couvrent l’hydratation, l’économie d’énergie, les coupu
 
 Les types d’équipement prévus sont les réfrigérateurs ou congélateurs, appareils médicaux, climatiseurs ou ventilateurs, équipements internet ou téléphoniques, et appareils informatiques ou téléviseurs.
 
+### Météo et alertes canicule
+
+La première version du module d’administration gère trois entités : les zones (un gouvernorat tunisien et sa géométrie GeoJSON), les relevés météo manuels (observation ou prévision) et les alertes manuelles (niveau, statut et période de validité). La carte Leaflet représente les limites des 24 gouvernorats ; une zone prend la couleur de l’alerte active la plus forte, si sa période de validité inclut l’heure actuelle. Les autres zones restent neutres.
+
+- Carte : `/admin/canicule/carte`.
+- Alertes : `/admin/canicule/alertes`.
+- Relevés météo : `/admin/canicule/releves`.
+- Zones : `/admin/canicule/zones`.
+
+Ces pages sont réservées aux administrateurs. La collecte par API météo, les notifications automatiques et le déclenchement automatique d’alertes ne sont pas encore activés. Les limites administratives embarquées proviennent de [geoBoundaries ADM1 Tunisia](https://www.geoboundaries.org/api/current/gbOpen/TUN/ADM1/), source OpenStreetMap/Wambacher, licence ODbL 1.0 ; les fonds de carte sont fournis par OpenStreetMap.
+
 ## Espaces et accès
 
 | Profil | Rôle technique | Point d’entrée | Fonctions principales |
@@ -103,6 +114,7 @@ Quelques routes utiles :
 | `/user/conseils`, `/user/mes-questions`, `/user/mes-equipements` | Prévention pour les comptes connectés. |
 | `/admin/users`, `/admin/campagne`, `/admin/missions` | Administration des comptes et campagnes, suivi des missions. |
 | `/admin/signalements`, `/admin/signalements/carte` | Modération et carte administrateur. |
+| `/admin/canicule/carte`, `/admin/canicule/alertes`, `/admin/canicule/releves`, `/admin/canicule/zones` | Carte colorée et gestion météo/canicule. |
 | `/admin/conseils`, `/admin/questions` | Administration de la prévention. |
 
 ## Technologies
@@ -191,6 +203,13 @@ php artisan db:seed --class=PreventionSeeder
 
 - `SignalementsSeeder` ajoute des ressources géolocalisées et des signalements d’exemple. Il nécessite au moins un compte de rôle `user` ; sans citoyen, il s’arrête sans créer de données.
 - `PreventionSeeder` ajoute des fiches et gestes clés, puis des équipements et questions d’exemple lorsqu’un citoyen existe.
+- `ZonesSeeder` ajoute ou actualise les géométries GeoJSON des 24 gouvernorats ; il est également appelé par le seeder général.
+
+Pour installer ou actualiser les zones seules :
+
+```bash
+php artisan db:seed --class=ZonesSeeder
+```
 
 La commande générale `php artisan db:seed` crée un utilisateur de test et appelle `SignalementsSeeder`. Elle **n’appelle pas** `PreventionSeeder` et ne crée pas de compte administrateur ni d’agent de campagne. Elle n’est pas prévue pour être relancée telle quelle, car elle recrée la même adresse e-mail de test.
 
