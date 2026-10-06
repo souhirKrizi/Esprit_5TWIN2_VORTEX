@@ -93,8 +93,9 @@
         <form class="ha-campaign-form" data-mission-form method="POST" action="{{ route('agent-campagne.missions.store') }}">
             @csrf
             <p class="ha-notice ha-notice-error" data-form-error tabindex="-1" role="alert" hidden></p>
+            <p class="ha-muted" data-campaign-context hidden></p>
             <div class="ha-form-grid">
-                <label class="ha-field-wide">Campagne<select name="campagne_id" required><option value="">Choisir une campagne affectée</option>@foreach($campagnes as $campagne)<option value="{{ $campagne->id }}" data-start="{{ $campagne->date_debut->format('Y-m-d') }}" data-end="{{ $campagne->date_fin->format('Y-m-d') }}">{{ $campagne->titre }} ({{ $campaignLabels[$campagne->statut] }})</option>@endforeach</select></label>
+                <label class="ha-field-wide" data-campaign-field>Campagne<select name="campagne_id" required><option value="">Choisir une campagne affectée</option>@foreach($campagnes as $campagne)<option value="{{ $campagne->id }}" data-start="{{ $campagne->date_debut->format('Y-m-d') }}" data-end="{{ $campagne->date_fin->format('Y-m-d') }}">{{ $campagne->titre }} ({{ $campaignLabels[$campagne->statut] }})</option>@endforeach</select></label>
                 <label class="ha-field-wide">Titre<input name="titre" maxlength="255" required></label>
                 <label class="ha-field-wide">Description<textarea name="description" rows="3" required></textarea></label>
                 <label class="ha-field-wide">Lieu<input name="lieu" maxlength="255" required></label>

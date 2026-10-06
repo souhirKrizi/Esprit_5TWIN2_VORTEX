@@ -53,8 +53,15 @@
                 form.elements[field].value = mission[field];
             }
         } else form.elements.campagne_id.value = campaignId;
+        const fromCampaignCard = !mission && Boolean(campaignId);
+        page.querySelector('[data-campaign-field]').hidden = fromCampaignCard;
+        const context = page.querySelector('[data-campaign-context]');
+        context.hidden = !fromCampaignCard;
+        context.textContent = fromCampaignCard
+            ? `Campagne : ${form.elements.campagne_id.selectedOptions[0].textContent}` : '';
         validateDates();
         editor.showModal();
+        if (fromCampaignCard) form.elements.titre.focus();
     }
     page.querySelectorAll('[data-dialog-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
     page.querySelectorAll('[data-mission-create]').forEach(button => button.addEventListener('click', () => openEditor(null, button.dataset.missionCreate)));
