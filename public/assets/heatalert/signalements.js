@@ -14,6 +14,8 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
         const layers = L.layerGroup().addTo(map);
         const filters = all('[data-map-filter]', page);
+        const initialParams = new URLSearchParams(window.location.search);
+        filters.forEach(filter => { if (initialParams.has(filter.dataset.mapFilter)) filter.value = initialParams.get(filter.dataset.mapFilter); });
         const status = by('[data-map-status]', page);
         const load = () => {
             const params = new URLSearchParams(filters.filter(filter => filter.value).map(filter => [filter.dataset.mapFilter, filter.value]));
