@@ -144,7 +144,6 @@
             card.hidden = !card.dataset.search.toLocaleLowerCase('fr').includes(query);
             if (!card.hidden) visible++;
         });
-        
         page.querySelectorAll('[data-status-group], [data-priority-group]').forEach(group => {
             group.hidden = !Array.from(group.querySelectorAll('[data-campaign-id]')).some(card => !card.hidden);
         });
