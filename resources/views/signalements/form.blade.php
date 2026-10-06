@@ -1,0 +1,28 @@
+@extends('layouts.space', ['space' => $space])
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="{{ asset('assets/heatalert/signalements.css') }}">
+@endpush
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="{{ asset('assets/heatalert/signalements.js') }}" defer></script>
+@endpush
+
+@section('content')
+@php($editing = $signalement->exists)
+<div class="ha-admin-page ha-signalements-page" data-signalement-form data-editing="{{ $editing ? '1' : '0' }}">
+    <header class="ha-admin-heading"><div><p class="ha-eyebrow">Signalements citoyens</p><h1>{{ $editing ? 'Modifier mon signalement' : 'Nouveau signalement' }}</h1><p class="ha-muted">Aidez les autres citoyens à trouver une ressource disponible ou à identifier un incident.</p></div><a class="ha-text-button" href="{{ route('user.signalements.index') }}">Mes signalements</a></header>
+    @include('signalements.partials.form-errors')
+    <form class="ha-signalement-form" method="POST" action="{{ $editing ? route('user.signalements.update', $signalement) : route('user.signalements.store') }}" enctype="multipart/form-data" novalidate data-signalement-submit>
+        @csrf
+        @if($editing) @method('PUT') @endif
+        <div class="ha-form-main">
+            <section class="ha-admin-panel ha-form-panel"><div class="ha-panel-heading"><div><p class="ha-eyebrow">Étape 1</p><h2>Où se trouve le signalement ?</h2></div></div><div id="signalement-form-map" class="ha-form-map" data-lat="{{ old('latitude', $signalement->latitude ?? 33.8) }}" data-lng="{{ old('longitude', $signalement->longitude ?? 9.5) }}"></div><div class="ha-form-map-actions"><button class="ha-secondary-button" type="button" data-geolocate>Ma position</button><span class="ha-form-help">Déplacez le marqueur sur la carte pour choisir une position.</span></div><input type="hidden" name="latitude" value="{{ old('latitude', $signalement->latitude ?? 33.8) }}" data-coordinate="latitude"><input type="hidden" name="longitude" value="{{ old('longitude', $signalement->longitude ?? 9.5) }}" data-coordinate="longitude"><p class="ha-field-error" data-error-for="position"></p></section>
+            <section class="ha-admin-panel ha-form-panel"><div class="ha-panel-heading"><div><p class="ha-eyebrow">Étape 2</p><h2>Que souhaitez-vous signaler ?</h2></div></div><label class="ha-choice"><input type="radio" name="type_signalement" value="incident" @checked(old('type_signalement', $signalement->type_signalement) === 'incident') data-signalement-type><span><strong>Un incident</strong><small>Une ressource est indisponible ou rencontre un problème.</small></span></label><label class="ha-choice"><input type="radio" name="type_signalement" value="ressource_ok" @checked(old('type_signalement', $signalement->type_signalement) === 'ressource_ok') data-signalement-type><span><strong>Tout fonctionne</strong><small>Confirmez qu’une ressource est accessible et opérationnelle.</small></span></label><div class="ha-form-grid"><label>Ressource concernée <select name="ressource_utile_id"><option value="">Aucune ressource précise</option>@foreach($ressources as $ressource)<option value="{{ $ressource->id }}" @selected((string) old('ressource_utile_id', $signalement->ressource_utile_id) === (string) $ressource->id)>{{ $ressource->nom }} — {{ $ressource->gouvernorat }}</option>@endforeach</select></label><label data-incident-field>Type d’incident <select name="type_incident" data-incident-input><option value="">Choisir</option><option value="coupure_electricite" @selected(old('type_incident', $signalement->type_incident) === 'coupure_electricite')>Coupure d’électricité</option><option value="point_eau_hors_service" @selected(old('type_incident', $signalement->type_incident) === 'point_eau_hors_service')>Point d’eau hors service</option><option value="centre_ferme" @selected(old('type_incident', $signalement->type_incident) === 'centre_ferme')>Centre fermé</option><option value="autre" @selected(old('type_incident', $signalement->type_incident) === 'autre')>Autre</option></select><span class="ha-field-error" data-error-for="incident"></span></label><label class="ha-field-wide">Commentaire <span class="ha-character-count"><span data-comment-count>0</span>/1000</span><textarea name="commentaire" rows="5" minlength="10" maxlength="1000" data-commentaire>{{ old('commentaire', $signalement->commentaire) }}</textarea><span class="ha-field-error" data-error-for="commentaire"></span></label></div></section>
+            <section class="ha-admin-panel ha-form-panel"><div class="ha-panel-heading"><div><p class="ha-eyebrow">Étape 3</p><h2>Ajouter des photos</h2></div><span class="ha-form-help">5 images maximum, 5 Mo chacune.</span></div><input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple data-images data-existing-count="{{ $editing ? $signalement->piecesJointes->count() : 0 }}"><div class="ha-image-preview-grid" data-image-previews></div>@if($editing) @include('signalements.partials.piece-jointes', ['signalement' => $signalement]) @endif<p class="ha-field-error" data-error-for="images"></p></section>
+        </div>
+        <footer class="ha-form-actions"><a class="ha-secondary-button" href="{{ $editing ? route('user.signalements.show', $signalement) : route('user.signalements.carte') }}">Annuler</a><button class="ha-primary-button" type="submit" data-submit-button>{{ $editing ? 'Enregistrer les modifications' : 'Envoyer le signalement' }}</button></footer>
+    </form>
+</div>
+@endsection
