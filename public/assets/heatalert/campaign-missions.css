@@ -9,6 +9,13 @@
 .ha-card-art span { max-width: 110px; font-size: 12px; font-weight: 700; text-align: right; }
 .ha-card-body { display: flex; flex-direction: column; flex: 1; gap: 14px; padding: 24px; }
 .ha-card-body h2 { margin: 0; font-size: 19px; line-height: 1.3; color: #111d35; }
+.ha-card-body h4 { margin: 0; font-size: 19px; line-height: 1.3; color: #111d35; overflow-wrap: anywhere; }
+.ha-user-campaign-priority { margin-top: 30px; }
+.ha-user-priority-title { margin: 0 0 20px; font-size: 24px; color: #111d35; }
+.ha-user-status-title { margin: 24px 0 16px; font-size: 16px; color: #4e596d; }
+.ha-missions-page [hidden] { display: none !important; }
+.ha-missions-page .ha-notice { white-space: pre-line; }
+.ha-card-art strong { overflow-wrap: anywhere; }
 .ha-card-body p { margin: 0; color: #697387; font-size: 13px; line-height: 1.65; }
 .ha-card-body .ha-primary-button { width: 100%; margin-top: auto; }
 .ha-card-meta { display: grid; gap: 7px; margin-bottom: 6px; color: #4e596d; font-size: 12px; }
@@ -29,13 +36,18 @@
 .ha-mission-actions button:disabled { cursor: default; opacity: .65; }
 .ha-mission-badge { display: inline-flex; flex-shrink: 0; padding: 5px 9px; border-radius: 6px; background: #f0f1f8; color: #59627a; font-size: 11px; font-weight: 700; }
 .ha-mission-badge[data-status="ouverte"] { background: #effaf4; color: #176b40; }
+.ha-mission-badge[data-status="acceptee"] { background: #effaf4; color: #176b40; }
+.ha-mission-badge[data-status="refusee"] { background: #fff0ed; color: #a52d1c; }
+.ha-participation-cards { margin-top: 28px; }
+.ha-card-art .ha-participation-campaign { font-size: 19px; line-height: 1.4; opacity: 1; }
+.ha-participation-empty { grid-column: 1 / -1; padding: 36px; text-align: center; color: #697387; }
+.ha-participation-empty > .ha-icon { width: 32px; height: 32px; color: #21756c; }
+.ha-participation-empty h2 { margin-top: 18px; font-size: 21px; color: #111d35; }
 .ha-mission-badge[data-status="en_cours"] { background: #edf3fc; color: #315b9a; }
 .ha-mission-badge[data-status="annulee"] { background: #fff0ed; color: #a52d1c; }
 .ha-participants-table { margin-top: 22px; min-width: 650px; }
 .ha-participants-table td:nth-child(2) { max-width: 250px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .ha-missions-page button:focus-visible, .ha-missions-search input:focus-visible { outline: 2px solid #ff7412; outline-offset: 3px; }
-<<<<<<< HEAD
-=======
 .ha-campaign-choices { margin: 24px 0 0; padding: 0; border: 0; }
 .ha-campaign-choices > div { display: grid; gap: 12px; }
 .ha-campaign-choice { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e1e3ed; border-radius: 10px; cursor: pointer; }
@@ -44,6 +56,5 @@
 .ha-campaign-choice span { display: grid; gap: 6px; }
 .ha-campaign-choice strong { font-size: 13px; color: #111d35; }
 .ha-campaign-choice small { font-size: 11px; color: #697387; }
->>>>>>> b9602da (Création des interfaces de campagnes pour user et agent-campagne)
 @media (max-width: 1150px) { .ha-campaign-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 650px) { .ha-campaign-cards, .ha-mission-meta { grid-template-columns: 1fr; }.ha-missions-toolbar { align-items: flex-start; flex-direction: column; }.ha-mission-card { padding: 16px; }.ha-mission-card header { flex-wrap: wrap; }.ha-mission-actions > button { flex: 1; }.ha-card-body { padding: 20px; } }
