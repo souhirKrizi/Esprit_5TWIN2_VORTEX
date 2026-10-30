@@ -1,0 +1,11 @@
+@extends('layouts.space', ['space' => $space])
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="{{ asset('assets/heatalert/signalements.css') }}">
+@endpush
+@push('scripts')<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script><script src="{{ asset('assets/heatalert/signalements.js') }}" defer></script>@endpush
+
+@section('content')
+<div class="ha-admin-page ha-signalements-page"><header class="ha-admin-heading"><div><p class="ha-eyebrow">Ressources utiles / {{ $ressourceUtile->gouvernorat }}</p><h1>{{ $ressourceUtile->nom }}</h1><p class="ha-muted">{{ $ressourceUtile->adresse }}</p></div><a class="ha-primary-button" href="{{ route('user.signalements.create', ['ressource' => $ressourceUtile->id]) }}">Signaler un problème ici</a></header><div class="ha-resource-status {{ $ressourceUtile->etat === 'rouge' ? 'is-red' : 'is-green' }}"><span></span><strong>{{ $ressourceUtile->etat === 'rouge' ? 'Incident actif signalé' : 'Ressource disponible' }}</strong><small>{{ ['point_eau' => 'Point d’eau', 'espace_fraicheur' => 'Espace de fraîcheur', 'centre_accueil' => 'Centre d’accueil'][$ressourceUtile->type] ?? $ressourceUtile->type }} · {{ $ressourceUtile->statut === 'actif' ? 'Ouverte' : 'Hors service' }}</small></div><div class="ha-detail-grid"><section class="ha-admin-panel ha-detail-card"><h2>Localisation</h2><div class="ha-detail-map" data-static-map data-lat="{{ $ressourceUtile->latitude }}" data-lng="{{ $ressourceUtile->longitude }}"></div><p class="ha-muted">{{ $ressourceUtile->adresse }}, {{ $ressourceUtile->gouvernorat }}</p></section><section class="ha-admin-panel ha-detail-card"><h2>Historique validé</h2>@forelse($ressourceUtile->signalements as $signalement)<article class="ha-history-item"><div><strong>{{ $signalement->type_signalement === 'incident' ? 'Incident' : 'Ressource OK' }}</strong><time>{{ $signalement->created_at?->format('d/m/Y') }}</time></div><p>{{ $signalement->commentaire ?: 'Aucun commentaire' }}</p>@include('signalements.partials.piece-jointes', ['signalement' => $signalement])</article>@empty<p class="ha-empty-state">Aucun signalement validé pour le moment.</p>@endforelse</section></div></div>
+@endsection

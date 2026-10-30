@@ -94,6 +94,35 @@
 .pv-heading-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .pv-info { margin: 0; color: #697387; font-size: 13px; }
 
+/* Tables d’administration partagées avec les modules météo/canicule. */
+.ha-canicule-admin .pv-table-wrap { width: 100%; overflow-x: auto; }
+.ha-canicule-admin .pv-table { width: 100%; min-width: 680px; border-collapse: collapse; color: #33405a; font-size: 13px; }
+.ha-canicule-admin .pv-table th { padding: 13px 15px; border-bottom: 1px solid #e5e8ed; background: #f6f8f7; color: #59627a; font-size: 11px; font-weight: 800; text-align: left; white-space: nowrap; }
+.ha-canicule-admin .pv-table td { padding: 13px 15px; border-bottom: 1px solid #edf0f2; vertical-align: middle; }
+.ha-canicule-admin .pv-table tbody tr:hover { background: #fafbf9; }
+.ha-canicule-admin .pv-table tbody tr:last-child td { border-bottom: 0; }
+.ha-canicule-admin .pv-table-actions { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.ha-canicule-admin .pv-table-actions a { color: #bd520e; font-size: 12px; font-weight: 700; text-decoration: none; }
+.ha-canicule-admin .pv-table-actions a:hover { text-decoration: underline; }
+.ha-canicule-admin .pv-table-actions form { margin: 0; }
+.ha-canicule-admin .pv-table-actions button { padding: 0; border: 0; background: transparent; color: #a3322b; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.ha-canicule-readonly { margin: 0; padding: 11px 12px; border: 1px solid #e1e3ed; border-radius: 8px; background: #f6f8f7; color: #26342e; font-size: 14px; }
+.ha-canicule-lock { display: grid; gap: 5px; padding: 14px 16px; border-left: 3px solid #cf762e; border-radius: 5px; background: #fff7ed; color: #5a4530; font-size: 13px; }
+.ha-canicule-lock span { color: #766653; }
+.ha-canicule-weather-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ha-canicule-weather-card { min-width: 0; }
+.ha-canicule-weather-card .ha-eyebrow { margin-top: 0; }
+.ha-canicule-weather-card p { color: #52605a; font-size: 14px; }
+.ha-canicule-weather-card small, .ha-canicule-citizen-alert small { color: #68756f; font-size: 12px; }
+.ha-canicule-temperature { display: block; margin: 10px 0; color: #bc571d; font-size: 42px; line-height: 1; }
+.ha-canicule-alert-list { display: grid; gap: 12px; }
+.ha-canicule-citizen-alert { margin-bottom: 16px; padding: 18px 20px; border: 1px solid #e7e9ec; border-left: 4px solid #e7b63d; border-radius: 8px; background: #fff; }
+.ha-canicule-citizen-alert.is-orange { border-left-color: #ee873d; }
+.ha-canicule-citizen-alert.is-rouge { border-left-color: #d94c45; }
+.ha-canicule-citizen-alert h2 { margin: 10px 0 6px; color: #26342e; font-size: 18px; }
+.ha-canicule-citizen-alert p { margin: 0 0 8px; color: #52605a; line-height: 1.6; }
+@media (max-width: 700px) { .ha-canicule-weather-grid { grid-template-columns: 1fr; } }
+
 @media (max-width: 900px) {
     .pv-moments, .pv-grid-2 { grid-template-columns: 1fr; }
     .pv-actions { flex-direction: column-reverse; }

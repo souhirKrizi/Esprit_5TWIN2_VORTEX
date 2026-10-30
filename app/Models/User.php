@@ -61,6 +61,11 @@ class User extends Authenticatable
         return route('spaces.'.$space, ['user' => $this->getRouteKey()]);
     }
 
+    public function signalements(): HasMany
+    {
+        return $this->hasMany(Signalement::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

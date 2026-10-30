@@ -16,6 +16,37 @@ class SignInTest extends TestCase
         return [['user'], ['agent-campagne'], ['admin']];
     }
 
+    public function test_registration_keeps_the_user_signed_in_and_redirects_to_their_user_space(): void
+    {
+        $this->post('/register', [
+            'name' => 'Nouvelle Citoyenne',
+            'email' => 'nouvelle@example.com',
+            'governorate' => 'Tunis',
+            'password' => 'Password1',
+            'password_confirmation' => 'Password1',
+            'terms' => '1',
+        ])->assertRedirect('/user/1');
+
+        $user = User::where('email', 'nouvelle@example.com')->firstOrFail();
+        $this->assertSame('user', $user->role);
+        $this->assertAuthenticatedAs($user);
+        $this->get('/user/'.$user->id)->assertOk()->assertSee($user->name);
+    }
+
+    public function test_json_registration_returns_the_user_space_destination(): void
+    {
+        $this->postJson('/register', [
+            'name' => 'Nouvelle Citoyenne',
+            'email' => 'nouvelle-json@example.com',
+            'governorate' => 'Tunis',
+            'password' => 'Password1',
+            'password_confirmation' => 'Password1',
+            'terms' => '1',
+        ])->assertOk()->assertJsonPath('redirect', route('spaces.user', ['user' => 1]));
+
+        $this->assertAuthenticatedAs(User::where('email', 'nouvelle-json@example.com')->firstOrFail());
+    }
+
     #[DataProvider('roles')]
     public function test_login_redirects_to_the_stored_role_and_user_id(string $role): void
     {

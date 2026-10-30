@@ -2,8 +2,15 @@
 
 use App\Http\Controllers\AdminCampagneController;
 use App\Http\Controllers\AdminMissionController;
+use App\Http\Controllers\AdminSignalementController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AgentMissionController;
+use App\Http\Controllers\CarteController;
+use App\Http\Controllers\Canicule\AdminAlerteController;
+use App\Http\Controllers\Canicule\AdminCarteCaniculeController;
+use App\Http\Controllers\Canicule\AdminReleveMeteoController;
+use App\Http\Controllers\Canicule\AdminZoneController;
+use App\Http\Controllers\Canicule\CitoyenCaniculeController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\Prevention\Admin\FicheConseilController as AdminFicheConseilController;
 use App\Http\Controllers\Prevention\Admin\GesteCleController as AdminGesteCleController;
@@ -11,6 +18,9 @@ use App\Http\Controllers\Prevention\Admin\QuestionCitoyenController as AdminQues
 use App\Http\Controllers\Prevention\EquipementSensibleController;
 use App\Http\Controllers\Prevention\FicheConseilController;
 use App\Http\Controllers\Prevention\QuestionCitoyenController;
+use App\Http\Controllers\PieceJointeController;
+use App\Http\Controllers\RessourceUtileController;
+use App\Http\Controllers\SignalementController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\UserCampaignController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +39,10 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/user/canicule/ma-zone', [CitoyenCaniculeController::class, 'meteo'])->name('user.canicule.meteo');
+    Route::get('/user/canicule/alertes', [CitoyenCaniculeController::class, 'alertes'])->name('user.canicule.alertes');
+    Route::get('/user/canicule/carte', [CitoyenCaniculeController::class, 'carte'])->name('user.canicule.carte');
+
     Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
     Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
     Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
@@ -41,6 +55,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/campagnes/{campagne}/missions', [UserCampaignController::class, 'missions'])->name('user.campagnes.missions');
     Route::post('/user/missions/{mission}/participer', [UserCampaignController::class, 'participate'])->name('user.missions.participate');
 
+    Route::get('/user/signalements/carte', [CarteController::class, 'index'])->name('user.signalements.carte');
+    Route::get('/user/signalements/api/ressources', [CarteController::class, 'ressources'])->name('user.signalements.api.ressources');
+    Route::get('/user/ressources/{ressourceUtile}', [RessourceUtileController::class, 'show'])->name('user.ressources.show');
+    Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
+    Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
+    Route::resource('/user/signalements', SignalementController::class)->except(['store'])->names('user.signalements');
+    Route::post('/user/signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1')->name('user.signalements.store');
+    Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');
+
+    Route::get('/user/signalements/carte', [CarteController::class, 'index'])->name('user.signalements.carte');
+    Route::get('/user/signalements/api/ressources', [CarteController::class, 'ressources'])->name('user.signalements.api.ressources');
+    Route::get('/user/ressources/{ressourceUtile}', [RessourceUtileController::class, 'show'])->name('user.ressources.show');
+    Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
+    Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
+    Route::resource('/user/signalements', SignalementController::class)
+        ->except(['store'])
+        ->names('user.signalements');
+    Route::post('/user/signalements', [SignalementController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('user.signalements.store');
+    Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');
+
     foreach (['user', 'agent-campagne', 'admin'] as $space) {
         Route::get('/'.$space, [SpaceController::class, 'redirect']);
         Route::get('/'.$space.'/{user}', [SpaceController::class, 'show'])
@@ -51,6 +87,18 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/canicule/carte', [AdminCarteCaniculeController::class, 'index'])->name('canicule.carte');
+    Route::resource('/canicule/zones', AdminZoneController::class)->only(['index', 'edit', 'update'])->names('canicule.zones')->whereNumber('zone');
+    Route::resource('/canicule/releves', AdminReleveMeteoController::class)->except(['show'])->parameters(['releves' => 'releve'])->names('canicule.releves')->whereNumber('releve');
+    Route::resource('/canicule/alertes', AdminAlerteController::class)->except(['show'])->names('canicule.alertes')->whereNumber('alerte');
+
+    Route::get('/signalements/carte', [AdminSignalementController::class, 'carte'])->name('signalements.carte');
+    Route::get('/signalements/api/ressources', [AdminSignalementController::class, 'ressources'])->name('signalements.api.ressources');
+    Route::get('/signalements', [AdminSignalementController::class, 'index'])->name('signalements.index');
+    Route::get('/signalements/{signalement}', [AdminSignalementController::class, 'show'])->name('signalements.show');
+    Route::match(['POST', 'PATCH'], '/signalements/{signalement}/valider', [AdminSignalementController::class, 'validateSignalement'])->name('signalements.validate');
+    Route::match(['POST', 'PATCH'], '/signalements/{signalement}/rejeter', [AdminSignalementController::class, 'reject'])->name('signalements.reject');
+
     Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
 
     Route::get('/campagne', [AdminCampagneController::class, 'index'])->name('campagnes.index');

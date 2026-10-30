@@ -111,9 +111,9 @@ class UserCampaignController extends Controller
 
     private function isOpen(Mission $mission, Campagne $campagne): bool
     {
-        // Mission datetimes are entered and displayed as local wall-clock times.
+        // Mission datetimes are entered as local wall-clock times in the app timezone.
         return $mission->statut === 'ouverte' && in_array($campagne->statut, ['publiee', 'en_cours'])
-            && $mission->date_debut->format('Y-m-d H:i:s') > now('Africa/Tunis')->format('Y-m-d H:i:s');
+            && $mission->date_debut->isAfter(now());
     }
 
     private function ensureUser(Request $request): void
