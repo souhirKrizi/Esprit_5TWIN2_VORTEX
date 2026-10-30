@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Prevention\Admin;
 
+use App\Http\Requests\Prevention\AlerteEnCoursRequest;
 use App\Http\Requests\Prevention\FicheConseilRequest;
 use App\Models\FicheConseil;
 use App\Models\GesteCle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 /**
@@ -26,7 +28,18 @@ class FicheConseilController extends AdminPreventionController
             ->paginate(10)
             ->withQueryString();
 
-        return view('prevention.admin.fiches.index', compact('fiches', 'filtres'));
+        return view('prevention.admin.fiches.index', [
+            'fiches' => $fiches,
+            'filtres' => $filtres,
+            'alerteEnCours' => FicheConseil::niveauAlerteEnCours(),
+        ]);
+    }
+
+    public function changerAlerte(AlerteEnCoursRequest $request): RedirectResponse
+    {
+        FicheConseil::definirNiveauAlerteEnCours($request->validated('niveau'));
+
+        return redirect()->route('admin.prevention.fiches.index')->with('success', 'Alerte en cours mise à jour.');
     }
 
     public function create(): View
@@ -38,7 +51,7 @@ class FicheConseilController extends AdminPreventionController
 
     public function store(FicheConseilRequest $request): RedirectResponse
     {
-        $fiche = FicheConseil::create($request->validated());
+        $fiche = FicheConseil::create($this->donnees($request));
 
         return redirect()->route('admin.prevention.fiches.show', $fiche)->with('success', 'Fiche ajoutée. Vous pouvez maintenant ajouter ses gestes.');
     }
@@ -58,7 +71,7 @@ class FicheConseilController extends AdminPreventionController
 
     public function update(FicheConseilRequest $request, FicheConseil $fiche): RedirectResponse
     {
-        $fiche->update($request->validated());
+        $fiche->update($this->donnees($request, $fiche));
 
         return redirect()->route('admin.prevention.fiches.show', $fiche)->with('success', 'Fiche modifiée.');
     }
@@ -67,6 +80,28 @@ class FicheConseilController extends AdminPreventionController
     {
         $fiche->delete();
 
+        if ($fiche->image) {
+            Storage::disk('public')->delete($fiche->image);
+        }
+
         return redirect()->route('admin.prevention.fiches.index')->with('success', 'Fiche supprimée.');
+    }
+
+    /**
+     * Données validées de la fiche : enregistre la nouvelle image et supprime l'ancienne si besoin.
+     */
+    private function donnees(FicheConseilRequest $request, ?FicheConseil $fiche = null): array
+    {
+        $donnees = $request->safe()->except(['image', 'supprimer_image']);
+
+        if ($request->hasFile('image') || $request->boolean('supprimer_image')) {
+            if ($fiche?->image) {
+                Storage::disk('public')->delete($fiche->image);
+            }
+
+            $donnees['image'] = $request->hasFile('image') ? $request->file('image')->store('fiches', 'public') : null;
+        }
+
+        return $donnees;
     }
 }

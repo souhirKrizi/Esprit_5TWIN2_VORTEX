@@ -13,6 +13,22 @@
 
     @include('prevention.partials.messages')
 
+    @if($alerteEnCours && ! $filtres && $fiches->onFirstPage())
+        <section class="pv-alerte pv-alerte-{{ $alerteEnCours }}">
+            <h2>Alerte {{ strtolower(\App\Models\FicheConseil::NIVEAUX[$alerteEnCours]) }} en cours</h2>
+            @if($conseilsAlerte->isEmpty())
+                <p>Aucun conseil n’est encore disponible pour ce niveau.</p>
+            @else
+                <p>À lire en priorité :</p>
+                <ul>
+                    @foreach($conseilsAlerte as $conseil)
+                        <li><a href="{{ route('prevention.fiches.show', $conseil) }}">{{ $conseil->titre }}</a></li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+    @endif
+
     <section class="ha-admin-panel">
         <form class="ha-user-filters" method="GET" action="{{ route('prevention.fiches.index') }}">
             <label class="ha-search-field"><span class="sr-only">Rechercher</span><x-space-icon name="file" /><input type="search" name="recherche" value="{{ $filtres['recherche'] ?? '' }}" placeholder="Rechercher un conseil"></label>
@@ -34,6 +50,9 @@
             <div class="pv-list">
                 @foreach($fiches as $fiche)
                     <article class="pv-item">
+                        @if($fiche->image)
+                            <img class="pv-item-image" src="{{ $fiche->imageUrl() }}" alt="{{ $fiche->titre }}">
+                        @endif
                         <div class="pv-tags">
                             <span class="pv-badge">{{ $fiche->libelleThematique() }}</span>
                             <span class="pv-badge pv-niveau-{{ $fiche->niveau_alerte }}">Alerte {{ strtolower($fiche->libelleNiveau()) }}</span>

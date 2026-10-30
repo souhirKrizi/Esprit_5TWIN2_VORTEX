@@ -64,6 +64,27 @@
 .pv-erreur { margin: 0; color: #b3261e; font-size: 12px; font-weight: 600; }
 .pv-actions { display: flex; justify-content: flex-end; gap: 12px; }
 
+/* Alerte en cours */
+.pv-box-alerte { margin-bottom: 20px; }
+.pv-box-alerte .ha-user-filters { flex-wrap: wrap; border-bottom: 0; }
+.pv-erreur-alerte { padding: 0 18px 14px; }
+.pv-alerte { margin-bottom: 20px; padding: 18px 20px; border-left: 4px solid; border-radius: 10px; }
+.pv-alerte h2 { margin: 0 0 8px; color: inherit; font-size: 16px; }
+.pv-alerte p { margin: 0; font-size: 13px; }
+.pv-alerte ul { margin: 6px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.7; }
+.ha-space .pv-alerte a { font-weight: 700; text-decoration: underline; }
+.pv-alerte-vert { border-color: #2fb36a; background: #eaf8ef; color: #17733f; }
+.pv-alerte-jaune { border-color: #f0c419; background: #fff8db; color: #6f5000; }
+.pv-alerte-orange { border-color: #ff7412; background: #fff0e5; color: #8a3c00; }
+.pv-alerte-rouge { border-color: #d93025; background: #ffeceb; color: #8c1d18; }
+
+/* Image de la fiche */
+.pv-item-image { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; }
+.pv-image { display: block; width: 100%; max-height: 360px; margin-bottom: 16px; object-fit: cover; border-radius: 10px; }
+.pv-image-apercu { display: block; max-width: 240px; max-height: 160px; object-fit: cover; border-radius: 8px; }
+.pv-field label.pv-case { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.pv-field .pv-case input { width: 16px; min-height: 16px; padding: 0; }
+
 /* Divers */
 .ha-space button.ha-primary-button, .ha-space button.ha-secondary-button, .ha-space button.ha-danger-button { font-size: 12px; font-weight: 700; }
 .pv-inline-form { display: inline; margin: 0; }

@@ -86,6 +86,8 @@ Route::middleware('auth')->prefix('user')->name('prevention.')->group(function (
 
 // Module « Conseils de prévention » — administration : /admin/... (rôle admin vérifié dans AdminPreventionController).
 Route::middleware('auth')->prefix('admin')->name('admin.prevention.')->group(function () {
+    Route::put('/conseils/alerte-en-cours', [AdminFicheConseilController::class, 'changerAlerte'])->name('alerte.update');
+
     Route::resource('conseils', AdminFicheConseilController::class)
         ->parameters(['conseils' => 'fiche'])
         ->names('fiches')

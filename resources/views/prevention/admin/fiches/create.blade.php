@@ -15,7 +15,7 @@
     @include('prevention.partials.messages')
 
     <section class="ha-admin-panel pv-box">
-        <form class="pv-form" method="POST" action="{{ route('admin.prevention.fiches.store') }}" novalidate>
+        <form class="pv-form" method="POST" action="{{ route('admin.prevention.fiches.store') }}" enctype="multipart/form-data" novalidate>
             @csrf
             @include('prevention.admin.fiches._form')
             <div class="pv-actions">

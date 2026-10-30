@@ -28,6 +28,9 @@
 
     <section class="ha-admin-panel pv-box pv-text">
         <h2>Contenu</h2>
+        @if($fiche->image)
+            <img class="pv-image" src="{{ $fiche->imageUrl() }}" alt="{{ $fiche->titre }}">
+        @endif
         <p><strong>{{ $fiche->resume }}</strong></p>
         @foreach(preg_split('/\R{2,}/', trim($fiche->contenu)) as $paragraphe)
             <p>{!! nl2br(e($paragraphe)) !!}</p>
