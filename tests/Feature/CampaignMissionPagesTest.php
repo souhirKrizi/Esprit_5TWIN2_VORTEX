@@ -53,7 +53,8 @@ class CampaignMissionPagesTest extends TestCase
                 ->assertSee('data-participants-dialog', false)
                 ->assertSee('data-delete-dialog', false);
         } else {
-            $response->assertSee('ha-campaign-cards', false)
+            // Base vide : la page affiche l'état « Aucune campagne » (les cartes sont testées avec des données ailleurs).
+            $response->assertSee('data-campaigns-empty', false)
                 ->assertDontSee('data-editor-dialog', false)
                 ->assertDontSee('data-participants-dialog', false);
         }

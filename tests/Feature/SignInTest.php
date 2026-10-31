@@ -42,7 +42,7 @@ class SignInTest extends TestCase
             'password' => 'Password1',
             'password_confirmation' => 'Password1',
             'terms' => '1',
-        ])->assertOk()->assertJsonPath('redirect', route('spaces.user', ['user' => 1]));
+        ])->assertCreated()->assertJsonPath('redirect', route('spaces.user', ['user' => 1]));
 
         $this->assertAuthenticatedAs(User::where('email', 'nouvelle-json@example.com')->firstOrFail());
     }

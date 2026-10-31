@@ -1,0 +1,64 @@
+name: CI/CD HeatAlert
+
+on:
+  push:
+    branches: [main, souhirkrizi]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  qualite:
+    name: Tests et SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, pdo_sqlite, bcmath
+          coverage: pcov
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --no-progress
+
+      - name: Préparer Laravel
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Lancer les tests
+        run: vendor/bin/phpunit --coverage-clover coverage.xml
+
+      - name: Analyse SonarQube
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  docker:
+    name: Image Docker
+    needs: qualite
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/login-action@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ghcr.io/souhirkrizi/heatalert:latest
+            ghcr.io/souhirkrizi/heatalert:${{ github.sha }}
