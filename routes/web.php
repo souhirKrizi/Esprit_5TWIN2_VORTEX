@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminSignalementController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AgentMissionController;
+use App\Http\Controllers\AssistantRedactionController;
 use App\Http\Controllers\CarteController;
 use App\Http\Controllers\Canicule\AdminAlerteController;
 use App\Http\Controllers\Canicule\AdminCarteCaniculeController;
@@ -60,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/ressources/{ressourceUtile}', [RessourceUtileController::class, 'show'])->name('user.ressources.show');
     Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
     Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
+    Route::post('/user/signalements/assistant-redaction', AssistantRedactionController::class)->middleware('throttle:10,1')->name('user.signalements.assistant-redaction');
     Route::resource('/user/signalements', SignalementController::class)->except(['store'])->names('user.signalements');
     Route::post('/user/signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1')->name('user.signalements.store');
     Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');

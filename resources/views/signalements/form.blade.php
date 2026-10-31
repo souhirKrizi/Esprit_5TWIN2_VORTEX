@@ -70,6 +70,28 @@
                         @error('commentaire')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         <span class="ha-field-error" data-error-for="commentaire"></span>
                     </label>
+
+                    @if(config('assistant_ia.enabled') && filled(config('assistant_ia.key')))
+                        <div class="ha-field-wide ha-assistant-container" data-assistant-container data-url="{{ route('user.signalements.assistant-redaction') }}">
+                            <div class="ha-assistant-actions">
+                                <button type="button" class="ha-secondary-button ha-assistant-trigger" data-assistant-trigger>
+                                    <span data-assistant-btn-label>Améliorer ma description avec l'IA</span>
+                                    <span data-assistant-btn-spinner hidden>Amélioration en cours…</span>
+                                </button>
+                            </div>
+                            <div class="ha-assistant-error" data-assistant-error hidden role="alert"></div>
+                            <div class="ha-assistant-suggestion" data-assistant-suggestion hidden>
+                                <div class="ha-assistant-suggestion-title">
+                                    <strong>Suggestion de l'assistant</strong>
+                                </div>
+                                <p class="ha-assistant-suggestion-text" data-assistant-text></p>
+                                <div class="ha-assistant-suggestion-actions">
+                                    <button type="button" class="ha-primary-button" data-assistant-use>Utiliser cette version</button>
+                                    <button type="button" class="ha-secondary-button" data-assistant-ignore>Ignorer</button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </section>
 

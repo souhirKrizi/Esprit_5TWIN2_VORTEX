@@ -95,5 +95,113 @@
         }));
     }
 
-    document.addEventListener('DOMContentLoaded', () => { setupMapPage(); setupStaticMaps(); setupForm(); setupDeleteDialog(); setupAttachmentDelete(); });
+    function setupAssistantRedaction() {
+        const container = by('[data-assistant-container]');
+        if (!container) return;
+
+        const form = by('[data-signalement-form]');
+        const trigger = by('[data-assistant-trigger]', container);
+        const label = by('[data-assistant-btn-label]', container);
+        const spinner = by('[data-assistant-btn-spinner]', container);
+        const errorBox = by('[data-assistant-error]', container);
+        const suggestionBox = by('[data-assistant-suggestion]', container);
+        const textTarget = by('[data-assistant-text]', container);
+        const useBtn = by('[data-assistant-use]', container);
+        const ignoreBtn = by('[data-assistant-ignore]', container);
+
+        const commentInput = by('[data-commentaire]', form);
+        const defaultUnavailableMsg = "L'assistant est indisponible, vous pouvez continuer à écrire votre description.";
+
+        const showError = (msg) => {
+            errorBox.textContent = msg || defaultUnavailableMsg;
+            errorBox.hidden = false;
+        };
+
+        const clearError = () => {
+            errorBox.textContent = '';
+            errorBox.hidden = true;
+        };
+
+        const setLoading = (loading) => {
+            trigger.disabled = loading;
+            if (label) label.hidden = loading;
+            if (spinner) spinner.hidden = !loading;
+        };
+
+        trigger?.addEventListener('click', async () => {
+            clearError();
+            suggestionBox.hidden = true;
+
+            const textValue = (commentInput?.value || '').trim();
+            if (textValue.length < 5) {
+                showError("Veuillez saisir au moins 5 caractères dans le commentaire avant de demander l'aide de l'assistant.");
+                return;
+            }
+
+            const typeSignalement = by('[data-signalement-type]:checked', form)?.value || null;
+            const typeIncident = by('[data-incident-input]', form)?.value || null;
+            const csrfToken = by('input[name="_token"]', form)?.value || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const url = container.dataset.url;
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        texte: textValue,
+                        type_signalement: typeSignalement,
+                        type_incident: typeIncident,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.suggestion) {
+                        textTarget.textContent = data.suggestion;
+                        suggestionBox.hidden = false;
+                    } else {
+                        showError(defaultUnavailableMsg);
+                    }
+                } else if (response.status === 422) {
+                    const data = await response.json().catch(() => ({}));
+                    const firstError = data.errors ? Object.values(data.errors).flat()[0] : (data.message || defaultUnavailableMsg);
+                    showError(firstError);
+                } else if (response.status === 429) {
+                    showError("Trop de demandes envoyées. Veuillez patienter une minute avant de réessayer.");
+                } else if (response.status === 503) {
+                    const data = await response.json().catch(() => ({}));
+                    showError(data.message || defaultUnavailableMsg);
+                } else {
+                    showError(defaultUnavailableMsg);
+                }
+            } catch (err) {
+                showError(defaultUnavailableMsg);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        useBtn?.addEventListener('click', () => {
+            if (textTarget.textContent && commentInput) {
+                commentInput.value = textTarget.textContent;
+                commentInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            suggestionBox.hidden = true;
+            clearError();
+        });
+
+        ignoreBtn?.addEventListener('click', () => {
+            suggestionBox.hidden = true;
+            clearError();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { setupMapPage(); setupStaticMaps(); setupForm(); setupDeleteDialog(); setupAttachmentDelete(); setupAssistantRedaction(); });
 })();
