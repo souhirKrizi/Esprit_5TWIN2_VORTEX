@@ -194,6 +194,59 @@ class ConseilsIaTest extends TestCase
         $this->assertNull($this->equipement->fresh()->conseils_ia);
     }
 
+    public function test_les_textes_vides_de_sens_sont_refuses_sans_appeler_l_ia(): void
+    {
+        foreach (['aaaaaaaaaaaaaaaaaa', 'ababababababab', 'sdfghjklmqsdfg', '1234567890123'] as $description) {
+            $equipement = $this->equipementDe($this->citoyen, ['nom' => 'Essai '.$description, 'description' => $description]);
+
+            $this->actingAs($this->citoyen)->post('/user/mes-equipements/'.$equipement->id.'/conseils-ia')
+                ->assertSessionHas('error', 'Cette description n’a pas de sens. Décrivez le vrai problème de l’équipement pour obtenir des conseils.');
+        }
+
+        Http::assertNothingSent();
+    }
+
+    public function test_les_vraies_descriptions_sont_acceptees(): void
+    {
+        foreach ([null, 'Le frigo s’arrête à chaque coupure.', 'الثلاجة تتوقف عند انقطاع الكهرباء', 'Mon PC redémarre 3 fois par jour.'] as $description) {
+            $this->assertTrue((new EquipementSensible(['description' => $description]))->descriptionSignificative(), (string) $description);
+        }
+    }
+
+    public function test_l_ia_peut_refuser_une_description_et_les_anciens_conseils_sont_retires(): void
+    {
+        $this->equipement->forceFill(['conseils_ia' => $this->conseils(), 'conseils_ia_le' => now()])->save();
+        Http::fake([self::URL => Http::response($this->reponseIa(['description_valide' => false, 'priorite' => '', 'raison' => '', 'avant' => [], 'pendant' => []]))]);
+
+        $this->actingAs($this->citoyen)->post($this->url().'/conseils-ia')
+            ->assertSessionHas('error', 'Cette description n’a pas de sens. Décrivez le vrai problème de l’équipement pour obtenir des conseils.');
+
+        $this->assertNull($this->equipement->fresh()->conseils_ia);
+        $this->assertNull($this->equipement->fresh()->conseils_ia_le);
+    }
+
+    public function test_une_description_vide_de_sens_masque_les_conseils_deja_enregistres(): void
+    {
+        $this->equipement->forceFill(['description' => 'aaaaaaaaaaaaaaaaaaaa', 'conseils_ia' => $this->conseils(), 'conseils_ia_le' => now()])->save();
+
+        $this->actingAs($this->citoyen)->get($this->url())
+            ->assertSee('Votre description n’a pas de sens')
+            ->assertSee('Corriger la description')
+            ->assertDontSee('Préparer un sac isotherme')
+            ->assertDontSee('Générer de nouveaux conseils');
+        $this->actingAs($this->citoyen)->get('/user/mes-equipements')->assertSee('Description à corriger')->assertDontSee('Conseils prêts');
+    }
+
+    public function test_sans_description_la_generation_reste_possible(): void
+    {
+        $sansDescription = $this->equipementDe($this->citoyen, ['nom' => 'Box internet', 'description' => null]);
+        Http::fake([self::URL => Http::response($this->reponseIa($this->conseils()))]);
+
+        $this->actingAs($this->citoyen)->post('/user/mes-equipements/'.$sansDescription->id.'/conseils-ia')->assertSessionHas('success');
+
+        $this->assertNotNull($sansDescription->fresh()->conseils_ia);
+    }
+
     public function test_avertissement_medical_seulement_pour_un_appareil_medical(): void
     {
         $medical = $this->equipementDe($this->citoyen, ['nom' => 'Appareil à oxygène', 'type' => 'appareil_medical']);

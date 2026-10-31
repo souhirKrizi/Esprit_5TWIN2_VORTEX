@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Prevention;
 use App\Http\Requests\Prevention\EquipementSensibleRequest;
 use App\Models\EquipementSensible;
 use App\Services\Prevention\ConseilsIaService;
+use App\Services\Prevention\DescriptionNonSignificative;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -97,6 +98,13 @@ class EquipementSensibleController extends PreventionController
 
         try {
             $equipement->conseils_ia = $service->generer($equipement);
+        } catch (DescriptionNonSignificative $exception) {
+            // Les anciens conseils reposaient sur cette même description : on les retire.
+            $equipement->conseils_ia = null;
+            $equipement->conseils_ia_le = null;
+            $equipement->save();
+
+            return $page->with('error', $exception->getMessage());
         } catch (RuntimeException $exception) {
             return $page->with('error', $exception->getMessage());
         }

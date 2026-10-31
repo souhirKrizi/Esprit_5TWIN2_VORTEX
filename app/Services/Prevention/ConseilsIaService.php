@@ -27,6 +27,7 @@ class ConseilsIaService
     À partir de l'équipement décrit par l'habitant, donne des conseils concrets, propres à cet équipement et à son autonomie.
 
     Réponds uniquement avec un objet JSON contenant exactement ces clés :
+    - "description_valide" : false si la description du problème est une suite de caractères au hasard, n'a aucun sens ou n'a aucun rapport avec cet équipement, sinon true. Une description "non renseignée" est valide. Si la valeur est false, laisse les autres clés vides.
     - "priorite" : "elevee", "moderee" ou "faible", selon le risque pour la santé, la sécurité et selon l'autonomie
     - "raison" : une seule phrase qui explique cette priorité
     - "avant" : 2 ou 3 actions à faire avant la canicule ou la coupure
@@ -57,10 +58,15 @@ class ConseilsIaService
     /**
      * @return array{priorite: string, raison: string, avant: list<string>, pendant: list<string>, apres: list<string>, a_eviter: list<string>}
      *
+     * @throws DescriptionNonSignificative si la description n'a pas de sens
      * @throws RuntimeException avec un message affichable à l'utilisateur
      */
     public function generer(EquipementSensible $equipement): array
     {
+        if (! $equipement->descriptionSignificative()) {
+            throw new DescriptionNonSignificative;
+        }
+
         return $this->verifier($this->demander(self::CONSIGNES, $this->informations($equipement)));
     }
 
@@ -185,6 +191,11 @@ class ConseilsIaService
     private function verifier(string $contenu): array
     {
         $donnees = json_decode($contenu, true);
+
+        if (($donnees['description_valide'] ?? true) === false) {
+            throw new DescriptionNonSignificative;
+        }
+
         $priorite = $donnees['priorite'] ?? null;
         $raison = $this->texte($donnees['raison'] ?? null);
 

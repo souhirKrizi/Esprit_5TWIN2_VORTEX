@@ -1,5 +1,6 @@
 @php
-    $conseils = $equipement->conseils_ia;
+    $descriptionValide = $equipement->descriptionSignificative();
+    $conseils = $descriptionValide ? $equipement->conseils_ia : null;
     $priorites = \App\Services\Prevention\ConseilsIaService::PRIORITES;
     $moments = ['avant' => 'Avant', 'pendant' => 'Pendant', 'apres' => 'Après'];
 @endphp
@@ -19,7 +20,12 @@
     </header>
 
     <div data-ia-contenu>
-        @if($conseils)
+        @if(! $descriptionValide)
+            <div class="pv-ia-alerte" role="alert">
+                <strong>Votre description n’a pas de sens</strong>
+                <p>L’IA ne peut pas donner de conseils fiables à partir de ce texte. Décrivez le vrai problème, par exemple : « Le frigo s’arrête à chaque coupure de courant. »</p>
+            </div>
+        @elseif($conseils)
             <p class="pv-ia-raison">{{ $conseils['raison'] }}</p>
 
             <div class="pv-ia-etapes">
@@ -67,10 +73,14 @@
     </div>
 
     <footer class="pv-ia-pied">
-        <form method="POST" action="{{ route('prevention.equipements.conseils', $equipement) }}" data-ia-formulaire>
-            @csrf
-            <button class="{{ $conseils ? 'ha-secondary-button' : 'ha-primary-button' }}" type="submit">{{ $conseils ? 'Générer de nouveaux conseils' : 'Générer mes conseils' }}</button>
-        </form>
+        @if($descriptionValide)
+            <form method="POST" action="{{ route('prevention.equipements.conseils', $equipement) }}" data-ia-formulaire>
+                @csrf
+                <button class="{{ $conseils ? 'ha-secondary-button' : 'ha-primary-button' }}" type="submit">{{ $conseils ? 'Générer de nouveaux conseils' : 'Générer mes conseils' }}</button>
+            </form>
+        @else
+            <a class="ha-primary-button" href="{{ route('prevention.equipements.edit', $equipement) }}">Corriger la description</a>
+        @endif
         @if($conseils)
             <small>Générés le {{ $equipement->conseils_ia_le?->format('d/m/Y à H:i') }}</small>
         @endif

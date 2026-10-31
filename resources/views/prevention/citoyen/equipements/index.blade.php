@@ -26,7 +26,9 @@
                             <td>{{ $equipement->libelleSensibilite() }}</td>
                             <td>{{ $equipement->autonomie_heures === null ? '—' : $equipement->autonomie_heures.' h' }}</td>
                             <td>
-                                @if($equipement->conseils_ia)
+                                @if(! $equipement->descriptionSignificative())
+                                    <a class="pv-link pv-link-danger" href="{{ route('prevention.equipements.edit', $equipement) }}">Description à corriger</a>
+                                @elseif($equipement->conseils_ia)
                                     <a class="pv-badge pv-statut-repondue" href="{{ route('prevention.equipements.show', $equipement) }}">Conseils prêts</a>
                                 @else
                                     <a class="pv-link" href="{{ route('prevention.equipements.show', $equipement) }}">À générer</a>

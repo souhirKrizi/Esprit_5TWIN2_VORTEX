@@ -44,6 +44,26 @@ class EquipementSensible extends Model
         return (int) $this->user_id === (int) $user->getKey();
     }
 
+    /**
+     * Repère sans appeler l'IA les textes visiblement vides de sens (« aaaaaa », « sdfghjkl », « 123456 »).
+     */
+    public function descriptionSignificative(): bool
+    {
+        $description = mb_strtolower(trim((string) $this->description));
+
+        if ($description === '') {
+            return true;
+        }
+
+        $lettres = preg_replace('/[^\p{L}]/u', '', $description);
+        $latines = preg_match_all('/\p{Latin}/u', $lettres);
+        $voyelles = preg_match_all('/[aeiouyàâäéèêëîïôöùûüÿœ]/u', $lettres);
+
+        return ! preg_match('/(\p{L})\1{3,}/u', $description)
+            && count(array_unique(mb_str_split($lettres))) >= 5
+            && ($latines === 0 || $voyelles / $latines >= 0.2);
+    }
+
     public function libelleType(): string
     {
         return self::TYPES[$this->type] ?? $this->type;
