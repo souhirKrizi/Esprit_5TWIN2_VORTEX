@@ -22,6 +22,30 @@ class CaniculeCitizenExperienceTest extends TestCase
         config(['assistant_ia.key' => 'test-key']);
     }
 
+    public function test_les_pages_restent_disponibles_si_les_api_ne_repondent_pas(): void
+    {
+        config(['services.openweather.key' => 'test-key']);
+        Http::fake(fn () => Http::failedConnection());
+
+        $user = User::factory()->create(['role' => 'user', 'governorate' => 'Tunis']);
+        $zone = Zone::create(['code' => 'TN-11', 'nom' => 'Tunis', 'geometrie_geojson' => '{}', 'active' => true]);
+        Campagne::create([
+            'organisateur_id' => $user->id,
+            'titre' => 'Campagne sans réseau',
+            'description' => 'Événement en plein air',
+            'objectif' => 'Sensibilisation',
+            'lieu' => 'Tunis',
+            'date_debut' => now()->addDay(),
+            'date_fin' => now()->addDays(2),
+            'statut' => 'publiee',
+        ]);
+
+        $this->actingAs($user)->get('/user/canicule/ma-zone?zone_id='.$zone->id)->assertOk();
+        $this->actingAs($user)->get('/user/canicule/alertes')->assertOk()
+            ->assertSee('Campagne sans réseau')
+            ->assertSee('Hydratez-vous régulièrement');
+    }
+
     public function test_user_can_pick_zone_for_weather_and_see_campaign_guidance(): void
     {
         Http::fake([

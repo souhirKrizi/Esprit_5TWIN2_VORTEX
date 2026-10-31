@@ -191,7 +191,7 @@
 <div class="flex items-center gap-2 w-full md:w-auto">
 <div class="relative w-full md:w-64">
 <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-outline text-[18px]">search</span>
-<input class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" id="regionFilterInput" placeholder="Filtrer gouvernorat..." type="text"/>
+<input class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none" id="regionFilterInput" aria-label="Filtrer par gouvernorat" placeholder="Filtrer gouvernorat..." type="text"/>
 </div>
 <!-- Quick demo toggle state helper -->
 <button class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 shrink-0" id="toggleDemoStateBtn" title="Simuler un basculement d'état (ex: Données indisponibles ou Réseau normalisé)">

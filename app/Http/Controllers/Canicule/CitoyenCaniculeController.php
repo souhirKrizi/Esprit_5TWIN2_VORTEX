@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\Canicule;
 
+use App\Http\Controllers\Controller;
 use App\Models\Alerte;
 use App\Models\Campagne;
-use App\Models\ReleveMeteo;
 use App\Models\User;
 use App\Models\Zone;
 use App\Services\Canicule\CarteCaniculeService;
+use App\Services\Canicule\MeteoActuelleService;
 use Closure;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
-class CitoyenCaniculeController extends \App\Http\Controllers\Controller implements HasMiddleware
+class CitoyenCaniculeController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
@@ -28,7 +30,7 @@ class CitoyenCaniculeController extends \App\Http\Controllers\Controller impleme
         ];
     }
 
-    public function meteo(Request $request): View
+    public function meteo(Request $request, MeteoActuelleService $meteo): View
     {
         $zones = Zone::query()->where('active', true)->orderBy('nom')->get();
         $selectedZoneId = $request->input('zone_id');
@@ -48,7 +50,7 @@ class CitoyenCaniculeController extends \App\Http\Controllers\Controller impleme
             ->orderByRaw("CASE niveau_gravite WHEN 'rouge' THEN 3 WHEN 'orange' THEN 2 ELSE 1 END DESC")
             ->first();
 
-        $weather = $zone ? $this->weatherForZone($zone) : null;
+        $weather = $zone ? $meteo->pourZone($zone) : null;
 
         return view('canicule.citoyen.meteo', [
             'zone' => $zone,
@@ -102,40 +104,6 @@ class CitoyenCaniculeController extends \App\Http\Controllers\Controller impleme
         return Zone::where('nom', $nom)->first();
     }
 
-    private function weatherForZone(Zone $zone): ?array
-    {
-        $apiKey = config('services.openweather.key');
-
-        if (blank($apiKey)) {
-            return null;
-        }
-
-        $response = Http::get('https://api.openweathermap.org/data/2.5/weather', [
-            'q' => $zone->nom.',TN',
-            'units' => 'metric',
-            'lang' => 'fr',
-            'appid' => $apiKey,
-        ]);
-
-        if ($response->failed()) {
-            return null;
-        }
-
-        $data = $response->json();
-        $main = $data['main'] ?? [];
-        $wind = $data['wind'] ?? [];
-        $weather = $data['weather'][0] ?? [];
-
-        return [
-            'temperature' => (float) ($main['temp'] ?? 0),
-            'humidity' => (int) ($main['humidity'] ?? 0),
-            'wind_speed' => (float) ($wind['speed'] ?? 0),
-            'condition' => (string) ($weather['description'] ?? 'Données indisponibles'),
-            'sunrise' => data_get($data, 'sys.sunrise'),
-            'sunset' => data_get($data, 'sys.sunset'),
-        ];
-    }
-
     private function infoPourCampagne(Campagne $campagne): array
     {
         $apiKey = config('assistant_ia.key');
@@ -161,18 +129,22 @@ class CitoyenCaniculeController extends \App\Http\Controllers\Controller impleme
             $campagne->description ?: 'Événement extérieur à suivre.'
         );
 
-        $response = Http::withHeaders([
-            'x-goog-api-key' => $apiKey,
-        ])
-            ->timeout((int) config('assistant_ia.timeout', 15))
-            ->post('https://generativelanguage.googleapis.com/v1beta/models/'.config('assistant_ia.model', 'gemini-3.5-flash-lite').':generateContent', [
-                'contents' => [[
-                    'role' => 'user',
-                    'parts' => [[
-                        'text' => $prompt,
+        try {
+            $response = Http::withHeaders([
+                'x-goog-api-key' => $apiKey,
+            ])
+                ->timeout((int) config('assistant_ia.timeout', 15))
+                ->post('https://generativelanguage.googleapis.com/v1beta/models/'.config('assistant_ia.model', 'gemini-3.5-flash-lite').':generateContent', [
+                    'contents' => [[
+                        'role' => 'user',
+                        'parts' => [[
+                            'text' => $prompt,
+                        ]],
                     ]],
-                ]],
-            ]);
+                ]);
+        } catch (ConnectionException) {
+            return $default;
+        }
 
         if ($response->failed()) {
             return $default;

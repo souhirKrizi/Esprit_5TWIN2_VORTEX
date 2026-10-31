@@ -48,7 +48,7 @@ body { margin: 0; color: #18253d; font-family: 'DejaVu Sans', sans-serif; font-s
             <p><strong>Édition :</strong> {{ $genereLe->format('d/m/Y H:i') }} · Heure de Tunis</p>
         </div>
     </section>
-    <table class="kpis"><tr>
+    <table class="kpis" role="presentation"><tr>
         <td><strong>{{ $stats['missions'] }}</strong><span>Missions planifiées</span></td>
         <td><strong>{{ $stats['missions_terminees'] }}</strong><span>Missions terminées</span></td>
         <td><strong>{{ $stats['inscriptions_actives'] }}</strong><span>Inscriptions actives</span></td>
