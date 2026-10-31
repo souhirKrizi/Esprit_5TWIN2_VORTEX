@@ -113,6 +113,8 @@ Route::middleware('auth')->prefix('user')->name('prevention.')->group(function (
     Route::put('/mes-questions/{question}', [QuestionCitoyenController::class, 'update'])->whereNumber('question')->name('questions.update');
     Route::delete('/mes-questions/{question}', [QuestionCitoyenController::class, 'destroy'])->whereNumber('question')->name('questions.destroy');
 
+    Route::post('/mes-equipements/{equipement}/conseils-ia', [EquipementSensibleController::class, 'genererConseils'])->whereNumber('equipement')->name('equipements.conseils');
+
     Route::resource('mes-equipements', EquipementSensibleController::class)
         ->parameters(['mes-equipements' => 'equipement'])
         ->names('equipements')
@@ -121,12 +123,17 @@ Route::middleware('auth')->prefix('user')->name('prevention.')->group(function (
 
 // Module « Conseils de prévention » — administration : /admin/... (rôle admin vérifié dans AdminPreventionController).
 Route::middleware('auth')->prefix('admin')->name('admin.prevention.')->group(function () {
+    Route::put('/conseils/alerte-en-cours', [AdminFicheConseilController::class, 'changerAlerte'])->name('alerte.update');
+
     Route::resource('conseils', AdminFicheConseilController::class)
         ->parameters(['conseils' => 'fiche'])
         ->names('fiches')
         ->whereNumber('fiche');
 
     Route::post('/conseils/{fiche}/gestes', [AdminGesteCleController::class, 'store'])->whereNumber('fiche')->name('gestes.store');
+    Route::post('/conseils/{fiche}/gestes/propositions', [AdminGesteCleController::class, 'proposer'])->whereNumber('fiche')->name('gestes.proposer');
+    Route::post('/conseils/{fiche}/gestes/propositions/ajouter', [AdminGesteCleController::class, 'ajouterProposes'])->whereNumber('fiche')->name('gestes.proposes.ajouter');
+    Route::delete('/conseils/{fiche}/gestes/propositions', [AdminGesteCleController::class, 'ignorerProposes'])->whereNumber('fiche')->name('gestes.proposes.ignorer');
     Route::get('/gestes/{geste}/edit', [AdminGesteCleController::class, 'edit'])->whereNumber('geste')->name('gestes.edit');
     Route::put('/gestes/{geste}', [AdminGesteCleController::class, 'update'])->whereNumber('geste')->name('gestes.update');
     Route::delete('/gestes/{geste}', [AdminGesteCleController::class, 'destroy'])->whereNumber('geste')->name('gestes.destroy');
