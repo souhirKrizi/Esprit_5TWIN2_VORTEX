@@ -28,8 +28,8 @@ use App\Http\Controllers\VerificationDoublonController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'homepage.index')->name('home');
-Route::view('/signin', 'signin.index')->name('signin');
-Route::view('/signup', 'signup.index')->name('signup');
+Route::view('/signin', 'signin.index')->middleware('guest')->name('signin');
+Route::view('/signup', 'signup.index')->middleware('guest')->name('signup');
 Route::view('/dashbiard', 'welcome')->name('dashboard.preview');
 Route::view('/dashboard', 'welcome')->name('dashboard');
 
@@ -41,6 +41,7 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/agent-campagne/campagnes/{campagne}/rapport', [AgentMissionController::class, 'rapport'])->middleware('throttle:3,1')->name('agent-campagne.campagnes.rapport');
     Route::get('/user/canicule/ma-zone', [CitoyenCaniculeController::class, 'meteo'])->name('user.canicule.meteo');
     Route::get('/user/canicule/alertes', [CitoyenCaniculeController::class, 'alertes'])->name('user.canicule.alertes');
     Route::get('/user/canicule/carte', [CitoyenCaniculeController::class, 'carte'])->name('user.canicule.carte');

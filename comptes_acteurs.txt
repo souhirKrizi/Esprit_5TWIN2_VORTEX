@@ -1,0 +1,21 @@
+# Comptes de démonstration Vortex — RoleUsersSeeder
+# Rôle : admin
+Email : admin@vortex.com
+Mot de passe : ad123456
+
+# Rôle : agent-campagne — organisateur des campagnes et gestionnaire des missions
+Email : agent@vortex.com
+Mot de passe : ag123456
+
+# Rôle : user — utilisateur / citoyen
+Email : user@vortex.com
+Mot de passe : us123456
+
+# CampagnesMissionsSeeder réutilise agent@vortex.com ; aucun acteur supplémentaire.
+
+# Rôle : user — compte de test du DatabaseSeeder existant
+Email : test@example.com
+Mot de passe : password
+
+# Relancer les comptes : php artisan db:seed --class=RoleUsersSeeder
+# Relancer le module : php artisan db:seed --class=CampagnesMissionsSeeder

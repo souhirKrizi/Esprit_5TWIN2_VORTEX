@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Campagne extends Model
 {
+    use HasFactory;
+
     public const STATUTS = ['brouillon', 'publiee', 'en_cours', 'terminee', 'annulee'];
 
     protected $fillable = [

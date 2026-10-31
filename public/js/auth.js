@@ -49,7 +49,11 @@ if (signInForm && errorDialog) {
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin',
             });
-            if (response.status === 422) {
+            if (response.redirected && response.ok) {
+                const target = new URL(response.url);
+                if (target.origin !== window.location.origin) throw new Error('Invalid redirect');
+                window.location.assign(target.href);
+            } else if (response.status === 422) {
                 showError('Adresse e-mail ou mot de passe incorrect.');
             } else if (response.status === 429) {
                 showError('Trop de tentatives. Patientez une minute avant de réessayer.');

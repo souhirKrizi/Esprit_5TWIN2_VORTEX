@@ -4,15 +4,65 @@ namespace App\Http\Controllers;
 
 use App\Models\Campagne;
 use App\Models\Mission;
+use App\Services\CampagneRapportService;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use RuntimeException;
 
 class AgentMissionController extends Controller
 {
+    public function rapport(Request $request, Campagne $campagne, CampagneRapportService $service)
+    {
+        $this->ensureAgent($request);
+        $this->ownedCampaign($request, $campagne->id);
+        $lock = Cache::lock('rapport-campagne-'.$campagne->id, 120);
+        if (! $lock->get()) {
+            return response()->json(['message' => 'Un rapport est déjà en cours de génération pour cette campagne.'], 409);
+        }
+
+        try {
+            $donnees = $service->snapshot($campagne);
+            try {
+                $analyse = $service->generate($donnees);
+            } catch (RuntimeException $exception) {
+                return response()->json(['message' => $exception->getMessage()], 503);
+            }
+            $this->ownedCampaign($request, $campagne->id);
+            $options = new Options;
+            $options->set('isRemoteEnabled', false);
+            $options->set('isPhpEnabled', false);
+            $options->set('isJavascriptEnabled', false);
+            $options->set('defaultFont', 'DejaVu Sans');
+            $pdf = new Dompdf($options);
+            $pdf->setPaper('A4');
+            $pdf->loadHtml(view('agent.campagnes.rapport', [
+                'donnees' => $donnees,
+                'analyse' => $analyse,
+                'sections' => CampagneRapportService::SECTIONS,
+                'genereLe' => now('Africa/Tunis'),
+                'modele' => config('services.gemini_rapport.model'),
+                'logo' => 'data:image/jpeg;base64,'.base64_encode(file_get_contents(public_path('assets/images/Logo_HeatAlert_avec_flamme_integree.jpg'))),
+            ])->render());
+            $pdf->render();
+            $pdf->getCanvas()->page_text(42, 807, 'HeatAlert | Rapport de campagne | Page {PAGE_NUM} / {PAGE_COUNT}', 'DejaVu Sans', 8, [0.35, 0.39, 0.45]);
+
+            return response($pdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="HeatAlert-campagne-'.$campagne->id.'-rapport.pdf"',
+                'Cache-Control' => 'private, no-store',
+            ]);
+        } finally {
+            $lock->release();
+        }
+    }
+
     public function index(Request $request): View
     {
         $this->ensureAgent($request);

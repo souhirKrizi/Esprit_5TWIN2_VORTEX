@@ -48,6 +48,63 @@ class SignInTest extends TestCase
     }
 
     #[DataProvider('roles')]
+    public function test_authenticated_users_are_sent_to_their_space_from_auth_pages(string $role): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $this->actingAs($user);
+
+        $this->get('/')->assertOk()->assertSee('href="'.$user->spaceUrl().'"', false);
+        foreach (['/signin', '/signup', '/login', '/register'] as $path) {
+            $this->get($path)->assertRedirect($user->spaceUrl());
+        }
+        $this->postJson('/login', [])->assertRedirect($user->spaceUrl());
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_guests_can_open_auth_pages_from_the_homepage(): void
+    {
+        $this->get('/')->assertOk()->assertSee('href="'.route('signin').'"', false);
+        $this->get('/signin')->assertOk();
+        $this->get('/signup')->assertOk();
+    }
+
+    public function test_registration_keeps_the_new_user_authenticated_and_redirects_to_their_space(): void
+    {
+        $this->withSession(['url.intended' => '/admin'])->post('/register', [
+            'name' => 'Nouveau citoyen',
+            'email' => 'citoyen@example.com',
+            'governorate' => 'Tunis',
+            'password' => 'Citoyen123',
+            'password_confirmation' => 'Citoyen123',
+            'terms' => '1',
+            'role' => 'admin',
+        ])->assertRedirect('/user/'.User::where('email', 'citoyen@example.com')->firstOrFail()->id);
+
+        $user = User::where('email', 'citoyen@example.com')->firstOrFail();
+        $this->assertSame('user', $user->role);
+        $this->assertAuthenticatedAs($user);
+        $this->get($user->spaceUrl())->assertOk();
+        $this->get('/signin')->assertRedirect($user->spaceUrl());
+    }
+
+    public function test_json_registration_returns_the_space_and_keeps_the_session(): void
+    {
+        $response = $this->postJson('/register', [
+            'name' => 'Citoyen JSON',
+            'email' => 'json@example.com',
+            'governorate' => 'Tunis',
+            'password' => 'Citoyen123',
+            'password_confirmation' => 'Citoyen123',
+            'terms' => '1',
+        ]);
+
+        $user = User::where('email', 'json@example.com')->firstOrFail();
+        $response->assertCreated()->assertJsonPath('redirect', $user->spaceUrl());
+        $this->assertAuthenticatedAs($user);
+        $this->get($user->spaceUrl())->assertOk();
+    }
+
+    #[DataProvider('roles')]
     public function test_login_redirects_to_the_stored_role_and_user_id(string $role): void
     {
         $user = User::factory()->create(['role' => $role]);
