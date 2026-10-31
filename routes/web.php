@@ -5,7 +5,13 @@ use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminSignalementController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AgentMissionController;
+use App\Http\Controllers\AssistantRedactionController;
 use App\Http\Controllers\CarteController;
+use App\Http\Controllers\Canicule\AdminAlerteController;
+use App\Http\Controllers\Canicule\AdminCarteCaniculeController;
+use App\Http\Controllers\Canicule\AdminReleveMeteoController;
+use App\Http\Controllers\Canicule\AdminZoneController;
+use App\Http\Controllers\Canicule\CitoyenCaniculeController;
 use App\Http\Controllers\PasswordResetCodeController;
 use App\Http\Controllers\Prevention\Admin\FicheConseilController as AdminFicheConseilController;
 use App\Http\Controllers\Prevention\Admin\GesteCleController as AdminGesteCleController;
@@ -18,6 +24,7 @@ use App\Http\Controllers\RessourceUtileController;
 use App\Http\Controllers\SignalementController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\UserCampaignController;
+use App\Http\Controllers\VerificationDoublonController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'homepage.index')->name('home');
@@ -35,6 +42,10 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 
 Route::middleware('auth')->group(function () {
     Route::post('/agent-campagne/campagnes/{campagne}/rapport', [AgentMissionController::class, 'rapport'])->middleware('throttle:3,1')->name('agent-campagne.campagnes.rapport');
+    Route::get('/user/canicule/ma-zone', [CitoyenCaniculeController::class, 'meteo'])->name('user.canicule.meteo');
+    Route::get('/user/canicule/alertes', [CitoyenCaniculeController::class, 'alertes'])->name('user.canicule.alertes');
+    Route::get('/user/canicule/carte', [CitoyenCaniculeController::class, 'carte'])->name('user.canicule.carte');
+
     Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
     Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
     Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
@@ -52,21 +63,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/ressources/{ressourceUtile}', [RessourceUtileController::class, 'show'])->name('user.ressources.show');
     Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
     Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
+    Route::post('/user/signalements/assistant-redaction', AssistantRedactionController::class)->middleware('throttle:10,1')->name('user.signalements.assistant-redaction');
+    Route::post('/user/signalements/verifier-doublon', VerificationDoublonController::class)->middleware('throttle:30,1')->name('user.signalements.verifier-doublon');
     Route::resource('/user/signalements', SignalementController::class)->except(['store'])->names('user.signalements');
     Route::post('/user/signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1')->name('user.signalements.store');
-    Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');
-
-    Route::get('/user/signalements/carte', [CarteController::class, 'index'])->name('user.signalements.carte');
-    Route::get('/user/signalements/api/ressources', [CarteController::class, 'ressources'])->name('user.signalements.api.ressources');
-    Route::get('/user/ressources/{ressourceUtile}', [RessourceUtileController::class, 'show'])->name('user.ressources.show');
-    Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
-    Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
-    Route::resource('/user/signalements', SignalementController::class)
-        ->except(['store'])
-        ->names('user.signalements');
-    Route::post('/user/signalements', [SignalementController::class, 'store'])
-        ->middleware('throttle:10,1')
-        ->name('user.signalements.store');
     Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');
 
     foreach (['user', 'agent-campagne', 'admin'] as $space) {
@@ -79,6 +79,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/canicule/carte', [AdminCarteCaniculeController::class, 'index'])->name('canicule.carte');
+    Route::resource('/canicule/zones', AdminZoneController::class)->only(['index', 'edit', 'update'])->names('canicule.zones')->whereNumber('zone');
+    Route::resource('/canicule/releves', AdminReleveMeteoController::class)->except(['show'])->parameters(['releves' => 'releve'])->names('canicule.releves')->whereNumber('releve');
+    Route::resource('/canicule/alertes', AdminAlerteController::class)->except(['show'])->names('canicule.alertes')->whereNumber('alerte');
+
     Route::get('/signalements/carte', [AdminSignalementController::class, 'carte'])->name('signalements.carte');
     Route::get('/signalements/api/ressources', [AdminSignalementController::class, 'ressources'])->name('signalements.api.ressources');
     Route::get('/signalements', [AdminSignalementController::class, 'index'])->name('signalements.index');
@@ -113,6 +118,8 @@ Route::middleware('auth')->prefix('user')->name('prevention.')->group(function (
     Route::put('/mes-questions/{question}', [QuestionCitoyenController::class, 'update'])->whereNumber('question')->name('questions.update');
     Route::delete('/mes-questions/{question}', [QuestionCitoyenController::class, 'destroy'])->whereNumber('question')->name('questions.destroy');
 
+    Route::post('/mes-equipements/{equipement}/conseils-ia', [EquipementSensibleController::class, 'genererConseils'])->whereNumber('equipement')->name('equipements.conseils');
+
     Route::resource('mes-equipements', EquipementSensibleController::class)
         ->parameters(['mes-equipements' => 'equipement'])
         ->names('equipements')
@@ -121,12 +128,17 @@ Route::middleware('auth')->prefix('user')->name('prevention.')->group(function (
 
 // Module « Conseils de prévention » — administration : /admin/... (rôle admin vérifié dans AdminPreventionController).
 Route::middleware('auth')->prefix('admin')->name('admin.prevention.')->group(function () {
+    Route::put('/conseils/alerte-en-cours', [AdminFicheConseilController::class, 'changerAlerte'])->name('alerte.update');
+
     Route::resource('conseils', AdminFicheConseilController::class)
         ->parameters(['conseils' => 'fiche'])
         ->names('fiches')
         ->whereNumber('fiche');
 
     Route::post('/conseils/{fiche}/gestes', [AdminGesteCleController::class, 'store'])->whereNumber('fiche')->name('gestes.store');
+    Route::post('/conseils/{fiche}/gestes/propositions', [AdminGesteCleController::class, 'proposer'])->whereNumber('fiche')->name('gestes.proposer');
+    Route::post('/conseils/{fiche}/gestes/propositions/ajouter', [AdminGesteCleController::class, 'ajouterProposes'])->whereNumber('fiche')->name('gestes.proposes.ajouter');
+    Route::delete('/conseils/{fiche}/gestes/propositions', [AdminGesteCleController::class, 'ignorerProposes'])->whereNumber('fiche')->name('gestes.proposes.ignorer');
     Route::get('/gestes/{geste}/edit', [AdminGesteCleController::class, 'edit'])->whereNumber('geste')->name('gestes.edit');
     Route::put('/gestes/{geste}', [AdminGesteCleController::class, 'update'])->whereNumber('geste')->name('gestes.update');
     Route::delete('/gestes/{geste}', [AdminGesteCleController::class, 'destroy'])->whereNumber('geste')->name('gestes.destroy');

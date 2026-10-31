@@ -23,10 +23,14 @@ class FicheConseilController extends PreventionController
             ->paginate(9)
             ->withQueryString();
 
+        $alerteEnCours = FicheConseil::niveauAlerteEnCours();
+
         return view('prevention.citoyen.fiches.index', [
             'espace' => $this->espace($request),
             'fiches' => $fiches,
             'filtres' => $filtres,
+            'alerteEnCours' => $alerteEnCours,
+            'conseilsAlerte' => $alerteEnCours ? FicheConseil::conseilsPourAlerte($alerteEnCours) : collect(),
         ]);
     }
 

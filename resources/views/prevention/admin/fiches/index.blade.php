@@ -14,6 +14,24 @@
 
     @include('prevention.partials.messages')
 
+    <section class="ha-admin-panel pv-box-alerte">
+        <form class="ha-user-filters" method="POST" action="{{ route('admin.prevention.alerte.update') }}">
+            @csrf @method('PUT')
+            <label for="niveau"><strong>Alerte en cours</strong></label>
+            <label class="ha-select-field">
+                <select id="niveau" name="niveau">
+                    <option value="">Aucune alerte</option>
+                    @foreach(\App\Models\FicheConseil::NIVEAUX as $valeur => $libelle)
+                        <option value="{{ $valeur }}" @selected(old('niveau', $alerteEnCours) === $valeur)>{{ $libelle }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <button class="ha-secondary-button" type="submit">Enregistrer</button>
+            <span class="pv-info">Les conseils de ce niveau s’affichent en priorité pour les habitants.</span>
+        </form>
+        @error('niveau')<p class="pv-erreur pv-erreur-alerte">{{ $message }}</p>@enderror
+    </section>
+
     <section class="ha-admin-panel">
         <form class="ha-user-filters" method="GET" action="{{ route('admin.prevention.fiches.index') }}">
             <label class="ha-search-field"><span class="sr-only">Rechercher</span><x-space-icon name="file" /><input type="search" name="recherche" value="{{ $filtres['recherche'] ?? '' }}" placeholder="Rechercher par titre"></label>

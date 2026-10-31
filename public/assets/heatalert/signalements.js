@@ -61,7 +61,13 @@
         const map = L.map(element).setView([Number(element.dataset.lat) || 33.8, Number(element.dataset.lng) || 9.5], 7);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
         const marker = L.marker([Number(latInput.value) || 33.8, Number(lngInput.value) || 9.5], { draggable: true }).addTo(map);
-        const setPosition = (lat, lng) => { latInput.value = lat.toFixed(7); lngInput.value = lng.toFixed(7); marker.setLatLng([lat, lng]); };
+        const setPosition = (lat, lng) => {
+            latInput.value = lat.toFixed(7);
+            lngInput.value = lng.toFixed(7);
+            latInput.dispatchEvent(new Event('change', { bubbles: true }));
+            lngInput.dispatchEvent(new Event('change', { bubbles: true }));
+            marker.setLatLng([lat, lng]);
+        };
         setPosition(Number(latInput.value) || 33.8, Number(lngInput.value) || 9.5);
         marker.on('dragend', () => { const position = marker.getLatLng(); setPosition(position.lat, position.lng); });
         by('[data-geolocate]', form)?.addEventListener('click', () => navigator.geolocation?.getCurrentPosition(position => { setPosition(position.coords.latitude, position.coords.longitude); map.setView([position.coords.latitude, position.coords.longitude], 14); }, () => alert('Votre position n’a pas pu être obtenue.')));
@@ -95,5 +101,188 @@
         }));
     }
 
-    document.addEventListener('DOMContentLoaded', () => { setupMapPage(); setupStaticMaps(); setupForm(); setupDeleteDialog(); setupAttachmentDelete(); });
+    function setupVerificationDoublon() {
+        const container = by('[data-doublon-container]');
+        if (!container) return;
+
+        const url  = container.dataset.url;
+        const form = by('[data-signalement-form]');
+        if (!form || !url) return;
+
+        let debounceTimer = null;
+
+        const check = () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(async () => {
+                const lat  = by('[data-coordinate="latitude"]',  form)?.value;
+                const lng  = by('[data-coordinate="longitude"]', form)?.value;
+                const type = by('[data-signalement-type]:checked', form)?.value;
+
+                if (!lat || !lng || !type || lat === '33.8' || lng === '9.5') {
+                    container.hidden = true;
+                    container.textContent = '';
+                    return;
+                }
+
+                const typeIncident = by('[data-incident-input]', form)?.value || null;
+                const csrfToken    = by('input[name="_token"]', form)?.value
+                                  || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+                try {
+                    const response = await fetch(url, {
+                        method:  'POST',
+                        headers: {
+                            'Content-Type':     'application/json',
+                            'Accept':           'application/json',
+                            'X-CSRF-TOKEN':     csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            latitude:         parseFloat(lat),
+                            longitude:        parseFloat(lng),
+                            type_signalement: type,
+                            type_incident:    typeIncident,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        container.hidden = true;
+                        container.textContent = '';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.similaires > 0 && data.message) {
+                        container.textContent = '\u26A0 ' + data.message;
+                        container.hidden = false;
+                    } else {
+                        container.hidden = true;
+                        container.textContent = '';
+                    }
+                } catch (_) {
+                    // Erreur réseau : ne rien afficher, ne pas bloquer
+                    container.hidden = true;
+                    container.textContent = '';
+                }
+            }, 600);
+        };
+
+        // Déclenchement sur changement de position
+        all('[data-coordinate]', form).forEach(input => input.addEventListener('change', check));
+
+        // Déclenchement sur changement de type
+        all('[data-signalement-type]', form).forEach(input => input.addEventListener('change', check));
+        by('[data-incident-input]', form)?.addEventListener('change', check);
+    }
+
+    function setupAssistantRedaction() {
+        const container = by('[data-assistant-container]');
+        if (!container) return;
+
+        const form = by('[data-signalement-form]');
+        const trigger = by('[data-assistant-trigger]', container);
+        const label = by('[data-assistant-btn-label]', container);
+        const spinner = by('[data-assistant-btn-spinner]', container);
+        const errorBox = by('[data-assistant-error]', container);
+        const suggestionBox = by('[data-assistant-suggestion]', container);
+        const textTarget = by('[data-assistant-text]', container);
+        const useBtn = by('[data-assistant-use]', container);
+        const ignoreBtn = by('[data-assistant-ignore]', container);
+
+        const commentInput = by('[data-commentaire]', form);
+        const defaultUnavailableMsg = "L'assistant est indisponible, vous pouvez continuer à écrire votre description.";
+
+        const showError = (msg) => {
+            errorBox.textContent = msg || defaultUnavailableMsg;
+            errorBox.hidden = false;
+        };
+
+        const clearError = () => {
+            errorBox.textContent = '';
+            errorBox.hidden = true;
+        };
+
+        const setLoading = (loading) => {
+            trigger.disabled = loading;
+            if (label) label.hidden = loading;
+            if (spinner) spinner.hidden = !loading;
+        };
+
+        trigger?.addEventListener('click', async () => {
+            clearError();
+            suggestionBox.hidden = true;
+
+            const textValue = (commentInput?.value || '').trim();
+            if (textValue.length < 5) {
+                showError("Veuillez saisir au moins 5 caractères dans le commentaire avant de demander l'aide de l'assistant.");
+                return;
+            }
+
+            const typeSignalement = by('[data-signalement-type]:checked', form)?.value || null;
+            const typeIncident = by('[data-incident-input]', form)?.value || null;
+            const csrfToken = by('input[name="_token"]', form)?.value || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const url = container.dataset.url;
+
+            setLoading(true);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        texte: textValue,
+                        type_signalement: typeSignalement,
+                        type_incident: typeIncident,
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.suggestion) {
+                        textTarget.textContent = data.suggestion;
+                        suggestionBox.hidden = false;
+                    } else {
+                        showError(defaultUnavailableMsg);
+                    }
+                } else if (response.status === 422) {
+                    const data = await response.json().catch(() => ({}));
+                    const firstError = data.errors ? Object.values(data.errors).flat()[0] : (data.message || defaultUnavailableMsg);
+                    showError(firstError);
+                } else if (response.status === 429) {
+                    showError("Trop de demandes envoyées. Veuillez patienter une minute avant de réessayer.");
+                } else if (response.status === 503) {
+                    const data = await response.json().catch(() => ({}));
+                    showError(data.message || defaultUnavailableMsg);
+                } else {
+                    showError(defaultUnavailableMsg);
+                }
+            } catch (err) {
+                showError(defaultUnavailableMsg);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        useBtn?.addEventListener('click', () => {
+            if (textTarget.textContent && commentInput) {
+                commentInput.value = textTarget.textContent;
+                commentInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            suggestionBox.hidden = true;
+            clearError();
+        });
+
+        ignoreBtn?.addEventListener('click', () => {
+            suggestionBox.hidden = true;
+            clearError();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { setupMapPage(); setupStaticMaps(); setupForm(); setupDeleteDialog(); setupAttachmentDelete(); setupAssistantRedaction(); setupVerificationDoublon(); });
 })();

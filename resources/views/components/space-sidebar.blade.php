@@ -6,7 +6,7 @@
             'label' => 'Espace citoyen', 'name' => 'Amira Ben Ali', 'initials' => 'AB', 'role' => 'Citoyen',
             'sections' => [
                 'Accueil' => [['Mon tableau de bord', 'grid']],
-                'Météo et canicule' => [['Météo de ma zone', 'sun'], ['Alertes en cours', 'alert']],
+                'Météo et canicule' => [['Carte des alertes', 'pin'], ['Météo de ma zone', 'sun'], ['Alertes en cours', 'alert']],
                 'Signalements et ressources' => [['Ressources utiles', 'book'], ['Incidents dans ma zone', 'pin'], ['Mes signalements', 'message'], ['Faire un signalement', 'plus']],
                 'Conseils de prévention' => [['Conseils', 'file'], ['Mes équipements', 'tag'], ['Mes questions', 'message']],
                 'Campagnes et bénévolat' => [['Découvrir les campagnes', 'flag'], ['Missions disponibles', 'briefcase'], ['Mes participations', 'check']],
@@ -29,7 +29,7 @@
             'sections' => [
                 'Accueil' => [['Tableau de bord', 'grid']],
                 'Utilisateurs' => [['Comptes utilisateurs', 'users'], ['Profils', 'user'], ['Préférences de notification', 'bell']],
-                'Météo et canicule' => [['Relevés météo', 'sun'], ['Alertes', 'alert'], ['Zones géographiques', 'pin']],
+                'Météo et canicule' => [['Carte des alertes', 'pin'], ['Relevés météo', 'sun'], ['Alertes', 'alert'], ['Zones géographiques', 'pin']],
                 'Signalements citoyens' => [['Signalements', 'message'], ['Ressources utiles', 'book'], ['Incidents', 'alert']],
                 'Conseils de prévention' => [['Fiches conseils', 'file'], ['Questions des habitants', 'message']],
                 'Campagnes et bénévolat' => [['Toutes les campagnes', 'flag'], ['Missions', 'briefcase'], ['Participations', 'check']],
@@ -50,6 +50,16 @@
         'Mes questions' => ['prevention.questions.index', ['prevention.questions.*']],
         'Fiches conseils' => ['admin.prevention.fiches.index', ['admin.prevention.fiches.*', 'admin.prevention.gestes.*']],
         'Questions des habitants' => ['admin.prevention.questions.index', ['admin.prevention.questions.*']],
+    ];
+    $liensCanicule = [
+        'Relevés météo' => ['admin.canicule.releves.index', ['admin.canicule.releves.*']],
+        'Alertes' => ['admin.canicule.alertes.index', ['admin.canicule.alertes.*']],
+        'Zones géographiques' => ['admin.canicule.zones.index', ['admin.canicule.zones.*']],
+    ];
+    $liensCaniculeCitoyen = [
+        'Carte des alertes' => ['user.canicule.carte', ['user.canicule.carte']],
+        'Météo de ma zone' => ['user.canicule.meteo', ['user.canicule.meteo']],
+        'Alertes en cours' => ['user.canicule.alertes', ['user.canicule.alertes']],
     ];
 @endphp
 <aside id="space-sidebar" class="ha-sidebar" aria-label="{{ $menu['label'] }}" tabindex="-1">
@@ -81,6 +91,14 @@
                                 <a href="{{ route('admin.signalements.carte') }}" class="ha-menu-item {{ request()->routeIs('admin.signalements.carte') && request('etat') !== 'rouge' ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.signalements.carte') && request('etat') !== 'rouge') aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'admin' && $label === 'Incidents')
                                 <a href="{{ route('admin.signalements.carte', ['etat' => 'rouge']) }}" class="ha-menu-item {{ request()->routeIs('admin.signalements.carte') && request('etat') === 'rouge' ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.signalements.carte') && request('etat') === 'rouge') aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'admin' && $label === 'Carte des alertes')
+                                <a href="{{ route('admin.canicule.carte') }}" class="ha-menu-item {{ request()->routeIs('admin.canicule.carte') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.canicule.carte')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'user' && isset($liensCaniculeCitoyen[$label]))
+                                @php [$routeCitoyen, $routesCitoyen] = $liensCaniculeCitoyen[$label]; $lienCitoyenActif = request()->routeIs(...$routesCitoyen); @endphp
+                                <a href="{{ route($routeCitoyen) }}" class="ha-menu-item {{ $lienCitoyenActif ? 'is-active' : '' }}" data-menu-item @if($lienCitoyenActif) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif(isset($liensCanicule[$label]))
+                                @php [$routeCanicule, $routesCanicule] = $liensCanicule[$label]; $lienCaniculeActif = request()->routeIs(...$routesCanicule); @endphp
+                                <a href="{{ route($routeCanicule) }}" class="ha-menu-item {{ $lienCaniculeActif ? 'is-active' : '' }}" data-menu-item @if($lienCaniculeActif) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'user' && $label === 'Ressources utiles')
                                 <a href="{{ route('user.signalements.carte') }}" class="ha-menu-item {{ request()->routeIs('user.signalements.carte', 'user.ressources.show') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('user.signalements.carte', 'user.ressources.show')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'user' && $label === 'Incidents dans ma zone')

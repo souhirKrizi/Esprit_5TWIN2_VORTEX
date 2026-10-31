@@ -24,6 +24,48 @@
         <div class="ha-notice ha-notice-success" role="status">{{ session('success') }}</div>
     @endif
 
+    {{-- Bloc aide à la décision (suspicion) --}}
+    @if($signalement->score_suspicion !== null || $signalement->doublon_de_id)
+        <section class="ha-admin-panel ha-decision-box">
+            <h2>Aide à la décision — Analyse automatique</h2>
+            <div class="ha-decision-content">
+                @if($signalement->score_suspicion !== null)
+                    <div class="ha-decision-score">
+                        <span>Score de suspicion :</span>
+                        <span class="ha-suspicion-badge suspicion-{{ $signalement->niveau_suspicion }}">
+                            {{ ['faible' => 'Faible', 'moyen' => 'Moyen', 'eleve' => 'Élevé'][$signalement->niveau_suspicion] ?? $signalement->niveau_suspicion }}
+                            · {{ $signalement->score_suspicion }}/100
+                        </span>
+                    </div>
+                @endif
+
+                @if($signalement->analyse_ia_statut === 'indisponible')
+                    <p class="ha-notice ha-notice-warning">L'analyse IA était indisponible — le score est basé sur les règles automatiques uniquement.</p>
+                @endif
+
+                @if(!empty($signalement->motifs_suspicion))
+                    <ul class="ha-decision-motifs">
+                        @foreach($signalement->motifs_suspicion as $motif)
+                            <li>{{ $motif }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                @if($signalement->doublon_de_id)
+                    @php($nbDoublons = $signalement->doublons()->count() + 1)
+                    <p class="ha-decision-doublon">
+                        ⚠ Ce signalement est potentiellement un doublon de
+                        <a href="{{ route('admin.signalements.show', $signalement->doublon_de_id) }}">
+                            signalement #{{ $signalement->doublon_de_id }}
+                        </a>
+                        ({{ $nbDoublons }} citoyen(s) ont signalé le même incident).
+                    </p>
+                @endif
+            </div>
+            <p class="ha-muted ha-decision-notice">⚠ Cette analyse est une aide à la décision. La validation ou le rejet reste à votre discrétion.</p>
+        </section>
+    @endif
+
     <div class="ha-detail-grid">
         <section class="ha-admin-panel ha-detail-card">
             <div class="ha-detail-heading">
@@ -33,7 +75,7 @@
                 <div><dt>Citoyen</dt><dd>{{ $signalement->user?->name }} · {{ $signalement->user?->email }}</dd></div>
                 <div><dt>Type</dt><dd>{{ $signalement->type_signalement === 'incident' ? 'Incident' : 'Tout fonctionne' }}</dd></div>
                 @if($signalement->type_incident)
-                    <div><dt>Incident</dt><dd>{{ ['coupure_electricite' => 'Coupure d’électricité', 'point_eau_hors_service' => 'Point d’eau hors service', 'centre_ferme' => 'Centre fermé', 'autre' => 'Autre'][$signalement->type_incident] }}</dd></div>
+                    <div><dt>Incident</dt><dd>{{ ['coupure_electricite' => 'Coupure d\'électricité', 'point_eau_hors_service' => 'Point d\'eau hors service', 'centre_ferme' => 'Centre fermé', 'autre' => 'Autre'][$signalement->type_incident] }}</dd></div>
                 @endif
                 <div><dt>Ressource</dt><dd>{{ $signalement->ressourceUtile?->nom ?: 'Aucune ressource précise' }}</dd></div>
                 <div><dt>Description</dt><dd>{{ $signalement->commentaire ?: 'Aucune description.' }}</dd></div>

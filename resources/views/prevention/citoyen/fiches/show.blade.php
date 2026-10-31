@@ -9,7 +9,7 @@
             <p class="ha-eyebrow">{{ $fiche->libelleThematique() }}</p>
             <h1>{{ $fiche->titre }}</h1>
             <div class="pv-tags" style="margin-top:12px">
-                <span class="pv-badge pv-niveau-{{ $fiche->niveau_alerte }}">Alerte {{ strtolower($fiche->libelleNiveau()) }}</span>
+                <span class="pv-badge pv-niveau-{{ $fiche->niveau_alerte }}">{{ $fiche->libelleAlerte() }}</span>
                 @if($fiche->type_equipement)<span class="pv-badge">{{ $fiche->libelleEquipement() }}</span>@endif
                 @unless($fiche->estPubliee())<span class="pv-badge pv-statut-brouillon">Brouillon (visible par l’admin seulement)</span>@endunless
             </div>
@@ -19,6 +19,9 @@
     @include('prevention.partials.messages')
 
     <section class="ha-admin-panel pv-box pv-text">
+        @if($fiche->image)
+            <img class="pv-image" src="{{ $fiche->imageUrl() }}" alt="{{ $fiche->titre }}">
+        @endif
         <p><strong>{{ $fiche->resume }}</strong></p>
         @foreach(preg_split('/\R{2,}/', trim($fiche->contenu)) as $paragraphe)
             <p>{!! nl2br(e($paragraphe)) !!}</p>

@@ -41,4 +41,47 @@ class SignalementFactory extends Factory
             'motif_rejet' => 'Signalement non confirmé.',
         ]);
     }
+
+    public function suspect(): static
+    {
+        return $this->state(fn (): array => [
+            'score_suspicion'   => 75,
+            'niveau_suspicion'  => Signalement::NIVEAU_ELEVE,
+            'motifs_suspicion'  => [
+                'URL, e-mail ou numéro de téléphone dans la description',
+                'Texte répétitif ou ratio de mots uniques insuffisant',
+            ],
+            'analyse_ia_statut' => Signalement::ANALYSE_ANALYSE,
+            'analyse_at'        => now(),
+        ]);
+    }
+
+    public function doublonDe(Signalement $original): static
+    {
+        return $this->state(fn (): array => [
+            'doublon_de_id'     => $original->id,
+            'type_signalement'  => $original->type_signalement,
+            'type_incident'     => $original->type_incident,
+            'latitude'          => (float) $original->latitude + 0.0005,
+            'longitude'         => (float) $original->longitude + 0.0005,
+            'score_suspicion'   => 45,
+            'niveau_suspicion'  => Signalement::NIVEAU_MOYEN,
+            'motifs_suspicion'  => [
+                '1 signalement(s) similaire(s) à moins de 200m (signalé par 1 citoyen(s) différent(s))',
+            ],
+            'analyse_ia_statut' => Signalement::ANALYSE_ANALYSE,
+            'analyse_at'        => now(),
+        ]);
+    }
+
+    public function faible(): static
+    {
+        return $this->state(fn (): array => [
+            'score_suspicion'   => 10,
+            'niveau_suspicion'  => Signalement::NIVEAU_FAIBLE,
+            'motifs_suspicion'  => [],
+            'analyse_ia_statut' => Signalement::ANALYSE_ANALYSE,
+            'analyse_at'        => now(),
+        ]);
+    }
 }

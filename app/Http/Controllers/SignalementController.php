@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSignalementRequest;
 use App\Http\Requests\UpdateSignalementRequest;
+use App\Jobs\AnalyserSignalementJob;
 use App\Models\RessourceUtile;
 use App\Models\Signalement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -83,6 +85,12 @@ class SignalementController extends Controller
             return $signalement;
         });
 
+        try {
+            AnalyserSignalementJob::dispatch($signalement->id)->afterResponse();
+        } catch (\Throwable $e) {
+            Log::warning('Détection: impossible de dispatcher le job', ['id' => $signalement->id]);
+        }
+
         return redirect()->route('user.signalements.show', $signalement)
             ->with('success', 'Signalement envoyé, en attente de validation.');
     }
@@ -121,6 +129,14 @@ class SignalementController extends Controller
 
         $signalement->update($data + ['motif_rejet' => null]);
         $this->storeImages($request, $signalement);
+
+        if ($signalement->wasChanged('commentaire')) {
+            try {
+                AnalyserSignalementJob::dispatch($signalement->id)->afterResponse();
+            } catch (\Throwable $e) {
+                Log::warning('Détection: impossible de dispatcher le job update', ['id' => $signalement->id]);
+            }
+        }
 
         return redirect()->route('user.signalements.show', $signalement)
             ->with('success', 'Signalement modifié avec succès.');

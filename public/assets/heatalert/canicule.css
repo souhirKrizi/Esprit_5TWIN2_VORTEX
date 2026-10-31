@@ -1,0 +1,20 @@
+.ha-canicule-page { --canicule-jaune: #f4c542; --canicule-orange: #ee873d; --canicule-rouge: #d94c45; --canicule-neutre: #cbd5d1; }
+.ha-canicule-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ha-canicule-map-panel { padding: 16px; }
+.ha-canicule-legend { display: flex; flex-wrap: wrap; gap: 12px 22px; margin: 0 0 14px; color: #35423d; font-size: 14px; }
+.ha-canicule-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.ha-canicule-swatch { width: 14px; height: 14px; border: 1px solid #53615b; border-radius: 3px; }
+.ha-canicule-swatch.is-jaune { background: var(--canicule-jaune); }
+.ha-canicule-swatch.is-orange { background: var(--canicule-orange); }
+.ha-canicule-swatch.is-rouge { background: var(--canicule-rouge); }
+.ha-canicule-swatch.is-neutre { background: var(--canicule-neutre); }
+.ha-canicule-map-panel .ha-map-shell { overflow: hidden; border-radius: 6px; }
+.ha-canicule-map-panel #canicule-map { width: 100%; min-height: 430px; }
+.ha-canicule-attribution { margin: 10px 0 0; color: #5e6c66; font-size: 12px; }
+.ha-canicule-page .leaflet-interactive { transition: fill-opacity .15s ease; }
+.ha-canicule-page .leaflet-interactive:hover { fill-opacity: .9; }
+@media (max-width: 680px) {
+    .ha-canicule-actions { width: 100%; }
+    .ha-canicule-actions a { flex: 1 1 140px; justify-content: center; }
+    .ha-canicule-map-panel #canicule-map { min-height: 360px; }
+}
