@@ -20,6 +20,7 @@ use App\Http\Controllers\Prevention\EquipementSensibleController;
 use App\Http\Controllers\Prevention\FicheConseilController;
 use App\Http\Controllers\Prevention\QuestionCitoyenController;
 use App\Http\Controllers\PieceJointeController;
+use App\Http\Controllers\RelancerAnalyseImageController;
 use App\Http\Controllers\RessourceUtileController;
 use App\Http\Controllers\SignalementController;
 use App\Http\Controllers\SpaceController;
@@ -65,6 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
     Route::post('/user/signalements/assistant-redaction', AssistantRedactionController::class)->middleware('throttle:10,1')->name('user.signalements.assistant-redaction');
     Route::post('/user/signalements/verifier-doublon', VerificationDoublonController::class)->middleware('throttle:30,1')->name('user.signalements.verifier-doublon');
+    Route::post('/user/signalements/{signalement}/analyse-image', RelancerAnalyseImageController::class)->middleware('throttle:5,1')->name('user.signalements.analyse-image');
     Route::resource('/user/signalements', SignalementController::class)->except(['store'])->names('user.signalements');
     Route::post('/user/signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1')->name('user.signalements.store');
     Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');

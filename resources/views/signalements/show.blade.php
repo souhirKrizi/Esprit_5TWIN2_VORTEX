@@ -78,6 +78,34 @@
                     @endforeach
                 </div>
             @endif
+
+            @if($signalement->piecesJointes->isNotEmpty() || $signalement->ia_image_statut !== 'non_analyse')
+                <div class="ha-ia-image-box">
+                    <div class="ha-ia-image-header">
+                        <strong>Analyse automatique de la photo</strong>
+                        @if($badge = $signalement->ia_image_badge)
+                            <span class="ha-status-badge {{ $badge['class'] }}">
+                                {{ $badge['label'] }}
+                                @if($signalement->ia_image_confiance !== null)
+                                    · {{ $signalement->ia_image_confiance }}%
+                                @endif
+                            </span>
+                        @endif
+                    </div>
+                    @if($signalement->ia_image_resume)
+                        <p class="ha-ia-image-resume">{{ $signalement->ia_image_resume }}</p>
+                    @endif
+                    <p class="ha-ia-image-disclaimer ha-muted">
+                        Analyse automatique indicative, la décision finale revient à l'administrateur.
+                    </p>
+                    @if($signalement->ia_image_statut === 'indisponible')
+                        <form method="POST" action="{{ route('user.signalements.analyse-image', $signalement) }}" class="ha-ia-retry-form">
+                            @csrf
+                            <button type="submit" class="ha-secondary-button">Relancer l'analyse</button>
+                        </form>
+                    @endif
+                </div>
+            @endif
         </section>
 
         <section class="ha-admin-panel ha-detail-card">

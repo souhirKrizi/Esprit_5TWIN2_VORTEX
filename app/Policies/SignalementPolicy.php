@@ -24,6 +24,11 @@ class SignalementPolicy
             && $signalement->statut_validation === Signalement::STATUT_EN_ATTENTE;
     }
 
+    public function relancerAnalyseImage(User $user, Signalement $signalement): bool
+    {
+        return $this->owns($user, $signalement);
+    }
+
     private function owns(User $user, Signalement $signalement): bool
     {
         return $signalement->user_id === $user->id;

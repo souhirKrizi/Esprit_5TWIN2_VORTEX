@@ -34,4 +34,16 @@
 .ha-decision-doublon{margin:4px 0 0;color:#8a5a00;font-size:13px;font-weight:600}
 .ha-decision-doublon a{color:#ff7412;text-decoration:underline}
 .ha-decision-notice{margin:10px 0 0;font-size:11px}
+.ha-ia-image-box{margin-top:20px;padding:16px 20px;border:1px solid #e1e3ed;border-left:4px solid #0284c7;border-radius:10px;background:#f8fafc}
+.ha-ia-image-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.ha-ia-image-header strong{font-size:13px;color:#111d35}
+.ha-ia-image-resume{margin:0 0 8px;font-size:13px;color:#334155;line-height:1.4}
+.ha-ia-image-disclaimer{margin:0;font-size:11px}
+.ha-ia-retry-form{margin-top:12px}
+.ha-ia-table-resume{display:block;margin-top:3px;color:#64748b;font-size:11px;line-height:1.2}
+.ha-ia-disclaimer-note{margin-top:12px;text-align:right}
+.status-coherente,.ha-badge-green{color:#166534;background:#f0fdf4;border:1px solid #bbf7d0}
+.status-douteuse,.ha-badge-orange{color:#9a3412;background:#fff7ed;border:1px solid #fed7aa}
+.status-en_cours,.ha-badge-blue{color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe}
+.status-indisponible,.ha-badge-gray{color:#475569;background:#f1f5f9;border:1px solid #cbd5e1}
 @media(max-width:800px){.ha-admin-page{padding:46px 20px 50px}.ha-admin-heading{align-items:flex-start;flex-direction:column}.ha-detail-grid{grid-template-columns:1fr}.ha-form-grid{grid-template-columns:1fr}.ha-field-wide{grid-column:auto}.ha-form-actions{justify-content:stretch}.ha-form-actions>*{flex:1}.ha-resource-status{align-items:flex-start;flex-wrap:wrap}.ha-resource-status small{width:100%;margin-left:21px}.ha-leaflet-map{min-height:470px}.ha-map-toolbar label{flex:1;min-width:145px}}

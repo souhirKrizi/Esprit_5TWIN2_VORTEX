@@ -82,5 +82,19 @@ return [
     'doublons_rayon_m'        => (int) env('ASSISTANT_IA_DOUBLONS_RAYON_M', 200),
     'doublons_fenetre_heures' => (int) env('ASSISTANT_IA_DOUBLONS_FENETRE_HEURES', 48),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Analyse automatique des images (Vision)
+    |--------------------------------------------------------------------------
+    |
+    | Configuration du modèle de vision pour vérifier la pertinence des
+    | photos téléversées par les citoyens.
+    |
+    */
+
+    'vision_enabled' => filter_var(env('ASSISTANT_IA_VISION_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+    'vision_model'   => env('ASSISTANT_IA_VISION_MODEL', env('ASSISTANT_IA_MODEL', 'gemini-3.5-flash-lite')),
+    'vision_timeout' => (int) env('ASSISTANT_IA_VISION_TIMEOUT', 30),
+
 ];
 

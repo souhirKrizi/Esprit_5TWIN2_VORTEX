@@ -135,6 +135,30 @@ class SignalementsSeeder extends Seeder
                     default => 0,
                 };
 
+                // Données d'exemple pour l'analyse IA de l'image (sans appel réseau)
+                if ($attachmentCount > 0) {
+                    $signalement->update([
+                        'ia_image_statut'     => Signalement::IA_IMAGE_ANALYSE,
+                        'ia_image_pertinente' => true,
+                        'ia_image_confiance'  => match ($definition['resource']) {
+                            'Point d’eau Bab El Khadra' => 94,
+                            'Espace fraîcheur Zarzouna' => 88,
+                            default => 78,
+                        },
+                        'ia_image_categorie'  => match ($definition['resource']) {
+                            'Point d’eau Bab El Khadra' => 'point_eau',
+                            'Espace fraîcheur Zarzouna' => 'espace_fraicheur',
+                            default => 'autre',
+                        },
+                        'ia_image_resume'     => match ($definition['resource']) {
+                            'Point d’eau Bab El Khadra' => 'La photo montre clairement une fontaine publique avec un robinet hors service.',
+                            'Espace fraîcheur Zarzouna' => 'Espace vert public bien ombragé et accessible.',
+                            default => 'Photo d’un équipement public en extérieur.',
+                        },
+                        'ia_image_analyse_le' => now(),
+                    ]);
+                }
+
                 for ($attachmentNumber = 1; $attachmentNumber <= $attachmentCount; $attachmentNumber++) {
                     $path = "signalements/demo-{$signalement->id}-{$attachmentNumber}.jpg";
                     $attachment = PieceJointe::factory()->make([

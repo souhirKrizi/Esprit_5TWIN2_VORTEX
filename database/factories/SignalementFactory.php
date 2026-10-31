@@ -84,4 +84,20 @@ class SignalementFactory extends Factory
             'analyse_at'        => now(),
         ]);
     }
+
+    public function avecAnalyseImage(
+        bool $pertinente = true,
+        int $confiance = 88,
+        string $categorie = 'point_eau',
+        ?string $resume = 'La photo montre un point d’eau public avec un robinet défectueux.'
+    ): static {
+        return $this->state(fn (): array => [
+            'ia_image_statut'     => Signalement::IA_IMAGE_ANALYSE,
+            'ia_image_pertinente' => $pertinente,
+            'ia_image_confiance'  => $confiance,
+            'ia_image_categorie'  => $categorie,
+            'ia_image_resume'     => $resume,
+            'ia_image_analyse_le' => now(),
+        ]);
+    }
 }

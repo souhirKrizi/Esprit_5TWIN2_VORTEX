@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSignalementRequest;
 use App\Http\Requests\UpdateSignalementRequest;
+use App\Jobs\AnalyserImagesSignalementJob;
 use App\Jobs\AnalyserSignalementJob;
 use App\Models\RessourceUtile;
 use App\Models\Signalement;
+use App\Services\AnalyseImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,6 +78,10 @@ class SignalementController extends Controller
     {
         $data = $request->validated();
         $this->ensureNotDuplicate($request, $data);
+
+        // Validation IA : si l'image est détectée comme non pertinente, on la refuse immédiatement
+        $analysePrealable = $this->ensureImagesPertinentes($request);
+
         unset($data['images']);
 
         $signalement = DB::transaction(function () use ($request, $data): Signalement {
@@ -84,6 +90,24 @@ class SignalementController extends Controller
 
             return $signalement;
         });
+
+        // Si l'analyse préalable a validé avec succès l'image, on enregistre directement le résultat
+        if ($analysePrealable !== null) {
+            $signalement->update([
+                'ia_image_statut'     => Signalement::IA_IMAGE_ANALYSE,
+                'ia_image_pertinente' => $analysePrealable['pertinente'],
+                'ia_image_confiance'  => $analysePrealable['confiance'],
+                'ia_image_categorie'  => $analysePrealable['categorie'],
+                'ia_image_resume'     => $analysePrealable['resume'],
+                'ia_image_analyse_le' => now(),
+            ]);
+        } elseif (config('assistant_ia.vision_enabled') && filled(config('assistant_ia.key')) && $signalement->piecesJointes()->exists()) {
+            try {
+                AnalyserImagesSignalementJob::dispatchAfterResponse($signalement->id);
+            } catch (\Throwable $e) {
+                Log::warning('Vision: impossible de dispatcher le job vision', ['id' => $signalement->id]);
+            }
+        }
 
         try {
             AnalyserSignalementJob::dispatch($signalement->id)->afterResponse();
@@ -127,8 +151,31 @@ class SignalementController extends Controller
             ]);
         }
 
+        // Si de nouvelles images sont ajoutées, validation par l'IA
+        $analysePrealable = null;
+        if ($request->hasFile('images')) {
+            $analysePrealable = $this->ensureImagesPertinentes($request);
+        }
+
         $signalement->update($data + ['motif_rejet' => null]);
         $this->storeImages($request, $signalement);
+
+        if ($analysePrealable !== null) {
+            $signalement->update([
+                'ia_image_statut'     => Signalement::IA_IMAGE_ANALYSE,
+                'ia_image_pertinente' => $analysePrealable['pertinente'],
+                'ia_image_confiance'  => $analysePrealable['confiance'],
+                'ia_image_categorie'  => $analysePrealable['categorie'],
+                'ia_image_resume'     => $analysePrealable['resume'],
+                'ia_image_analyse_le' => now(),
+            ]);
+        } elseif (config('assistant_ia.vision_enabled') && filled(config('assistant_ia.key')) && $request->hasFile('images')) {
+            try {
+                AnalyserImagesSignalementJob::dispatchAfterResponse($signalement->id);
+            } catch (\Throwable $e) {
+                Log::warning('Vision: impossible de dispatcher le job vision update', ['id' => $signalement->id]);
+            }
+        }
 
         if ($signalement->wasChanged('commentaire')) {
             try {
@@ -149,6 +196,52 @@ class SignalementController extends Controller
         $signalement->delete();
 
         return redirect()->route('user.signalements.index')->with('success', 'Signalement supprimé.');
+    }
+
+    private function ensureImagesPertinentes(Request $request, ?AnalyseImageService $service = null): ?array
+    {
+        if (!config('assistant_ia.vision_enabled', true) || blank(config('assistant_ia.key'))) {
+            return null;
+        }
+
+        $files = $request->file('images', []);
+        if (empty($files)) {
+            return null;
+        }
+
+        $firstImage = is_array($files) ? ($files[0] ?? null) : $files;
+        if (!$firstImage instanceof \Illuminate\Http\UploadedFile) {
+            return null;
+        }
+
+        $service = $service ?? app(AnalyseImageService::class);
+        $typeSignalement = (string) $request->input('type_signalement');
+        $typeIncident = $request->input('type_incident');
+
+        try {
+            $resultat = $service->analyserFichier(
+                $firstImage,
+                $typeSignalement,
+                $typeIncident
+            );
+
+            if ($resultat['pertinente'] === false) {
+                throw ValidationException::withMessages([
+                    'images' => "La photo a été refusée par l'analyse automatique : " . $resultat['resume'] . " Veuillez fournir une photo réelle de l'incident ou envoyer le signalement sans photo.",
+                ]);
+            }
+
+            return $resultat;
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            // En cas d'indisponibilité du service IA, on ne bloque pas le citoyen
+            Log::warning('Validation image IA : analyse préalable indisponible, validation poursuivie.', [
+                'erreur' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     private function ensureNotDuplicate(Request $request, array $data): void

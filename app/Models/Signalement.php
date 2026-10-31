@@ -29,6 +29,12 @@ class Signalement extends Model
     public const ANALYSE_ANALYSE      = 'analyse';
     public const ANALYSE_INDISPONIBLE = 'indisponible';
 
+    // Statuts d'analyse IA Image
+    public const IA_IMAGE_NON_ANALYSE  = 'non_analyse';
+    public const IA_IMAGE_EN_COURS     = 'en_cours';
+    public const IA_IMAGE_ANALYSE      = 'analyse';
+    public const IA_IMAGE_INDISPONIBLE = 'indisponible';
+
     protected $fillable = [
         'user_id',
         'ressource_utile_id',
@@ -45,17 +51,57 @@ class Signalement extends Model
         'doublon_de_id',
         'analyse_ia_statut',
         'analyse_at',
+        'ia_image_statut',
+        'ia_image_pertinente',
+        'ia_image_confiance',
+        'ia_image_categorie',
+        'ia_image_resume',
+        'ia_image_analyse_le',
     ];
 
     protected function casts(): array
     {
         return [
-            'latitude'         => 'decimal:7',
-            'longitude'        => 'decimal:7',
-            'motifs_suspicion' => 'array',
-            'analyse_at'       => 'datetime',
-            'score_suspicion'  => 'integer',
+            'latitude'            => 'decimal:7',
+            'longitude'           => 'decimal:7',
+            'motifs_suspicion'    => 'array',
+            'analyse_at'          => 'datetime',
+            'score_suspicion'     => 'integer',
+            'ia_image_pertinente' => 'boolean',
+            'ia_image_confiance'  => 'integer',
+            'ia_image_analyse_le' => 'datetime',
         ];
+    }
+
+    /**
+     * Accesseur pour le badge d'analyse IA de l'image (libellé et couleur).
+     *
+     * @return array{label: string, color: string, class: string}|null
+     */
+    public function getIaImageBadgeAttribute(): ?array
+    {
+        return match ($this->ia_image_statut) {
+            self::IA_IMAGE_EN_COURS => [
+                'label' => 'Analyse en cours',
+                'color' => 'bleu',
+                'class' => 'status-en_cours',
+            ],
+            self::IA_IMAGE_INDISPONIBLE => [
+                'label' => 'Analyse indisponible',
+                'color' => 'gris',
+                'class' => 'status-indisponible',
+            ],
+            self::IA_IMAGE_ANALYSE => $this->ia_image_pertinente ? [
+                'label' => 'Image cohérente',
+                'color' => 'vert',
+                'class' => 'status-coherente',
+            ] : [
+                'label' => 'Image douteuse',
+                'color' => 'orange',
+                'class' => 'status-douteuse',
+            ],
+            default => null,
+        };
     }
 
     public function user(): BelongsTo
