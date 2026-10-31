@@ -8,6 +8,7 @@ use App\Http\Controllers\AgentMissionController;
 use App\Http\Controllers\AssistantRedactionController;
 use App\Http\Controllers\CarteController;
 use App\Http\Controllers\Canicule\AdminAlerteController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\Canicule\AdminCarteCaniculeController;
 use App\Http\Controllers\Canicule\AdminReleveMeteoController;
 use App\Http\Controllers\Canicule\AdminZoneController;
@@ -58,6 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/participations', [UserCampaignController::class, 'participations'])->name('user.participations');
     Route::get('/user/campagnes/{campagne}/missions', [UserCampaignController::class, 'missions'])->name('user.campagnes.missions');
     Route::post('/user/missions/{mission}/participer', [UserCampaignController::class, 'participate'])->name('user.missions.participate');
+
+    Route::get('/user/evenements', [EventController::class, 'index'])->name('user.evenements.index');
+    Route::post('/user/evenements/{event}/analyser', [EventController::class, 'analyze'])->name('user.evenements.analyse');
 
     Route::get('/user/signalements/carte', [CarteController::class, 'index'])->name('user.signalements.carte');
     Route::get('/user/signalements/api/ressources', [CarteController::class, 'ressources'])->name('user.signalements.api.ressources');

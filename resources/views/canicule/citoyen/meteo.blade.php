@@ -8,6 +8,20 @@
         <nav class="ha-canicule-actions" aria-label="Pages météo"><a class="ha-secondary-button" href="{{ route('user.canicule.carte') }}">Carte des alertes</a><a class="ha-secondary-button" href="{{ route('user.canicule.alertes') }}">Alertes en cours</a></nav>
     </header>
 
+    <section class="ha-admin-panel" aria-label="Choisir un gouvernorat">
+        <form method="GET" action="{{ route('user.canicule.meteo') }}" class="flex flex-col gap-3 md:flex-row md:items-end">
+            <label class="flex-1">
+                <span class="ha-eyebrow">Gouvernorat</span>
+                <select name="zone_id" class="w-full rounded-xl border border-slate-300 px-3 py-2">
+                    @foreach($zones as $option)
+                        <option value="{{ $option->id }}" @selected($selectedZoneId == $option->id)>{{ $option->nom }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <button type="submit" class="ha-primary-button">Afficher la météo</button>
+        </form>
+    </section>
+
     @if(! $zone)
         <p class="ha-notice ha-notice-error" role="status">Les données de ce gouvernorat ne sont pas encore disponibles.</p>
     @else
@@ -22,32 +36,21 @@
             <p class="ha-notice ha-notice-success" role="status">Aucune alerte canicule active pour {{ $zone->nom }}.</p>
         @endif
 
-        <section class="ha-canicule-weather-grid" aria-label="Dernières données météo">
-            <article class="ha-admin-panel ha-canicule-weather-card">
-                <p class="ha-eyebrow">Dernière observation</p>
-                @if($observation)
-                    <strong class="ha-canicule-temperature">{{ number_format((float) $observation->temperature, 1, ',', ' ') }}°</strong>
-                    <p>Humidité {{ $observation->humidite }} %</p>
-                    @if($observation->vitesse_vent !== null)<p>Vent {{ number_format((float) $observation->vitesse_vent, 1, ',', ' ') }} km/h</p>@endif
-                    @if($observation->indice_uv !== null)<p>Indice UV {{ $observation->indice_uv }}</p>@endif
-                    <small>Mesurée le {{ $observation->date_mesure->format('d/m/Y à H:i') }} · {{ $observation->source }}</small>
-                @else
-                    <p class="ha-muted">Aucune observation enregistrée pour le moment.</p>
-                @endif
-            </article>
-            <article class="ha-admin-panel ha-canicule-weather-card">
-                <p class="ha-eyebrow">Dernière prévision</p>
-                @if($prevision)
-                    <strong class="ha-canicule-temperature">{{ number_format((float) $prevision->temperature, 1, ',', ' ') }}°</strong>
-                    <p>Humidité prévue {{ $prevision->humidite }} %</p>
-                    @if($prevision->vitesse_vent !== null)<p>Vent {{ number_format((float) $prevision->vitesse_vent, 1, ',', ' ') }} km/h</p>@endif
-                    @if($prevision->indice_uv !== null)<p>Indice UV {{ $prevision->indice_uv }}</p>@endif
-                    <small>Prévue le {{ $prevision->date_mesure->format('d/m/Y à H:i') }} · {{ $prevision->source }}</small>
-                @else
-                    <p class="ha-muted">Aucune prévision enregistrée pour le moment.</p>
-                @endif
-            </article>
-        </section>
+        @if($weather)
+            <section class="ha-canicule-weather-grid" aria-label="Météo directe pour la zone sélectionnée">
+                <article class="ha-admin-panel ha-canicule-weather-card">
+                    <p class="ha-eyebrow">Météo directe</p>
+                    <strong class="ha-canicule-temperature">{{ number_format((float) $weather['temperature'], 1, ',', ' ') }}°</strong>
+                    <p>Humidité {{ $weather['humidity'] }} %</p>
+                    <p>Vent {{ number_format((float) $weather['wind_speed'], 1, ',', ' ') }} km/h</p>
+                    <p>Condition : {{ $weather['condition'] }}</p>
+                    @if(! empty($weather['sunrise']))
+                        <small>Lever {{ \Carbon\Carbon::createFromTimestamp($weather['sunrise'])->format('d/m/Y H:i') }}</small>
+                    @endif
+                </article>
+            </section>
+        @endif
+
     @endif
 </div>
 @endsection
