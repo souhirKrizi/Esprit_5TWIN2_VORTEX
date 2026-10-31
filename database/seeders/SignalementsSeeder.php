@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\RessourceUtile;
+use App\Models\PieceJointe;
 use App\Models\Signalement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -126,7 +127,27 @@ class SignalementsSeeder extends Seeder
                     'motif_rejet' => $definition['motif_rejet'],
                 ];
 
-                Signalement::query()->updateOrCreate($attributes, $values);
+                $signalement = Signalement::query()->updateOrCreate($attributes, $values);
+
+                $attachmentCount = match ($definition['resource']) {
+                    'Point d’eau Bab El Khadra' => 2,
+                    'Espace fraîcheur du Belvédère', 'Espace fraîcheur Zarzouna' => 1,
+                    default => 0,
+                };
+
+                for ($attachmentNumber = 1; $attachmentNumber <= $attachmentCount; $attachmentNumber++) {
+                    $path = "signalements/demo-{$signalement->id}-{$attachmentNumber}.jpg";
+                    $attachment = PieceJointe::factory()->make([
+                        'signalement_id' => $signalement->id,
+                        'chemin_fichier' => $path,
+                        'nom_original' => "photo-demo-{$attachmentNumber}.jpg",
+                    ]);
+
+                    PieceJointe::query()->updateOrCreate(
+                        ['signalement_id' => $signalement->id, 'chemin_fichier' => $path],
+                        $attachment->getAttributes(),
+                    );
+                }
             }
         });
 

@@ -64,19 +64,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/user/signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1')->name('user.signalements.store');
     Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');
 
-    Route::get('/user/signalements/carte', [CarteController::class, 'index'])->name('user.signalements.carte');
-    Route::get('/user/signalements/api/ressources', [CarteController::class, 'ressources'])->name('user.signalements.api.ressources');
-    Route::get('/user/ressources/{ressourceUtile}', [RessourceUtileController::class, 'show'])->name('user.ressources.show');
-    Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
-    Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
-    Route::resource('/user/signalements', SignalementController::class)
-        ->except(['store'])
-        ->names('user.signalements');
-    Route::post('/user/signalements', [SignalementController::class, 'store'])
-        ->middleware('throttle:10,1')
-        ->name('user.signalements.store');
-    Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');
-
     foreach (['user', 'agent-campagne', 'admin'] as $space) {
         Route::get('/'.$space, [SpaceController::class, 'redirect']);
         Route::get('/'.$space.'/{user}', [SpaceController::class, 'show'])
