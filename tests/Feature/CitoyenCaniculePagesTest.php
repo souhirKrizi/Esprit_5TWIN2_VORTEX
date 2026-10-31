@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Zone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class CitoyenCaniculePagesTest extends TestCase
@@ -13,13 +14,19 @@ class CitoyenCaniculePagesTest extends TestCase
 
     public function test_citizen_sees_weather_and_active_alerts_for_their_governorate(): void
     {
+        Http::fake([
+            'https://api.openweathermap.org/data/2.5/weather*' => Http::response([
+                'main' => ['temp' => 40.2, 'humidity' => 22],
+                'wind' => ['speed' => 12.4],
+                'weather' => [['description' => 'temps chaud']],
+                'sys' => ['sunrise' => 1729000000, 'sunset' => 1729040000],
+            ], 200),
+        ]);
+        config(['services.openweather.key' => 'test-key']);
+
         $this->seed(\Database\Seeders\ZonesSeeder::class);
         $user = User::factory()->create(['role' => 'user', 'governorate' => 'Le Kef']);
         $zone = Zone::where('nom', 'El Kef')->firstOrFail();
-        $zone->relevesMeteo()->create([
-            'type' => 'observation', 'date_mesure' => now(), 'temperature' => 40.2,
-            'humidite' => 22, 'source' => 'Saisie manuelle',
-        ]);
         $zone->alertes()->create([
             'titre' => 'Vigilance chaleur', 'description' => 'Hydratez-vous régulièrement.',
             'niveau_gravite' => 'orange', 'debut_validite' => now()->subHour(),

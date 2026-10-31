@@ -21,5 +21,38 @@
             @endforeach
         </section>
     @endif
+
+    @if($evenements->isNotEmpty())
+        <section class="mt-8" aria-label="Campagnes disponibles avec conseils">
+            <div class="mb-4">
+                <p class="ha-eyebrow">Conseils de sécurité</p>
+                <h2 class="text-xl font-semibold">Campagnes disponibles</h2>
+            </div>
+
+            <div class="ha-canicule-alert-list">
+                @foreach($evenements as $item)
+                    @php($campagne = $item['campagne'])
+                    @php($info = $item['info'])
+                    <article class="ha-admin-panel ha-canicule-citizen-alert is-{{ in_array(($info['risque'] ?? 'canicule'), ['canicule','inondations','pluie'], true) ? 'orange' : 'green' }}">
+                        <div class="pv-tags">
+                            <span class="pv-badge">{{ $campagne->date_debut?->format('d/m/Y') }}</span>
+                            <span class="pv-badge">{{ $campagne->lieu ?: 'Lieu à préciser' }}</span>
+                            <span class="pv-badge">{{ ucfirst($info['risque'] ?? 'canicule') }}</span>
+                        </div>
+                        <h2>{{ $campagne->titre }}</h2>
+                        <p>{{ $campagne->description }}</p>
+                        <p class="mt-3"><strong>Info :</strong> {{ $info['info'] ?? 'Aucune information disponible.' }}</p>
+                        <div class="mt-4 flex items-center justify-between gap-3">
+                            <span class="text-sm font-medium text-slate-700">Risque estimé : {{ ucfirst($info['risque'] ?? 'canicule') }}</span>
+                            <form method="GET" action="{{ route('user.canicule.alertes') }}">
+                                <input type="hidden" name="refresh_campaign" value="{{ $campagne->id }}">
+                                <button type="submit" class="ha-secondary-button">Actualiser</button>
+                            </form>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
 </div>
 @endsection
