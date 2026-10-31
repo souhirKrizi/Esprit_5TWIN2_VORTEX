@@ -1,11 +1,11 @@
 @extends('layouts.space', ['space' => $space])
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
 <link rel="stylesheet" href="{{ asset('assets/heatalert/signalements.css') }}">
 @endpush
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 <script src="{{ asset('assets/heatalert/signalements.js') }}" defer></script>
 @endpush
 
@@ -104,7 +104,7 @@
 
             <section class="ha-admin-panel ha-form-panel">
                 <div class="ha-panel-heading"><div><p class="ha-eyebrow">Étape 3</p><h2>Ajouter des photos</h2></div><span class="ha-form-help">5 images maximum, 5 Mo chacune.</span></div>
-                <input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple data-images data-existing-count="{{ $editing ? $signalement->piecesJointes->count() : 0 }}" class="@error('images') is-invalid @enderror">
+                <input type="file" name="images[]" aria-label="Ajouter des photos" accept="image/jpeg,image/png,image/webp" multiple data-images data-existing-count="{{ $editing ? $signalement->piecesJointes->count() : 0 }}" class="@error('images') is-invalid @enderror">
                 @error('images')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 <div class="ha-image-preview-grid" data-image-previews></div>
                 @if($editing) @include('signalements.partials.piece-jointes', ['signalement' => $signalement]) @endif

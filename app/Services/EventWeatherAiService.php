@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Event;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 
 class EventWeatherAiService
 {
@@ -28,30 +28,22 @@ class EventWeatherAiService
         $apiKey = config('services.openweather.key');
 
         if (blank($apiKey)) {
-            return [
-                'temperature' => 32.0,
-                'humidity' => 55,
-                'wind_speed' => 10.0,
-                'condition' => 'inconnu',
-                'source' => 'fallback',
-            ];
+            return $this->meteoParDefaut();
         }
 
-        $response = Http::get('https://api.openweathermap.org/data/2.5/forecast', [
-            'q' => $event->governorate.',TN',
-            'units' => 'metric',
-            'appid' => $apiKey,
-            'cnt' => 40,
-        ]);
+        try {
+            $response = Http::get('https://api.openweathermap.org/data/2.5/forecast', [
+                'q' => $event->governorate.',TN',
+                'units' => 'metric',
+                'appid' => $apiKey,
+                'cnt' => 40,
+            ]);
+        } catch (ConnectionException) {
+            return $this->meteoParDefaut();
+        }
 
         if ($response->failed()) {
-            return [
-                'temperature' => 32.0,
-                'humidity' => 55,
-                'wind_speed' => 10.0,
-                'condition' => 'inconnu',
-                'source' => 'fallback',
-            ];
+            return $this->meteoParDefaut();
         }
 
         $forecast = $response->json('list', []);
@@ -96,19 +88,13 @@ class EventWeatherAiService
         $apiKey = config('assistant_ia.key');
 
         if (blank($apiKey)) {
-            return sprintf(
-                'Le risque pour %s est %s avec une température prévue de %.1f°C et une humidité de %d%%.',
-                $event->title,
-                $risk,
-                $weather['temperature'],
-                $weather['humidity'],
-            );
+            return $this->resumeParDefaut($event, $weather, $risk);
         }
 
         $prompt = sprintf(
-            "Tu es un assistant de prévention pour un événement extérieur. Analyse ce contexte et donne 1 à 2 phrases utiles pour la sécurité. "
-            . "Événement : %s. Gouvernement : %s. Date : %s. Température : %.1f°C. Humidité : %d%%. Vent : %.1f km/h. Niveau de risque : %s. "
-            . "Réponds uniquement avec un texte clair et concis.",
+            'Tu es un assistant de prévention pour un événement extérieur. Analyse ce contexte et donne 1 à 2 phrases utiles pour la sécurité. '
+            .'Événement : %s. Gouvernement : %s. Date : %s. Température : %.1f°C. Humidité : %d%%. Vent : %.1f km/h. Niveau de risque : %s. '
+            .'Réponds uniquement avec un texte clair et concis.',
             $event->title,
             $event->governorate,
             $event->date_event?->format('d/m/Y'),
@@ -118,40 +104,54 @@ class EventWeatherAiService
             $risk,
         );
 
-        $response = Http::withHeaders([
-            'x-goog-api-key' => $apiKey,
-        ])->timeout(15)->post('https://generativelanguage.googleapis.com/v1beta/models/'.config('assistant_ia.model', 'gemini-1.5-flash').':generateContent', [
-            'contents' => [[
-                'role' => 'user',
-                'parts' => [[
-                    'text' => $prompt,
+        try {
+            $response = Http::withHeaders([
+                'x-goog-api-key' => $apiKey,
+            ])->timeout(15)->post('https://generativelanguage.googleapis.com/v1beta/models/'.config('assistant_ia.model', 'gemini-1.5-flash').':generateContent', [
+                'contents' => [[
+                    'role' => 'user',
+                    'parts' => [[
+                        'text' => $prompt,
+                    ]],
                 ]],
-            ]],
-        ]);
+            ]);
+        } catch (ConnectionException) {
+            return $this->resumeParDefaut($event, $weather, $risk);
+        }
 
         if ($response->failed()) {
-            return sprintf(
-                'Le risque pour %s est %s avec une température prévue de %.1f°C et une humidité de %d%%.',
-                $event->title,
-                $risk,
-                $weather['temperature'],
-                $weather['humidity'],
-            );
+            return $this->resumeParDefaut($event, $weather, $risk);
         }
 
         $text = data_get($response->json(), 'candidates.0.content.parts.0.text');
 
         if (! is_string($text) || trim($text) === '') {
-            return sprintf(
-                'Le risque pour %s est %s avec une température prévue de %.1f°C et une humidité de %d%%.',
-                $event->title,
-                $risk,
-                $weather['temperature'],
-                $weather['humidity'],
-            );
+            return $this->resumeParDefaut($event, $weather, $risk);
         }
 
         return trim(strip_tags($text));
+    }
+
+    private function meteoParDefaut(): array
+    {
+        return [
+            'temperature' => 32.0,
+            'humidity' => 55,
+            'wind_speed' => 10.0,
+            'condition' => 'inconnu',
+            'source' => 'fallback',
+        ];
+    }
+
+    private function resumeParDefaut(Event $event, array $weather, string $risk): string
+    {
+        return sprintf(
+            'Le risque pour %s est %s avec une température prévue de %.1f°C et une humidité de %d%%.',
+            $event->title,
+            $risk,
+            $weather['temperature'],
+            $weather['humidity'],
+        );
     }
 
     protected function recommendationsFor(string $risk): array
