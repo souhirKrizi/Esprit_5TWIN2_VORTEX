@@ -149,6 +149,75 @@ class SignalementsSeeder extends Seeder
                     );
                 }
             }
+
+            // Signalements de démonstration pour le module de détection (suspicion & doublons)
+            $premierSignalement = Signalement::query()->first();
+            $secondUser = $users->count() > 1 ? $users[1] : $users[0];
+
+            if ($premierSignalement) {
+                // 1. Doublon géographique à ~80m du premier signalement
+                Signalement::query()->updateOrCreate([
+                    'user_id'            => $secondUser->id,
+                    'type_signalement'   => $premierSignalement->type_signalement,
+                    'type_incident'      => $premierSignalement->type_incident,
+                    'latitude'           => (float) $premierSignalement->latitude + 0.0006,
+                    'longitude'          => (float) $premierSignalement->longitude + 0.0006,
+                ], [
+                    'ressource_utile_id' => $premierSignalement->ressource_utile_id,
+                    'commentaire'        => 'Je confirme, ce point d’eau ne fonctionne toujours pas cet après-midi.',
+                    'statut_validation'  => Signalement::STATUT_EN_ATTENTE,
+                    'doublon_de_id'      => $premierSignalement->id,
+                    'score_suspicion'    => 40,
+                    'niveau_suspicion'   => Signalement::NIVEAU_MOYEN,
+                    'motifs_suspicion'   => [
+                        '1 signalement(s) similaire(s) à moins de 200m (signalé par 1 citoyen(s) différent(s))',
+                    ],
+                    'analyse_ia_statut'  => Signalement::ANALYSE_ANALYSE,
+                    'analyse_at'         => now(),
+                ]);
+            }
+
+            // 2. Faux signalement / spam avec URL
+            Signalement::query()->updateOrCreate([
+                'user_id'            => $users[0]->id,
+                'type_signalement'   => Signalement::TYPE_INCIDENT,
+                'type_incident'      => 'autre',
+                'latitude'           => 36.8001000,
+                'longitude'          => 10.1802000,
+            ], [
+                'ressource_utile_id' => null,
+                'commentaire'        => 'CLIMATISEURS EN PROMO visitez http://promo-clim-tunisie.com ou contactez le 98111222 !!!',
+                'statut_validation'  => Signalement::STATUT_EN_ATTENTE,
+                'doublon_de_id'      => null,
+                'score_suspicion'    => 80,
+                'niveau_suspicion'   => Signalement::NIVEAU_ELEVE,
+                'motifs_suspicion'   => [
+                    'URL, e-mail ou numéro de téléphone dans la description',
+                    'Texte répétitif ou ratio de mots uniques insuffisant',
+                    'IA : signalement classifié comme spam publicitaire',
+                ],
+                'analyse_ia_statut'  => Signalement::ANALYSE_ANALYSE,
+                'analyse_at'         => now(),
+            ]);
+
+            // 3. Signalement légitime normal (faible suspicion)
+            Signalement::query()->updateOrCreate([
+                'user_id'            => $users[0]->id,
+                'type_signalement'   => Signalement::TYPE_INCIDENT,
+                'type_incident'      => 'coupure_electricite',
+                'latitude'           => 36.8350000,
+                'longitude'          => 10.1650000,
+            ], [
+                'ressource_utile_id' => null,
+                'commentaire'        => 'Panne générale de courant dans tout le quartier depuis 14h, climatisation coupée dans l’espace.',
+                'statut_validation'  => Signalement::STATUT_EN_ATTENTE,
+                'doublon_de_id'      => null,
+                'score_suspicion'    => 10,
+                'niveau_suspicion'   => Signalement::NIVEAU_FAIBLE,
+                'motifs_suspicion'   => [],
+                'analyse_ia_statut'  => Signalement::ANALYSE_ANALYSE,
+                'analyse_at'         => now(),
+            ]);
         });
 
         $this->command?->info('Données de démonstration des signalements créées ou mises à jour sans doublons.');

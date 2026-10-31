@@ -20,4 +20,18 @@
 .ha-assistant-suggestion-text{margin:0 0 14px;color:#4e596d;font-size:13px;line-height:1.5;white-space:pre-wrap}
 .ha-assistant-suggestion-actions{display:flex;align-items:center;gap:10px}
 .ha-assistant-suggestion-actions button{min-height:36px;padding:0 14px;font-size:12px}
+.ha-doublon-warning{margin-top:10px;padding:12px 16px;border:1px solid #ffe3a3;border-left:4px solid #f59e0b;border-radius:8px;color:#8a5a00;background:#fffdf5;font-size:13px;line-height:1.4}
+.ha-suspicion-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.suspicion-faible{color:#176b40;background:#effaf4;border:1px solid #c2ebd5}
+.suspicion-moyen{color:#8a5a00;background:#fff7dc;border:1px solid #ffe3a3}
+.suspicion-eleve{color:#a52d1c;background:#fff1ee;border:1px solid #ffd4cb}
+.ha-decision-box{margin-bottom:20px;padding:20px 24px;border:1px solid #e1e3ed;border-left:4px solid #3b82f6;border-radius:12px;background:#fff}
+.ha-decision-box h2{margin:0 0 12px;color:#111d35;font-size:16px}
+.ha-decision-content{display:grid;gap:10px}
+.ha-decision-score{display:flex;align-items:center;gap:10px;font-size:13px;color:#111d35;font-weight:600}
+.ha-decision-motifs{margin:4px 0;padding-left:20px;color:#4e596d;font-size:13px}
+.ha-decision-motifs li{margin-bottom:4px}
+.ha-decision-doublon{margin:4px 0 0;color:#8a5a00;font-size:13px;font-weight:600}
+.ha-decision-doublon a{color:#ff7412;text-decoration:underline}
+.ha-decision-notice{margin:10px 0 0;font-size:11px}
 @media(max-width:800px){.ha-admin-page{padding:46px 20px 50px}.ha-admin-heading{align-items:flex-start;flex-direction:column}.ha-detail-grid{grid-template-columns:1fr}.ha-form-grid{grid-template-columns:1fr}.ha-field-wide{grid-column:auto}.ha-form-actions{justify-content:stretch}.ha-form-actions>*{flex:1}.ha-resource-status{align-items:flex-start;flex-wrap:wrap}.ha-resource-status small{width:100%;margin-left:21px}.ha-leaflet-map{min-height:470px}.ha-map-toolbar label{flex:1;min-width:145px}}

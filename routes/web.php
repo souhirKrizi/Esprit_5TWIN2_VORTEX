@@ -24,6 +24,7 @@ use App\Http\Controllers\RessourceUtileController;
 use App\Http\Controllers\SignalementController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\UserCampaignController;
+use App\Http\Controllers\VerificationDoublonController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'homepage.index')->name('home');
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/signalements/tous', [SignalementController::class, 'publicIndex'])->name('user.signalements.public.index');
     Route::get('/user/signalements/tous/{signalement}', [SignalementController::class, 'publicShow'])->name('user.signalements.public.show');
     Route::post('/user/signalements/assistant-redaction', AssistantRedactionController::class)->middleware('throttle:10,1')->name('user.signalements.assistant-redaction');
+    Route::post('/user/signalements/verifier-doublon', VerificationDoublonController::class)->middleware('throttle:30,1')->name('user.signalements.verifier-doublon');
     Route::resource('/user/signalements', SignalementController::class)->except(['store'])->names('user.signalements');
     Route::post('/user/signalements', [SignalementController::class, 'store'])->middleware('throttle:10,1')->name('user.signalements.store');
     Route::delete('/user/pieces-jointes/{pieceJointe}', [PieceJointeController::class, 'destroy'])->name('user.pieces-jointes.destroy');

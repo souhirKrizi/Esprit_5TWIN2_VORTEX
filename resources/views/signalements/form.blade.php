@@ -92,6 +92,13 @@
                             </div>
                         </div>
                     @endif
+
+                    <div class="ha-field-wide ha-doublon-warning"
+                         data-doublon-container
+                         data-url="{{ route('user.signalements.verifier-doublon') }}"
+                         hidden
+                         role="status"
+                         aria-live="polite"></div>
                 </div>
             </section>
 

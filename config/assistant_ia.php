@@ -58,5 +58,29 @@ return [
 
     'timeout' => (int) env('ASSISTANT_IA_TIMEOUT', 15),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Activation de l'analyse de fiabilité (détection doublons/spam)
+    |--------------------------------------------------------------------------
+    |
+    | Permet d'activer ou de désactiver l'analyse IA de fiabilité des
+    | signalements. Réutilise la même clé et le même modèle que l'assistant.
+    |
+    */
+
+    'analyse_enabled' => filter_var(env('ASSISTANT_IA_ANALYSE_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Paramètres de détection des doublons géographiques
+    |--------------------------------------------------------------------------
+    |
+    | rayon en mètres et fenêtre temporelle en heures pour la détection.
+    |
+    */
+
+    'doublons_rayon_m'        => (int) env('ASSISTANT_IA_DOUBLONS_RAYON_M', 200),
+    'doublons_fenetre_heures' => (int) env('ASSISTANT_IA_DOUBLONS_FENETRE_HEURES', 48),
+
 ];
 

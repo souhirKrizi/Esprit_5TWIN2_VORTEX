@@ -21,6 +21,9 @@ class AdminSignalementController extends Controller
             ->when($request->boolean('pieces_jointes'), fn ($query) => $query->whereHas('piecesJointes'))
             ->when($request->filled('statut'), fn ($query) => $query->where('statut_validation', $request->string('statut')->toString()))
             ->when($request->filled('type'), fn ($query) => $query->where('type_signalement', $request->string('type')->toString()))
+            ->when($request->filled('suspicion'), function ($query) use ($request): void {
+                $query->where('niveau_suspicion', $request->string('suspicion')->toString());
+            })
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = $request->string('search')->trim()->toString();
                 $query->where(function ($query) use ($search): void {
@@ -29,7 +32,8 @@ class AdminSignalementController extends Controller
                         ->orWhereHas('user', fn ($user) => $user->where('name', 'like', "%{$search}%"));
                 });
             })
-            ->latest()
+            ->when($request->input('tri') === 'suspicion', fn ($query) => $query->orderByDesc('score_suspicion'))
+            ->when($request->input('tri') !== 'suspicion', fn ($query) => $query->latest())
             ->paginate(12)
             ->withQueryString();
 
@@ -103,7 +107,7 @@ class AdminSignalementController extends Controller
     public function show(Request $request, Signalement $signalement): View
     {
         $this->ensureAdmin($request);
-        $signalement->load(['user', 'ressourceUtile', 'piecesJointes']);
+        $signalement->load(['user', 'ressourceUtile', 'piecesJointes', 'doublonDe']);
 
         return view('admin.signalements.show', ['signalement' => $signalement, 'space' => 'admin']);
     }
