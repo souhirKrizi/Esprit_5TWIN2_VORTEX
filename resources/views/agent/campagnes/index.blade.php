@@ -51,6 +51,7 @@
                         <div class="ha-admin-campaign-meta"><span><x-space-icon name="pin" />{{ $campagne->lieu }}</span><span>Du {{ $campagne->date_debut->format('d/m/Y') }} au {{ $campagne->date_fin->format('d/m/Y') }}</span><span>{{ $campagne->missions->count() }} mission(s)</span></div>
                     </header>
                     <div class="ha-admin-campaign-body">
+                        <p><button type="button" class="ha-secondary-button" data-campaign-report="{{ route('agent-campagne.campagnes.rapport', $campagne) }}" data-campaign-id="{{ $campagne->id }}">Rapport IA · Gemini / PDF</button></p>
                         @if($mode === 'campagnes')
                         <p class="ha-agent-objective"><strong>Objectif :</strong> {{ $campagne->objectif }}</p>
                         <div class="ha-mission-actions"><a class="ha-secondary-button" href="{{ route('agent-campagne.missions') }}#campagne-{{ $campagne->id }}">Consulter les missions</a><button class="ha-primary-button" type="button" data-mission-create="{{ $campagne->id }}" aria-haspopup="dialog">Ajouter une mission</button></div>

@@ -17,6 +17,46 @@
         error.hidden = false;
         error.focus();
     }
+    page.querySelectorAll('[data-campaign-report]').forEach(button => button.addEventListener('click', async () => {
+        if (button.disabled) return;
+        const label = button.textContent;
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        button.textContent = 'Génération du PDF en cours…';
+        page.querySelector('[data-page-error]').hidden = true;
+        try {
+            const response = await fetch(button.dataset.campaignReport, {
+                method: 'POST', credentials: 'same-origin',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': page.dataset.csrf },
+            });
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                throw new Error([401, 419].includes(response.status)
+                    ? 'Votre session a expiré. Rechargez la page.'
+                    : response.status === 429 ? 'Trop de demandes. Patientez une minute avant de réessayer.'
+                    : [403, 404].includes(response.status) ? 'Cette campagne ne vous est plus accessible.'
+                    : data.message || 'La génération du rapport a échoué. Réessayez plus tard.');
+            }
+            if (!response.headers.get('Content-Type')?.includes('application/pdf')) {
+                throw new Error('Le serveur n’a pas renvoyé de PDF. Rechargez la page puis réessayez.');
+            }
+            const url = URL.createObjectURL(await response.blob());
+            const download = document.createElement('a');
+            download.href = url;
+            download.download = `HeatAlert-campagne-${button.dataset.campaignId}-rapport.pdf`;
+            document.body.append(download);
+            download.click();
+            download.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } catch (error) {
+            errorAt('[data-page-error]', error instanceof TypeError
+                ? 'Impossible de joindre le serveur. Vérifiez votre connexion puis réessayez.' : error.message);
+        } finally {
+            button.disabled = false;
+            button.removeAttribute('aria-busy');
+            button.textContent = label;
+        }
+    }));
     async function request(url, options = {}) {
         const response = await fetch(url, {
             ...options,

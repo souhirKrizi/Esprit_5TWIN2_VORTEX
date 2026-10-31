@@ -2,6 +2,11 @@
 
 return [
 
+    'gemini_rapport' => [
+        'key' => env('GEMINI_RAPPORT_API_KEY'),
+        'model' => env('GEMINI_RAPPORT_MODEL', 'gemini-3.1-flash-lite'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

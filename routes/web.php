@@ -34,6 +34,7 @@ Route::middleware('guest')->controller(PasswordResetCodeController::class)->grou
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/agent-campagne/campagnes/{campagne}/rapport', [AgentMissionController::class, 'rapport'])->middleware('throttle:3,1')->name('agent-campagne.campagnes.rapport');
     Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
     Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
     Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
