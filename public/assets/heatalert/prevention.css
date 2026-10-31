@@ -209,3 +209,16 @@
 .pv-ia-avis { margin: 12px 0 0; color: #8b93a3; font-size: 11px; line-height: 1.5; }
 .pv-ia-avis strong { color: #b3261e; }
 @media (prefers-reduced-motion: reduce) { .pv-ia-points i { animation: none; } }
+
+/* Gestes proposés par l'IA */
+.pv-ia-erreur { margin-top: 14px; }
+.pv-ia-proposition { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; }
+.pv-ia-proposition + .pv-ia-proposition { margin-top: 10px; }
+.pv-ia-proposition input[type=checkbox] { width: 18px; height: 18px; margin: 9px 0 0; accent-color: #ff7412; cursor: pointer; }
+.pv-ia-proposition textarea { display: block; width: 100%; padding: 7px 9px; border: 1px solid #e1e3ed; border-radius: 8px; background: #fff; color: #111d35; font: inherit; font-size: 13px; line-height: 1.45; resize: vertical; }
+.pv-ia-proposition textarea:focus { border-color: #ff7412; outline: none; }
+.pv-ia-proposition textarea.is-invalid { border-color: #d93025; }
+.pv-ia-proposition:has(input[type=checkbox]:not(:checked)) textarea { background: #fafaff; color: #8b93a3; }
+.pv-ia-proposition .pv-erreur { margin-top: 4px; }
+.ha-space .pv-ia-pied button.ha-primary-button:disabled { cursor: not-allowed; }
+.pv-box + .pv-ia { margin-top: 20px; }

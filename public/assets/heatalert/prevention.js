@@ -1,4 +1,4 @@
-// Module « Conseils de prévention » : confirmation avant une suppression et attente des conseils de l'IA.
+// Module « Conseils de prévention » : confirmation avant une suppression, attente de l'IA et choix des gestes proposés.
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (event) => {
@@ -7,6 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Le bouton indique combien de gestes proposés sont cochés.
+    const formulaireGestes = document.querySelector('[data-gestes-ia]');
+    if (formulaireGestes) {
+        const cases = Array.from(formulaireGestes.querySelectorAll('input[type=checkbox]'));
+        const boutonGestes = formulaireGestes.querySelector('[data-gestes-ia-bouton]');
+        const compte = formulaireGestes.querySelector('[data-gestes-ia-compte]');
+        const actualiser = () => {
+            const coches = cases.filter((caseGeste) => caseGeste.checked).length;
+            boutonGestes.textContent = coches > 1 ? `Ajouter les ${coches} gestes cochés` : (coches === 1 ? 'Ajouter le geste coché' : 'Ajouter les gestes cochés');
+            boutonGestes.disabled = coches === 0;
+            compte.textContent = `${coches} sur ${cases.length} sélectionné${coches > 1 ? 's' : ''}`;
+        };
+        cases.forEach((caseGeste) => caseGeste.addEventListener('change', actualiser));
+        actualiser();
+    }
 
     const formulaireIa = document.querySelector('[data-ia-formulaire]');
     if (!formulaireIa) {
@@ -17,7 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const chargement = document.querySelector('[data-ia-chargement]');
     const message = document.querySelector('[data-ia-message]');
     const bouton = formulaireIa.querySelector('button');
-    const etapes = ['L’IA étudie votre équipement…', 'Analyse de son autonomie et des risques…', 'Rédaction de vos conseils…'];
+    const etapes = formulaireIa.dataset.iaEtapes
+        ? JSON.parse(formulaireIa.dataset.iaEtapes)
+        : ['L’IA étudie votre équipement…', 'Analyse de son autonomie et des risques…', 'Rédaction de vos conseils…'];
     let minuteur = null;
 
     formulaireIa.addEventListener('submit', () => {

@@ -61,6 +61,7 @@ class FicheConseilController extends AdminPreventionController
         return view('prevention.admin.fiches.show', [
             'fiche' => $fiche->load('gestes'),
             'nouveauGeste' => new GesteCle(['moment' => 'avant', 'ordre' => $fiche->gestes->count() + 1]),
+            'gestesProposes' => session(GesteCleController::SESSION_PROPOSITIONS.$fiche->getKey(), []),
         ]);
     }
 

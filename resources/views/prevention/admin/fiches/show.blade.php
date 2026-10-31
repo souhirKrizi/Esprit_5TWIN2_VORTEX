@@ -66,6 +66,8 @@
         </div>
     </section>
 
+    @include('prevention.admin.gestes._propositions_ia')
+
     <section class="ha-admin-panel pv-box">
         <h2>Ajouter un geste</h2>
         <form class="pv-form" method="POST" action="{{ route('admin.prevention.gestes.store', $fiche) }}" novalidate>

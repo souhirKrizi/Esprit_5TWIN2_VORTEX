@@ -144,6 +144,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.prevention.')->group(fun
         ->whereNumber('fiche');
 
     Route::post('/conseils/{fiche}/gestes', [AdminGesteCleController::class, 'store'])->whereNumber('fiche')->name('gestes.store');
+    Route::post('/conseils/{fiche}/gestes/propositions', [AdminGesteCleController::class, 'proposer'])->whereNumber('fiche')->name('gestes.proposer');
+    Route::post('/conseils/{fiche}/gestes/propositions/ajouter', [AdminGesteCleController::class, 'ajouterProposes'])->whereNumber('fiche')->name('gestes.proposes.ajouter');
+    Route::delete('/conseils/{fiche}/gestes/propositions', [AdminGesteCleController::class, 'ignorerProposes'])->whereNumber('fiche')->name('gestes.proposes.ignorer');
     Route::get('/gestes/{geste}/edit', [AdminGesteCleController::class, 'edit'])->whereNumber('geste')->name('gestes.edit');
     Route::put('/gestes/{geste}', [AdminGesteCleController::class, 'update'])->whereNumber('geste')->name('gestes.update');
     Route::delete('/gestes/{geste}', [AdminGesteCleController::class, 'destroy'])->whereNumber('geste')->name('gestes.destroy');
