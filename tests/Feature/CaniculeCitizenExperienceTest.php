@@ -14,6 +14,14 @@ class CaniculeCitizenExperienceTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Les appels à l'IA sont simulés : le test ne doit pas dépendre d'une vraie clé dans .env.
+        config(['assistant_ia.key' => 'test-key']);
+    }
+
     public function test_user_can_pick_zone_for_weather_and_see_campaign_guidance(): void
     {
         Http::fake([
