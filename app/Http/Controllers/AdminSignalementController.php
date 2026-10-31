@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\RessourceUtile;
 use App\Models\Signalement;
+use App\Services\ExportSignalementsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class AdminSignalementController extends Controller
@@ -151,5 +153,26 @@ class AdminSignalementController extends Controller
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->role === 'admin', 403);
+    }
+
+    public function export(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $this->ensureAdmin($request);
+
+        $filtres = [
+            'statut' => $request->string('statut')->toString() ?: null,
+            'type'   => $request->string('type')->toString() ?: null,
+            'search' => $request->string('search')->trim()->toString() ?: null,
+        ];
+
+        $filename = 'signalements_export_' . now()->format('Y-m-d_Hi') . '.csv';
+
+        return response()->streamDownload(function () use ($filtres): void {
+            $handle = fopen('php://output', 'w');
+            app(ExportSignalementsService::class)->ecrireCsv($handle, $filtres);
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }

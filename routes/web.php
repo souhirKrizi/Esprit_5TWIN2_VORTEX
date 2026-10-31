@@ -88,6 +88,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/signalements/carte', [AdminSignalementController::class, 'carte'])->name('signalements.carte');
     Route::get('/signalements/api/ressources', [AdminSignalementController::class, 'ressources'])->name('signalements.api.ressources');
+    Route::get('/signalements/export', [AdminSignalementController::class, 'export'])->middleware('throttle:10,1')->name('signalements.export');
     Route::get('/signalements', [AdminSignalementController::class, 'index'])->name('signalements.index');
     Route::get('/signalements/{signalement}', [AdminSignalementController::class, 'show'])->name('signalements.show');
     Route::match(['POST', 'PATCH'], '/signalements/{signalement}/valider', [AdminSignalementController::class, 'validateSignalement'])->name('signalements.validate');

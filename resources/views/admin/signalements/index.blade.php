@@ -24,6 +24,7 @@
             <label class="ha-select-field"><span class="sr-only">Trier par</span><select name="tri"><option value="" @selected(!request('tri'))>Plus récents</option><option value="suspicion" @selected(request('tri') === 'suspicion')>Score de suspicion ↓</option></select></label>
             <button class="ha-primary-button" type="submit">Filtrer</button>
             <a class="ha-text-button" href="{{ route('admin.signalements.index') }}">Réinitialiser</a>
+            <a class="ha-secondary-button" href="{{ route('admin.signalements.export', request()->query()) }}">Exporter en CSV</a>
         </form>
         <div class="ha-table-wrap"><table class="ha-users-table ha-signalements-table"><thead><tr><th>Date</th><th>Citoyen</th><th>Type</th><th>Ressource</th><th>Photo</th><th>Statut</th><th>Suspicion</th><th>Actions</th></tr></thead><tbody>
         @forelse($signalements as $signalement)
