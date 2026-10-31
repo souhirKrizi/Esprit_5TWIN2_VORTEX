@@ -19,7 +19,6 @@
         <div><p class="ha-eyebrow">Campagnes et bénévolat</p><h1>Agir ensemble contre la chaleur</h1><p class="ha-muted">Découvrez toutes les campagnes par état. Les campagnes proposant des missions ouvertes apparaissent en priorité.</p></div>
         <div class="ha-heading-stat"><strong>{{ $campagnes->count() }}</strong><span>campagnes à découvrir</span></div>
     </header>
-    <p class="ha-campaign-demo">Données de démonstration · Les actions sont conservées jusqu’au rechargement de la page.</p>
     <div class="ha-missions-search"><label class="ha-search-field"><x-space-icon name="flag" /><span class="sr-only">Rechercher une campagne</span><input type="search" placeholder="Rechercher une campagne ou un lieu…" data-campaign-search></label></div>
     <p class="ha-notice ha-notice-error" data-campaign-error role="alert" tabindex="-1" hidden></p>
     @foreach($campaignGroups as $priority => $groups)
