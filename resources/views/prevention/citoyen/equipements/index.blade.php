@@ -25,7 +25,13 @@
                             <td>{{ $equipement->libelleType() }}</td>
                             <td>{{ $equipement->libelleSensibilite() }}</td>
                             <td>{{ $equipement->autonomie_heures === null ? '—' : $equipement->autonomie_heures.' h' }}</td>
-                            <td><span class="ha-muted">Aucun</span></td>
+                            <td>
+                                @if($equipement->conseils_ia)
+                                    <a class="pv-badge pv-statut-repondue" href="{{ route('prevention.equipements.show', $equipement) }}">Conseils prêts</a>
+                                @else
+                                    <a class="pv-link" href="{{ route('prevention.equipements.show', $equipement) }}">À générer</a>
+                                @endif
+                            </td>
                             <td>
                                 <div class="ha-row-actions">
                                     <a href="{{ route('prevention.equipements.show', $equipement) }}">Voir</a>

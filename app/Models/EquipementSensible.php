@@ -32,7 +32,11 @@ class EquipementSensible extends Model
 
     protected function casts(): array
     {
-        return ['autonomie_heures' => 'integer'];
+        return [
+            'autonomie_heures' => 'integer',
+            'conseils_ia' => 'array',
+            'conseils_ia_le' => 'datetime',
+        ];
     }
 
     public function appartientA(User $user): bool

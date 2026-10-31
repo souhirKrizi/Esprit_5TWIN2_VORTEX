@@ -111,6 +111,11 @@ class FicheConseil extends Model
         return self::NIVEAUX[$this->niveau_alerte] ?? $this->niveau_alerte;
     }
 
+    public function libelleAlerte(): string
+    {
+        return 'Alerte '.($this->niveau_alerte === 'vert' ? 'verte' : $this->niveau_alerte);
+    }
+
     public function libelleStatut(): string
     {
         return self::STATUTS[$this->statut] ?? $this->statut;

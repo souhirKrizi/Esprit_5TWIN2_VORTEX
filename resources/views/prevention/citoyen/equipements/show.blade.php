@@ -20,10 +20,12 @@
 
     @include('prevention.partials.messages')
 
+    @include('prevention.citoyen.equipements._conseils_ia')
+
     <div class="ha-detail-grid">
         <section class="ha-admin-panel">
-            <h2>Conseils pour cet équipement</h2>
-            <p class="pv-info">Aucun conseil pour le moment.</p>
+            <h2>Description du problème</h2>
+            <p class="pv-info">{!! $equipement->description ? nl2br(e($equipement->description)) : 'Aucune description.' !!}</p>
         </section>
 
         <section class="ha-admin-panel">
@@ -34,8 +36,6 @@
                 <div><dt>Autonomie sans courant</dt><dd>{{ $equipement->autonomie_heures === null ? 'Non renseignée' : $equipement->autonomie_heures.' h' }}</dd></div>
                 <div><dt>Ajouté le</dt><dd>{{ $equipement->created_at->format('d/m/Y') }}</dd></div>
             </dl>
-            <h2 style="margin-top:22px">Description du problème</h2>
-            <p class="pv-info">{!! $equipement->description ? nl2br(e($equipement->description)) : 'Aucune description.' !!}</p>
         </section>
     </div>
 </div>

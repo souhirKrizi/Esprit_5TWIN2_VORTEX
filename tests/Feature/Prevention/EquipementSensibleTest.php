@@ -118,14 +118,4 @@ class EquipementSensibleTest extends TestCase
         $this->actingAs($citoyen)->delete('/user/mes-equipements/'.$equipement->id)->assertForbidden();
         $this->assertDatabaseCount('equipements_sensibles', 1);
     }
-
-    public function test_les_conseils_de_l_equipement_restent_vides_pour_le_moment(): void
-    {
-        $citoyen = User::factory()->create(['role' => 'user']);
-        $equipement = $this->equipementDe($citoyen);
-
-        // Les conseils seront générés plus tard par une API d'IA : pour l'instant, « Aucun ».
-        $this->actingAs($citoyen)->get('/user/mes-equipements')->assertSee('Aucun');
-        $this->actingAs($citoyen)->get('/user/mes-equipements/'.$equipement->id)->assertSee('Aucun conseil pour le moment.');
-    }
 }

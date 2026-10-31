@@ -126,6 +126,8 @@ Route::middleware('auth')->prefix('user')->name('prevention.')->group(function (
     Route::put('/mes-questions/{question}', [QuestionCitoyenController::class, 'update'])->whereNumber('question')->name('questions.update');
     Route::delete('/mes-questions/{question}', [QuestionCitoyenController::class, 'destroy'])->whereNumber('question')->name('questions.destroy');
 
+    Route::post('/mes-equipements/{equipement}/conseils-ia', [EquipementSensibleController::class, 'genererConseils'])->whereNumber('equipement')->name('equipements.conseils');
+
     Route::resource('mes-equipements', EquipementSensibleController::class)
         ->parameters(['mes-equipements' => 'equipement'])
         ->names('equipements')

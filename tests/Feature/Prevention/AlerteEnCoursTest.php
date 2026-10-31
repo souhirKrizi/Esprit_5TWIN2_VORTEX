@@ -97,6 +97,19 @@ class AlerteEnCoursTest extends TestCase
         $this->actingAs($citoyen)->get('/user/conseils')->assertSee('Aucun conseil n’est encore disponible pour ce niveau.');
     }
 
+    public function test_les_etiquettes_accordent_le_niveau_vert(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $citoyen = User::factory()->create(['role' => 'user']);
+        $verte = $this->fiche('Conseil vert', 'vert');
+        $rouge = $this->fiche('Conseil rouge', 'rouge');
+
+        $this->actingAs($citoyen)->get('/user/conseils')->assertSee('Alerte verte')->assertDontSee('Alerte vert<', false)->assertSee('Alerte rouge');
+        $this->actingAs($citoyen)->get('/user/conseils/'.$verte->id)->assertSee('Alerte verte')->assertDontSee('Alerte vert<', false);
+        $this->actingAs($admin)->get('/admin/conseils/'.$verte->id)->assertSee('Alerte verte')->assertDontSee('Alerte vert<', false);
+        $this->actingAs($citoyen)->get('/user/conseils/'.$rouge->id)->assertSee('Alerte rouge');
+    }
+
     public function test_le_bloc_est_masque_pendant_une_recherche(): void
     {
         $citoyen = User::factory()->create(['role' => 'user']);
