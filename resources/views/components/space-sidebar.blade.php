@@ -19,9 +19,9 @@
                 'Accueil' => [['Tableau de bord campagnes', 'grid']],
                 'Gestion des campagnes' => [['Mes campagnes', 'flag']],
                 'Gestion des missions' => [['Mes missions', 'briefcase']],
-                'Informations utiles' => [['Conseils de prévention', 'book']],
                 'Participations et bénévolat' => [['Participants et bénévoles', 'users']],
-                'Mon compte' => [['Mon profil', 'user'], ['Préférences de notification', 'bell']],
+                'Informations utiles' => [['Conseils de prévention', 'book']],
+                'Mon compte' => [['Mon profil', 'user']],
             ],
         ],
         'admin' => [
