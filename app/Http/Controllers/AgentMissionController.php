@@ -63,6 +63,18 @@ class AgentMissionController extends Controller
         }
     }
 
+    public function participations(Request $request): View
+    {
+        $this->ensureAgent($request);
+        $campagnes = $request->user()->campagnes()->with([
+            'missions' => fn ($query) => $query->orderBy('date_debut')->orderBy('id'),
+            'missions.participations' => fn ($query) => $query->orderBy('id'),
+            'missions.participations.user:id,name,email',
+        ])->orderByDesc('date_debut')->orderByDesc('id')->paginate(10);
+
+        return view('agent.participations.index', ['space' => 'agent-campagne', 'campagnes' => $campagnes]);
+    }
+
     public function index(Request $request): View
     {
         $this->ensureAgent($request);
