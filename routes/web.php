@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/canicule/carte', [CitoyenCaniculeController::class, 'carte'])->name('user.canicule.carte');
 
     Route::get('/agent-campagne/participations', [AgentMissionController::class, 'participations'])->name('agent-campagne.participations');
+    Route::get('/agent-campagne/campagnes/export', [AgentMissionController::class, 'exportCampagnes'])->name('agent-campagne.campagnes.export');
     Route::get('/agent-campagne/campagnes', [AgentMissionController::class, 'index'])->name('agent-campagne.campagnes');
     Route::get('/agent-campagne/missions', [AgentMissionController::class, 'index'])->name('agent-campagne.missions');
     Route::post('/agent-campagne/missions', [AgentMissionController::class, 'store'])->name('agent-campagne.missions.store');
