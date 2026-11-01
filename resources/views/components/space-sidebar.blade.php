@@ -17,10 +17,9 @@
             'label' => 'Espace campagnes', 'name' => 'Nassef Fadhlaoui', 'role' => 'Agent de campagne',
             'sections' => [
                 'Accueil' => [['Tableau de bord campagnes', 'grid']],
-                'Gestion des campagnes' => [['Mes campagnes', 'flag'], ['Créer une campagne', 'plus']],
-                'Gestion des missions' => [['Mes missions', 'briefcase'], ['Créer une mission', 'plus']],
-                'Participations' => [['Inscriptions à traiter', 'check'], ['Participants et bénévoles', 'users']],
-                'Informations utiles' => [['Alertes en cours', 'alert'], ['Ressources et incidents', 'pin'], ['Conseils de prévention', 'book']],
+                'Gestion des campagnes' => [['Mes campagnes', 'flag']],
+                'Gestion des missions' => [['Mes missions', 'briefcase']],
+                'Informations utiles' => [['Conseils de prévention', 'book']],
                 'Participations et bénévolat' => [['Participants et bénévoles', 'users']],
                 'Mon compte' => [['Mon profil', 'user'], ['Préférences de notification', 'bell']],
             ],
@@ -86,6 +85,8 @@
                                 <a href="{{ route('admin.users.index') }}" class="ha-menu-item {{ request()->routeIs('admin.users.*') ? 'is-active' : '' }}" data-menu-item {{ request()->routeIs('admin.users.*') ? 'aria-current=page' : '' }} aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'admin' && $label === 'Toutes les campagnes')
                                 <a href="{{ route('admin.campagnes.index') }}" class="ha-menu-item {{ request()->routeIs('admin.campagnes.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.campagnes.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'admin' && $label === 'Participations')
+                                <a href="{{ route('admin.participants.index') }}" class="ha-menu-item {{ request()->routeIs('admin.participants.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.participants.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'admin' && $label === 'Missions')
                                 <a href="{{ route('admin.missions.index') }}" class="ha-menu-item {{ request()->routeIs('admin.missions.*') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('admin.missions.*')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'admin' && $label === 'Signalements')
