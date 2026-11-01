@@ -14,6 +14,13 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const GOUVERNORATS = [
+        'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Bizerte', 'Béja',
+        'Jendouba', 'Le Kef', 'Siliana', 'Nabeul', 'Zaghouan', 'Sousse',
+        'Monastir', 'Mahdia', 'Sfax', 'Kairouan', 'Kasserine', 'Sidi Bouzid',
+        'Gabès', 'Médenine', 'Tataouine', 'Gafsa', 'Tozeur', 'Kébili',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -28,6 +35,7 @@ class User extends Authenticatable
         'terms_accepted_at',
         'role',
         'archived',
+        'photo',
     ];
 
     /**
@@ -64,6 +72,11 @@ class User extends Authenticatable
     public function signalements(): HasMany
     {
         return $this->hasMany(Signalement::class);
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->photo ? asset('storage/'.$this->photo) : null;
     }
 
     /**

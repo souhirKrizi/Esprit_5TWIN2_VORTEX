@@ -3,11 +3,14 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
@@ -31,6 +34,23 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn () => view('signin.index'));
         Fortify::registerView(fn () => view('signup.index'));
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        // Un compte archivé ne peut plus se connecter. Le motif n'est donné qu'avec le bon mot de passe.
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+
+            if (! $user || ! Hash::check((string) $request->input('password'), $user->password)) {
+                return null;
+            }
+
+            if ($user->archived) {
+                throw ValidationException::withMessages([
+                    Fortify::username() => 'Ce compte est archivé. Contactez l’administrateur pour le récupérer.',
+                ]);
+            }
+
+            return $user;
+        });
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());

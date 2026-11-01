@@ -21,6 +21,7 @@ use App\Http\Controllers\Prevention\EquipementSensibleController;
 use App\Http\Controllers\Prevention\FicheConseilController;
 use App\Http\Controllers\Prevention\QuestionCitoyenController;
 use App\Http\Controllers\PieceJointeController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\RelancerAnalyseImageController;
 use App\Http\Controllers\RessourceUtileController;
 use App\Http\Controllers\SignalementController;
@@ -115,6 +116,19 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 	Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.role');
 	Route::patch('/users/{user}/archive', [AdminUserController::class, 'archive'])->name('users.archive');
 });
+
+// « Mon profil » de chaque espace (rôle vérifié dans ProfilController). L'administrateur ne peut pas supprimer son propre compte.
+foreach (['user', 'agent-campagne', 'admin'] as $space) {
+    Route::middleware('auth')->prefix($space.'/profil')->name($space.'.profil.')->controller(ProfilController::class)->group(function () use ($space) {
+        Route::get('/', 'edit')->name('edit');
+        Route::put('/', 'update')->name('update');
+        Route::put('/mot-de-passe', 'updatePassword')->middleware('throttle:6,1')->name('password');
+
+        if ($space !== 'admin') {
+            Route::delete('/', 'destroy')->middleware('throttle:6,1')->name('destroy');
+        }
+    });
+}
 
 // Module « Conseils de prévention » — espace citoyen : /user/... (tous les comptes connectés).
 Route::middleware('auth')->prefix('user')->name('prevention.')->group(function () {
