@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminCampagneController;
 use App\Http\Controllers\AdminMissionController;
+use App\Http\Controllers\AdminParticipationController;
 use App\Http\Controllers\AdminSignalementController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AgentMissionController;
@@ -88,6 +89,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/participants', [AdminParticipationController::class, 'index'])->name('participants.index');
     Route::get('/canicule/carte', [AdminCarteCaniculeController::class, 'index'])->name('canicule.carte');
     Route::resource('/canicule/zones', AdminZoneController::class)->only(['index', 'edit', 'update'])->names('canicule.zones')->whereNumber('zone');
     Route::resource('/canicule/releves', AdminReleveMeteoController::class)->except(['show'])->parameters(['releves' => 'releve'])->names('canicule.releves')->whereNumber('releve');
