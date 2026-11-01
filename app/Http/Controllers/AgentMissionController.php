@@ -15,9 +15,38 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AgentMissionController extends Controller
 {
+    public function exportCampagnes(Request $request): StreamedResponse
+    {
+        $this->ensureAgent($request);
+        $campaigns = $request->user()->campagnes()->withCount('missions')->orderBy('id');
+
+        return response()->streamDownload(function () use ($campaigns) {
+            $output = fopen('php://output', 'w');
+            fwrite($output, "\xEF\xBB\xBF");
+            fputcsv($output, ['ID', 'Titre', 'Description', 'Objectif', 'Lieu', 'Date de début', 'Date de fin', 'Statut', 'Nombre de missions'], ';', '"', '');
+            $statuses = ['brouillon' => 'Brouillon', 'publiee' => 'Publiée', 'en_cours' => 'En cours', 'terminee' => 'Terminée', 'annulee' => 'Annulée'];
+
+            foreach ($campaigns->lazyById(500) as $campaign) {
+                $row = [
+                    $campaign->id, $campaign->titre, $campaign->description, $campaign->objectif,
+                    $campaign->lieu, $campaign->date_debut->format('Y-m-d'), $campaign->date_fin->format('Y-m-d'),
+                    $statuses[$campaign->statut] ?? $campaign->statut, $campaign->missions_count,
+                ];
+                // Keep user-entered text from being interpreted as spreadsheet formulas.
+                $row = array_map(static fn ($value) => is_string($value) && preg_match('/^[\s]*[=+@-]/u', $value) ? "'".$value : $value, $row);
+                fputcsv($output, $row, ';', '"', '');
+            }
+            fclose($output);
+        }, 'mes-campagnes-'.now('Africa/Tunis')->format('Y-m-d').'.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+
     public function rapport(Request $request, Campagne $campagne, CampagneRapportService $service)
     {
         $this->ensureAgent($request);
@@ -61,6 +90,18 @@ class AgentMissionController extends Controller
         } finally {
             $lock->release();
         }
+    }
+
+    public function participations(Request $request): View
+    {
+        $this->ensureAgent($request);
+        $campagnes = $request->user()->campagnes()->with([
+            'missions' => fn ($query) => $query->orderBy('date_debut')->orderBy('id'),
+            'missions.participations' => fn ($query) => $query->orderBy('id'),
+            'missions.participations.user:id,name,email',
+        ])->orderByDesc('date_debut')->orderByDesc('id')->paginate(10);
+
+        return view('agent.participations.index', ['space' => 'agent-campagne', 'campagnes' => $campagnes]);
     }
 
     public function index(Request $request): View

@@ -1,0 +1,38 @@
+.ha-participations-guide { display: flex; flex-wrap: wrap; gap: 10px; color: #697387; font-size: 12px; margin-bottom: 24px; }
+.ha-participations-guide > span { color: #c95108; }
+.ha-campaign-trees { display: grid; gap: 28px; }
+.ha-campaign-tree { border: 1px solid #e9eaf2; background: white; border-radius: 16px; overflow: hidden; }
+.ha-campaign-root { display: flex; align-items: center; gap: 16px; padding: 24px; background: #fff5ed; border-bottom: 1px solid #f4e3d5; }
+.ha-tree-icon { width: 48px; height: 48px; border-radius: 13px; display: grid; place-items: center; background: #ffe6d2; color: #b34c0c; flex-shrink: 0; }
+.ha-campaign-root-copy { flex: 1; min-width: 0; }
+.ha-campaign-root h2 { font-size: 19px; margin: 8px 0; overflow-wrap: anywhere; }
+.ha-campaign-root p { font-size: 12px; color: #697387; margin: 0; }
+.ha-campaign-root p:first-child { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ha-campaign-counts { display: flex; flex-direction: column; gap: 6px; text-align: right; font-size: 12px; flex-shrink: 0; }
+.ha-campaign-counts span { color: #697387; font-size: 11px; }
+.ha-participant-branches { list-style: none; margin: 0 24px 24px 48px; padding: 8px 0 0 28px; border-left: 2px solid #f1d8c5; }
+.ha-participant-branch { position: relative; padding-top: 20px; }
+.ha-participant-branch::before { content: ''; position: absolute; left: -30px; top: 56px; width: 28px; border-top: 2px solid #f1d8c5; }
+.ha-participant-node { border: 1px solid #e9eaf2; border-radius: 12px; padding: 18px; min-width: 0; }
+.ha-participant-heading { display: flex; align-items: center; gap: 12px; }
+.ha-participant-avatar { display: grid; place-items: center; background: #eeedf9; color: #65618d; border-radius: 50%; width: 38px; height: 38px; flex-shrink: 0; font-weight: 700; font-size: 12px; }
+.ha-participant-heading > div { min-width: 0; flex: 1; }
+.ha-participant-heading h3 { font-size: 14px; margin: 0 0 4px; overflow-wrap: anywhere; }
+.ha-participant-heading p { font-size: 12px; color: #697387; margin: 0; overflow-wrap: anywhere; }
+.ha-participant-total { font-size: 11px; color: #697387; flex-shrink: 0; }
+.ha-participant-missions { list-style: none; border-left: 1px solid #dde1ec; margin: 18px 0 0 18px; padding: 0 0 0 22px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ha-participant-missions > li { position: relative; background: #f8f8ff; border: 1px solid #ececf4; border-radius: 9px; padding: 14px; }
+.ha-participant-missions > li::before { content: ''; position: absolute; left: -23px; top: 24px; width: 22px; border-top: 1px solid #dde1ec; }
+.ha-participant-mission-title { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; overflow-wrap: anywhere; }
+.ha-participant-mission-title .ha-icon { width: 16px; height: 16px; color: #697387; }
+.ha-participant-missions p { color: #697387; font-size: 11px; margin: 8px 0; }
+.ha-participant-badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; color: #697387; font-size: 10px; }
+.ha-participation-status { display: inline-block; border-radius: 6px; padding: 3px 8px; background: #eeedf9; color: #65618d; font-size: 10px; }
+.ha-participation-status[data-status="acceptee"] { background: #e5f5ed; color: #226849; }
+.ha-participation-status[data-status="en_attente"] { background: #fff0d7; color: #855600; }
+.ha-participation-status[data-status="refusee"], .ha-participation-status[data-status="annulee"] { background: #fbe8ed; color: #a03953; }
+.ha-tree-empty { color: #697387; font-size: 13px; padding: 28px; text-align: center; }
+.ha-participations-pagination { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 24px; font-size: 12px; }
+.ha-participations-pagination a { color: #b34c0c; padding: 10px; }
+@media (max-width: 1100px) { .ha-participant-missions { grid-template-columns: 1fr; } .ha-campaign-root { flex-wrap: wrap; } .ha-campaign-counts { width: 100%; text-align: left; padding-left: 64px; } }
+@media (max-width: 600px) { .ha-campaign-root { padding: 18px; gap: 12px; } .ha-campaign-counts { padding-left: 0; } .ha-campaign-root h2 { font-size: 16px; } .ha-participant-branches { margin: 0 12px 18px 20px; padding-left: 14px; } .ha-participant-branch::before { left: -16px; width: 14px; } .ha-participant-node { padding: 12px; } .ha-participant-total { display: none; } .ha-participant-missions { margin-left: 8px; padding-left: 12px; } .ha-participant-missions > li::before { left: -13px; width: 12px; } }

@@ -21,7 +21,8 @@
                 'Gestion des missions' => [['Mes missions', 'briefcase'], ['Créer une mission', 'plus']],
                 'Participations' => [['Inscriptions à traiter', 'check'], ['Participants et bénévoles', 'users']],
                 'Informations utiles' => [['Alertes en cours', 'alert'], ['Ressources et incidents', 'pin'], ['Conseils de prévention', 'book']],
-                'Mon compte' => [['Mon profil', 'user']],
+                'Participations et bénévolat' => [['Participants et bénévoles', 'users']],
+                'Mon compte' => [['Mon profil', 'user'], ['Préférences de notification', 'bell']],
             ],
         ],
         'admin' => [
@@ -109,6 +110,8 @@
                                 <a href="{{ route('user.signalements.index') }}" class="ha-menu-item {{ request()->routeIs('user.signalements.index', 'user.signalements.show') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('user.signalements.index', 'user.signalements.show')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'user' && $label === 'Faire un signalement')
                                 <a href="{{ route('user.signalements.create') }}" class="ha-menu-item {{ request()->routeIs('user.signalements.create', 'user.signalements.edit') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('user.signalements.create', 'user.signalements.edit')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
+                            @elseif($space === 'agent-campagne' && $label === 'Participants et bénévoles')
+                                <a href="{{ route('agent-campagne.participations') }}" class="ha-menu-item {{ request()->routeIs('agent-campagne.participations') ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs('agent-campagne.participations')) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
                             @elseif($space === 'agent-campagne' && in_array($label, ['Mes campagnes', 'Mes missions']))
                                 @php $agentRoute = $label === 'Mes campagnes' ? 'agent-campagne.campagnes' : 'agent-campagne.missions'; @endphp
                                 <a href="{{ route($agentRoute) }}" class="ha-menu-item {{ request()->routeIs($agentRoute) ? 'is-active' : '' }}" data-menu-item @if(request()->routeIs($agentRoute)) aria-current="page" @endif aria-label="{{ $label }}" title="{{ $label }}"><x-space-icon :name="$icon" /><span class="ha-item-label">{{ $label }}</span></a>
