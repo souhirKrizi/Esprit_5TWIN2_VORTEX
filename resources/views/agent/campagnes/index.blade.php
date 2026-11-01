@@ -24,7 +24,12 @@
             <h1>{{ $mode === 'campagnes' ? 'Mes campagnes affectées' : 'Les missions de mes campagnes' }}</h1>
             <p class="ha-muted">Vos campagnes à venir en priorité, puis les autres campagnes regroupées par état.</p>
         </div>
-        <button class="ha-primary-button" type="button" data-mission-create @disabled($campagnes->isEmpty()) aria-haspopup="dialog">Ajouter une mission</button>
+        <div class="ha-mission-actions">
+            @if($mode === 'campagnes')
+                <a class="ha-secondary-button" href="{{ route('agent-campagne.campagnes.export') }}">Télécharger CSV</a>
+            @endif
+            <button class="ha-primary-button" type="button" data-mission-create @disabled($campagnes->isEmpty()) aria-haspopup="dialog">Ajouter une mission</button>
+        </div>
     </header>
     @if(session('success'))<p class="ha-notice ha-notice-success" role="status">{{ session('success') }}</p>@endif
     <p class="ha-notice ha-notice-error" role="alert" data-page-error tabindex="-1" hidden></p>
