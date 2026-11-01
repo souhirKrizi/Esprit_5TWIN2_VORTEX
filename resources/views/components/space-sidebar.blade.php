@@ -17,12 +17,11 @@
             'label' => 'Espace campagnes', 'name' => 'Nassef Fadhlaoui', 'role' => 'Agent de campagne',
             'sections' => [
                 'Accueil' => [['Tableau de bord campagnes', 'grid']],
-                'Gestion des campagnes' => [['Mes campagnes', 'flag'], ['Créer une campagne', 'plus']],
-                'Gestion des missions' => [['Mes missions', 'briefcase'], ['Créer une mission', 'plus']],
-                'Participations' => [['Inscriptions à traiter', 'check'], ['Participants et bénévoles', 'users']],
-                'Informations utiles' => [['Alertes en cours', 'alert'], ['Ressources et incidents', 'pin'], ['Conseils de prévention', 'book']],
+                'Gestion des campagnes' => [['Mes campagnes', 'flag']],
+                'Gestion des missions' => [['Mes missions', 'briefcase']],
                 'Participations et bénévolat' => [['Participants et bénévoles', 'users']],
-                'Mon compte' => [['Mon profil', 'user'], ['Préférences de notification', 'bell']],
+                'Informations utiles' => [['Conseils de prévention', 'book']],
+                'Mon compte' => [['Mon profil', 'user']],
             ],
         ],
         'admin' => [
