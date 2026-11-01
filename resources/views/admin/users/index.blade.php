@@ -45,7 +45,7 @@
                 <tbody>
                 @forelse($users as $user)
                     <tr>
-                        <td><div class="ha-user-cell"><span class="ha-avatar">{{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}</span><span><strong>{{ $user->name }}</strong><small>{{ $user->email }}</small></span></div></td>
+                        <td><div class="ha-user-cell"><x-user-avatar :compte="$user" /><span><strong>{{ $user->name }}</strong><small>{{ $user->email }}</small></span></div></td>
                         <td><span class="ha-role-badge role-{{ $user->role }}">{{ ['user' => 'Citoyen', 'agent-campagne' => 'Agent campagne', 'admin' => 'Administrateur'][$user->role] ?? $user->role }}</span></td>
                         <td>{{ $user->governorate ?: '—' }}</td>
                         <td>{{ $user->created_at?->format('d/m/Y') }}</td>

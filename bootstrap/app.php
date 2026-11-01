@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectUsersTo(fn ($request) => $request->user()->spaceUrl());
+        $middleware->web(append: \App\Http\Middleware\BloquerCompteArchive::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
